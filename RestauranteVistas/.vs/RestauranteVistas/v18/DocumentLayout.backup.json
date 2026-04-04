@@ -3,6 +3,18 @@
   "WorkspaceRootPath": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\app_start\\routeconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:app_start\\routeconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\usuarioscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\usuarioscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -19,10 +31,6 @@
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\pedidoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\inventariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\inventariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -37,10 +45,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\contabilidadcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\contabilidadcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\app_start\\routeconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:app_start\\routeconfig.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\global.asax.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -91,10 +95,6 @@
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:content\\site.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
@@ -106,50 +106,28 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 6,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "InventarioController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
-              "RelativeDocumentMoniker": "Controllers\\InventarioController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
-              "RelativeToolTip": "Controllers\\InventarioController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T02:29:31.413Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "LoginController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\LoginController.cs",
               "RelativeDocumentMoniker": "Controllers\\LoginController.cs",
               "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\LoginController.cs",
               "RelativeToolTip": "Controllers\\LoginController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-04T01:57:26.205Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PedidosController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\PedidosController.cs",
-              "RelativeDocumentMoniker": "Controllers\\PedidosController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\PedidosController.cs",
-              "RelativeToolTip": "Controllers\\PedidosController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T02:28:26.203Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 5,
               "Title": "PuntoVentaController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\PuntoVentaController.cs",
               "RelativeDocumentMoniker": "Controllers\\PuntoVentaController.cs",
@@ -162,7 +140,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "ReporteriaController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\ReporteriaController.cs",
               "RelativeDocumentMoniker": "Controllers\\ReporteriaController.cs",
@@ -175,7 +153,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "UsuariosController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\UsuariosController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsuariosController.cs",
@@ -188,7 +166,59 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "RouteConfig.cs",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\App_Start\\RouteConfig.cs",
+              "RelativeDocumentMoniker": "App_Start\\RouteConfig.cs",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\App_Start\\RouteConfig.cs",
+              "RelativeToolTip": "App_Start\\RouteConfig.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T02:36:53.231Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Login\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
+              "RelativeToolTip": "Views\\Login\\Index.cshtml",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAACYAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T02:38:27.878Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 6,
+              "Title": "PedidosController.cs",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\PedidosController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PedidosController.cs",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\PedidosController.cs",
+              "RelativeToolTip": "Controllers\\PedidosController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T02:28:26.203Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "InventarioController.cs",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
+              "RelativeDocumentMoniker": "Controllers\\InventarioController.cs",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
+              "RelativeToolTip": "Controllers\\InventarioController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-04T02:29:31.413Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "Controllers\\HomeController.cs",
@@ -201,7 +231,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 9,
               "Title": "EmpleadosController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\EmpleadosController.cs",
               "RelativeDocumentMoniker": "Controllers\\EmpleadosController.cs",
@@ -214,7 +244,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 10,
               "Title": "ContabilidadController.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\ContabilidadController.cs",
               "RelativeDocumentMoniker": "Controllers\\ContabilidadController.cs",
@@ -227,20 +257,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "RouteConfig.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\App_Start\\RouteConfig.cs",
-              "RelativeDocumentMoniker": "App_Start\\RouteConfig.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\App_Start\\RouteConfig.cs",
-              "RelativeToolTip": "App_Start\\RouteConfig.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAbAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T02:36:53.231Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Global.asax.cs",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Global.asax.cs",
               "RelativeDocumentMoniker": "Global.asax.cs",
@@ -253,7 +270,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\PuntoVenta\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\PuntoVenta\\Index.cshtml",
@@ -266,7 +283,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "Web.config",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Web.config",
               "RelativeDocumentMoniker": "Web.config",
@@ -279,7 +296,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Reporteria\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Reporteria\\Index.cshtml",
@@ -292,7 +309,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Contabilidad\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Contabilidad\\Index.cshtml",
@@ -305,7 +322,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 16,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Inventario\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Inventario\\Index.cshtml",
@@ -318,7 +335,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 17,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Pedidos\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Pedidos\\Index.cshtml",
@@ -331,7 +348,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 18,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Usuarios\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Usuarios\\Index.cshtml",
@@ -344,7 +361,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 20,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Empleados\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Empleados\\Index.cshtml",
@@ -357,7 +374,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 19,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
@@ -370,7 +387,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 21,
               "Title": "site.js",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Scripts\\site.js",
               "RelativeDocumentMoniker": "Scripts\\site.js",
@@ -383,7 +400,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 22,
               "Title": "Site.css",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Content\\Site.css",
               "RelativeDocumentMoniker": "Content\\Site.css",
@@ -392,19 +409,6 @@
               "ViewState": "AgIAAPACAAAAAAAAAAAqwBkDAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
               "WhenOpened": "2026-04-04T02:39:31.789Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 22,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Login\\Index.cshtml",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
-              "RelativeToolTip": "Views\\Login\\Index.cshtml",
-              "ViewState": "AgIAADwAAAAAAAAAAAAqwE0AAAAHAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T02:38:27.878Z",
               "EditorCaption": ""
             },
             {
@@ -419,10 +423,6 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2026-04-04T02:37:31.847Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
         }
