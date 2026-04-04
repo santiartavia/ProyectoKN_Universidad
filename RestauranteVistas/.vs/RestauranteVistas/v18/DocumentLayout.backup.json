@@ -3,40 +3,56 @@
   "WorkspaceRootPath": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\cocina\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\cocina\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\usuarios\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\usuarios\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\cajero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\cajero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\inventario\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\inventario\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\login\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\cocinacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\cocinacontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\meserocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\meserocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\pedidos\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\cajerocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\cajerocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\reporteria\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\reporteria\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:controllers\\logincontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\puntoventa\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\puntoventa\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\empleados\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\empleados\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\contabilidad\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\contabilidad\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\cocina\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\cocina\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\cajero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|RestauranteVistas.csproj|solutionrelative:views\\cajero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,128 +62,180 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cocina\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Cocina\\Index.cshtml",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cocina\\Index.cshtml",
-              "RelativeToolTip": "Views\\Cocina\\Index.cshtml",
-              "ViewState": "AgIAACgAAAAAAAAAAADwv1EAAAAGAAAAAAAAAA==",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Usuarios\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Usuarios\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Usuarios\\Index.cshtml",
+              "RelativeToolTip": "Views\\Usuarios\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T04:23:08.247Z",
+              "WhenOpened": "2026-04-04T22:07:53.698Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Mesero\\Index.cshtml",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
-              "RelativeToolTip": "Views\\Mesero\\Index.cshtml",
-              "ViewState": "AgIAADgAAAAAAAAAAAAAwGEAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T04:22:14.614Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cajero\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Cajero\\Index.cshtml",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cajero\\Index.cshtml",
-              "RelativeToolTip": "Views\\Cajero\\Index.cshtml",
-              "ViewState": "AgIAACgAAAAAAAAAAADwv1EAAAAGAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T04:21:29.286Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
               "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Shared\\_Layout.cshtml",
               "RelativeToolTip": "Views\\Shared\\_Layout.cshtml",
-              "ViewState": "AgIAAFAAAAAAAAAAAADwv3kAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T04:20:42.111Z",
+              "WhenOpened": "2026-04-04T22:07:48.359Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Reporteria\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Reporteria\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Reporteria\\Index.cshtml",
+              "RelativeToolTip": "Views\\Reporteria\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:07:23.4Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\PuntoVenta\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\PuntoVenta\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\PuntoVenta\\Index.cshtml",
+              "RelativeToolTip": "Views\\PuntoVenta\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:07:14.701Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Pedidos\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Pedidos\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Pedidos\\Index.cshtml",
+              "RelativeToolTip": "Views\\Pedidos\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAADGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:06:23.154Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Mesero\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
+              "RelativeToolTip": "Views\\Mesero\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAB7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:05:26.749Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
               "RelativeDocumentMoniker": "Views\\Login\\Index.cshtml",
               "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Login\\Index.cshtml",
               "RelativeToolTip": "Views\\Login\\Index.cshtml",
-              "ViewState": "AgIAADUAAAAAAAAAAADwv14AAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAACAAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-04-04T04:19:58.421Z",
+              "WhenOpened": "2026-04-04T22:04:20.712Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "CocinaController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CocinaController.cs",
-              "RelativeDocumentMoniker": "Controllers\\CocinaController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CocinaController.cs",
-              "RelativeToolTip": "Controllers\\CocinaController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T04:19:21.183Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MeseroController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\MeseroController.cs",
-              "RelativeDocumentMoniker": "Controllers\\MeseroController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\MeseroController.cs",
-              "RelativeToolTip": "Controllers\\MeseroController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T04:18:46.768Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CajeroController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CajeroController.cs",
-              "RelativeDocumentMoniker": "Controllers\\CajeroController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CajeroController.cs",
-              "RelativeToolTip": "Controllers\\CajeroController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T04:18:02.659Z",
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Inventario\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Inventario\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Inventario\\Index.cshtml",
+              "RelativeToolTip": "Views\\Inventario\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:03:35.2Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 8,
-              "Title": "LoginController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\LoginController.cs",
-              "RelativeDocumentMoniker": "Controllers\\LoginController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\LoginController.cs",
-              "RelativeToolTip": "Controllers\\LoginController.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAkwDcAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-04T04:14:46.562Z",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Home\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Home\\Index.cshtml*",
+              "RelativeToolTip": "Views\\Home\\Index.cshtml*",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAAAkAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:03:05.225Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Empleados\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Empleados\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Empleados\\Index.cshtml",
+              "RelativeToolTip": "Views\\Empleados\\Index.cshtml",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAwAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:01:57.489Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Contabilidad\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Contabilidad\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Contabilidad\\Index.cshtml*",
+              "RelativeToolTip": "Views\\Contabilidad\\Index.cshtml*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T22:00:55.222Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cocina\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Cocina\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cocina\\Index.cshtml",
+              "RelativeToolTip": "Views\\Cocina\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T21:59:23.087Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cajero\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Cajero\\Index.cshtml",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Cajero\\Index.cshtml",
+              "RelativeToolTip": "Views\\Cajero\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-04-04T21:56:40.232Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             }
           ]
         }
