@@ -1,6 +1,6 @@
 ﻿using System.Web.Mvc;
 
-namespace RestauranteVistasPro.Controllers
+namespace RestauranteVistas.Controllers
 {
     public class LoginController : Controller
     {

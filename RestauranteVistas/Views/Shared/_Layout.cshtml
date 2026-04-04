@@ -1,40 +1,114 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Mi aplicación ASP.NET</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.Title - Restaurante El Colibrí</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+    <link href="~/Content/Site.css" rel="stylesheet" />
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Nombre de la aplicación", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Alternar navegación" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Inicio", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Acerca de", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contacto", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">
+                    <span class="material-symbols-outlined">restaurant</span>
+                </div>
+                <div>
+                    <h2>El Colibrí</h2>
+                    <p>Sistema visual profesional</p>
+                </div>
             </div>
-        </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Mi aplicación ASP.NET</p>
-        </footer>
+
+            <div class="sidebar-user">
+                <div class="avatar-circle">SA</div>
+                <div>
+                    <strong>Santiago Admin</strong>
+                    <small>Administrador</small>
+                </div>
+            </div>
+
+            <nav class="menu">
+                <a href="@Url.Action("Index", "Home")">
+                    <span class="material-symbols-outlined">space_dashboard</span> Dashboard
+                </a>
+                <a href="@Url.Action("Index", "Empleados")">
+                    <span class="material-symbols-outlined">badge</span> Empleados
+                </a>
+                <a href="@Url.Action("Index", "Usuarios")">
+                    <span class="material-symbols-outlined">group</span> Usuarios
+                </a>
+                <a href="@Url.Action("Index", "Pedidos")">
+                    <span class="material-symbols-outlined">receipt_long</span> Pedidos
+                </a>
+                <a href="@Url.Action("Index", "Inventario")">
+                    <span class="material-symbols-outlined">inventory_2</span> Inventario
+                </a>
+                <a href="@Url.Action("Index", "Contabilidad")">
+                    <span class="material-symbols-outlined">point_of_sale</span> Contabilidad
+                </a>
+                <a href="@Url.Action("Index", "Reporteria")">
+                    <span class="material-symbols-outlined">monitoring</span> Reportería
+                </a>
+                <a href="@Url.Action("Index", "PuntoVenta")">
+                    <span class="material-symbols-outlined">shopping_cart</span> Punto de Venta
+                </a>
+                <a href="@Url.Action("Index", "Login")">
+                    <span class="material-symbols-outlined">logout</span> Cerrar sesión
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1>@ViewBag.Title</h1>
+                    <p>Prototipo de solo vistas con diseño elegante y navegación visual</p>
+                </div>
+
+                <div class="top-actions">
+                    <button class="btn btn-soft" onclick="mostrarToast('Se actualizó la vista actual')">
+                        <span class="material-symbols-outlined">refresh</span> Actualizar
+                    </button>
+                    <button class="btn btn-secondary" onclick="abrirModal('modalAyuda')">
+                        <span class="material-symbols-outlined">help</span> Ayuda
+                    </button>
+                    <button class="btn btn-primary" onclick="mostrarToast('Notificación visual enviada')">
+                        <span class="material-symbols-outlined">notifications</span> Notificar
+                    </button>
+                </div>
+            </header>
+
+            <section class="page-body">
+                @RenderBody()
+            </section>
+        </main>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
+    <div id="modalAyuda" class="custom-modal">
+        <div class="custom-modal-content">
+            <div class="modal-header">
+                <h3>Información del sistema</h3>
+                <button class="icon-btn" onclick="cerrarModal('modalAyuda')">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <p>
+                Este proyecto fue desarrollado únicamente con vistas para demostrar la apariencia,
+                navegación y estructura del sistema del restaurante sin usar base de datos ni lógica real.
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="cerrarModal('modalAyuda')">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="~/Scripts/site.js"></script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

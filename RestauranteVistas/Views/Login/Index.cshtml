@@ -1,0 +1,78 @@
+﻿@{
+    Layout = null;
+    ViewBag.Title = "Login";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Restaurante El Colibrí</title>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body class="login-body">
+    <div class="login-wrapper">
+        <div class="login-panel left">
+            <div class="login-brand">
+                <div class="login-brand-icon">
+                    <span class="material-symbols-outlined">restaurant_menu</span>
+                </div>
+                <div>
+                    <h1>El Colibrí</h1>
+                    <p>Sistema de gestión visual del restaurante</p>
+                </div>
+            </div>
+
+            <div class="login-message">
+                <h2>Bienvenido</h2>
+                <p>
+                    Ingresa al sistema para visualizar los módulos de empleados, usuarios,
+                    pedidos, inventario, contabilidad, reportería y punto de venta.
+                </p>
+
+                <div class="login-tags">
+                    <span class="chip"><i class="fa-solid fa-palette"></i> Diseño premium</span>
+                    <span class="chip"><i class="fa-solid fa-layer-group"></i> Módulos integrados</span>
+                    <span class="chip"><i class="fa-solid fa-icons"></i> Iconografía moderna</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="login-panel right">
+            <div class="login-card">
+                <h2>Iniciar sesión</h2>
+                <p>Acceso visual al sistema</p>
+
+                <div class="form-group">
+                    <label>Usuario</label>
+                    <input type="text" placeholder="Ingrese su usuario" />
+                </div>
+
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" placeholder="************" />
+                </div>
+
+                <div class="form-actions">
+                    <a class="btn btn-primary btn-full" href="@Url.Action("Index", "Home")">
+                        <span class="material-symbols-outlined">login</span> Entrar al sistema
+                    </a>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-soft btn-full" onclick="mostrarToast('Esta es una pantalla visual de acceso')">
+                        <span class="material-symbols-outlined">info</span> Mostrar información
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="~/Scripts/site.js"></script>
+</body>
+</html>

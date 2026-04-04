@@ -1,0 +1,135 @@
+﻿
+@{
+    ViewBag.Title = "Seguimiento de Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Seguimiento visual de pedidos</h2>
+    <p>
+        Este módulo presenta el flujo de órdenes por mesa, permitiendo simular creación de pedidos,
+        agregados de productos y seguimiento del estado de atención.
+    </p>
+</div>
+
+<div class="grid-4">
+    <div class="metric-card"><h3>Mesas ocupadas</h3><div class="value">11</div></div>
+    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">7</div></div>
+    <div class="metric-card alt-orange"><h3>Listos</h3><div class="value">4</div></div>
+    <div class="metric-card alt-teal"><h3>Entregados</h3><div class="value">19</div></div>
+</div>
+
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>Crear orden</h3>
+                <p>Vista operativa para meseros</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group"><label>ID Mesa</label><input type="text" placeholder="12" /></div>
+            <div class="form-group"><label>Número de mesa</label><input type="text" placeholder="Mesa 12" /></div>
+            <div class="form-group"><label>ID Mesero</label><input type="text" placeholder="301" /></div>
+            <div class="form-group"><label>Nombre mesero</label><input type="text" placeholder="Daniel Rojas" /></div>
+            <div class="form-group"><label>Comensales</label><input type="number" placeholder="4" /></div>
+            <div class="form-group"><label>Producto</label><input type="text" placeholder="Casado de pollo" /></div>
+            <div class="form-group"><label>Cantidad</label><input type="number" placeholder="1" /></div>
+            <div class="form-group">
+                <label>Tipo de servicio</label>
+                <select>
+                    <option>Salón</option>
+                    <option>Para llevar</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top:16px;">
+            <label>Observaciones</label>
+            <textarea placeholder="Sin cebolla, extra salsa, término medio..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="accionDemo('Orden creada exitosamente')">
+                <span class="material-symbols-outlined">add_shopping_cart</span> Crear orden
+            </button>
+            <button class="btn btn-secondary" onclick="accionDemo('Productos agregados a la orden existente')">
+                <span class="material-symbols-outlined">playlist_add</span> Agregar producto
+            </button>
+            <button class="btn btn-warning" onclick="accionDemo('Hay campos obligatorios sin completar')">
+                <span class="material-symbols-outlined">error</span> Validar campos
+            </button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Pedidos activos</h3>
+                <p>Monitoreo por mesa</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Mesero</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mesa 4</td>
+                    <td>Daniel</td>
+                    <td><span class="status info">En preparación</span></td>
+                    <td>₡13 500</td>
+                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>Mesa 8</td>
+                    <td>Carla</td>
+                    <td><span class="status warning">Pendiente</span></td>
+                    <td>₡8 900</td>
+                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
+                </tr>
+                <tr>
+                    <td>Mesa 12</td>
+                    <td>Andrea</td>
+                    <td><span class="status success">Lista</span></td>
+                    <td>₡21 200</td>
+                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="story-card">
+    <h4>Historias de usuario reflejadas</h4>
+    <div class="accordion">
+        <div class="accordion-item">
+            <button class="accordion-header">Crear cuenta asociada a una mesa <span>+</span></button>
+            <div class="accordion-content">El mesero genera una nueva orden cuando la mesa está disponible.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Agregar productos a orden existente <span>+</span></button>
+            <div class="accordion-content">El sistema permite sumar nuevos productos y recalcular el total.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Campos obligatorios <span>+</span></button>
+            <div class="accordion-content">Debe existir al menos un producto y una cantidad válida.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Cantidad inválida <span>+</span></button>
+            <div class="accordion-content">La interfaz alerta cuando la cantidad es menor o igual a cero.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Observaciones especiales <span>+</span></button>
+            <div class="accordion-content">Se representa el registro de condiciones especiales por producto.</div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Contabilidad";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Cierre de caja y control contable</h2>
+    <p>
+        Vista para representar de forma elegante el proceso de cierre diario, control de saldos,
+        descuadres y validaciones del módulo contable.
+    </p>
+</div>
+
+<div class="grid-4">
+    <div class="metric-card"><h3>Apertura</h3><div class="value">₡50k</div></div>
+    <div class="metric-card alt-blue"><h3>Efectivo</h3><div class="value">₡180k</div></div>
+    <div class="metric-card alt-orange"><h3>SINPE</h3><div class="value">₡96k</div></div>
+    <div class="metric-card alt-red"><h3>Egresos</h3><div class="value">₡22k</div></div>
+</div>
+
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>Registrar cierre diario</h3>
+                <p>Simulación de caja</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group"><label>ID Cierre</label><input type="text" placeholder="9001" /></div>
+            <div class="form-group"><label>Fecha</label><input type="date" /></div>
+            <div class="form-group"><label>ID Usuario</label><input type="text" placeholder="501" /></div>
+            <div class="form-group"><label>Monto apertura</label><input type="number" placeholder="50000" /></div>
+            <div class="form-group"><label>Ventas efectivo</label><input type="number" placeholder="180000" /></div>
+            <div class="form-group"><label>Ventas SINPE</label><input type="number" placeholder="96000" /></div>
+            <div class="form-group"><label>Egresos</label><input type="number" placeholder="22000" /></div>
+            <div class="form-group"><label>Saldo real</label><input type="number" placeholder="304000" /></div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="accionDemo('Cierre diario completado con éxito')">
+                <span class="material-symbols-outlined">payments</span> Cerrar caja
+            </button>
+            <button class="btn btn-warning" onclick="accionDemo('Se detectó un sobrante o faltante en el cierre')">
+                <span class="material-symbols-outlined">warning</span> Simular descuadre
+            </button>
+            <button class="btn btn-danger" onclick="accionDemo('No se puede cerrar: existen órdenes abiertas')">
+                <span class="material-symbols-outlined">block</span> Bloquear cierre
+            </button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Historial de cierres</h3>
+                <p>Bitácora visual</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Esperado</th>
+                    <th>Real</th>
+                    <th>Diferencia</th>
+                    <th>Resultado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>03/04/2026</td>
+                    <td>₡304 000</td>
+                    <td>₡304 000</td>
+                    <td>₡0</td>
+                    <td><span class="status success">Cuadrado</span></td>
+                </tr>
+                <tr>
+                    <td>02/04/2026</td>
+                    <td>₡287 000</td>
+                    <td>₡284 500</td>
+                    <td>₡-2 500</td>
+                    <td><span class="status danger">Faltante</span></td>
+                </tr>
+                <tr>
+                    <td>01/04/2026</td>
+                    <td>₡298 000</td>
+                    <td>₡300 000</td>
+                    <td>₡2 000</td>
+                    <td><span class="status warning">Sobrante</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="story-card">
+    <h4>Historias de usuario visualizadas</h4>
+    <div class="accordion">
+        <div class="accordion-item">
+            <button class="accordion-header">Cierre exitoso <span>+</span></button>
+            <div class="accordion-content">El sistema registra el cierre cuando los montos coinciden correctamente.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Faltante de caja <span>+</span></button>
+            <div class="accordion-content">Se representa el registro de un descuadre negativo en el cierre.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Sobrante de caja <span>+</span></button>
+            <div class="accordion-content">La vista permite simular un excedente frente al saldo esperado.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Órdenes abiertas <span>+</span></button>
+            <div class="accordion-content">El sistema visual impide cerrar mientras existan pedidos pendientes.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Cierre duplicado <span>+</span></button>
+            <div class="accordion-content">No se admite más de un cierre para la misma fecha operativa.</div>
+        </div>
+    </div>
+</div>

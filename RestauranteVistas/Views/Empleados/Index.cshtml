@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "Gestión de Empleados";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Gestión visual de empleados</h2>
+    <p>
+        Este módulo representa las historias de usuario del personal del restaurante.
+        Permite visualizar un formulario de registro, un listado, botones de acción y
+        escenarios de validación simulados.
+    </p>
+</div>
+
+<div class="grid-3">
+    <div class="metric-card"><h3>Activos</h3><div class="value">18</div></div>
+    <div class="metric-card alt-blue"><h3>Vacaciones</h3><div class="value">3</div></div>
+    <div class="metric-card alt-orange"><h3>Nuevos ingresos</h3><div class="value">4</div></div>
+</div>
+
+<div class="section-card">
+    <div class="section-title">
+        <div>
+            <h3>Búsqueda de personal</h3>
+            <p>Filtro visual</p>
+        </div>
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Buscar por nombre, cédula o rol..." />
+        <button class="btn btn-secondary" onclick="mostrarToast('Búsqueda visual ejecutada')">
+            <span class="material-symbols-outlined">search</span> Buscar
+        </button>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>Registrar empleado</h3>
+                <p>HU de registro del personal</p>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group"><label>ID Empleado</label><input type="text" placeholder="1001" /></div>
+            <div class="form-group"><label>Nombre</label><input type="text" placeholder="Nombre" /></div>
+            <div class="form-group"><label>Apellidos</label><input type="text" placeholder="Apellidos" /></div>
+            <div class="form-group"><label>Cédula</label><input type="text" placeholder="Cédula" /></div>
+            <div class="form-group"><label>Teléfono</label><input type="text" placeholder="8888-8888" /></div>
+            <div class="form-group"><label>Correo</label><input type="email" placeholder="correo@empresa.com" /></div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select>
+                    <option>Mesero</option>
+                    <option>Cocinero</option>
+                    <option>Cajero</option>
+                    <option>Administrador</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Fecha de ingreso</label><input type="date" /></div>
+            <div class="form-group"><label>Salario por hora</label><input type="number" placeholder="2500" /></div>
+            <div class="form-group">
+                <label>Estado</label>
+                <select>
+                    <option>Activo</option>
+                    <option>Inactivo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="accionDemo('Empleado registrado correctamente')">
+                <span class="material-symbols-outlined">save</span> Guardar
+            </button>
+            <button class="btn btn-warning" onclick="accionDemo('Correo inválido o salario incorrecto')">
+                <span class="material-symbols-outlined">warning</span> Validar
+            </button>
+            <button class="btn btn-danger" onclick="accionDemo('El empleado ya existe en el sistema')">
+                <span class="material-symbols-outlined">person_off</span> Duplicado
+            </button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Listado de empleados</h3>
+                <p>Vista de control administrativo</p>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Empleado</th>
+                    <th>Rol</th>
+                    <th>Correo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1001</td>
+                    <td>María Rodríguez</td>
+                    <td>Mesera</td>
+                    <td>maria@colibri.com</td>
+                    <td><span class="status success">Activo</span></td>
+                    <td>
+                        <div class="card-actions-inline">
+                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
+                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>1002</td>
+                    <td>Luis Vargas</td>
+                    <td>Cocinero</td>
+                    <td>luis@colibri.com</td>
+                    <td><span class="status info">Turno tarde</span></td>
+                    <td>
+                        <div class="card-actions-inline">
+                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
+                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>1003</td>
+                    <td>Ana Solano</td>
+                    <td>Cajera</td>
+                    <td>ana@colibri.com</td>
+                    <td><span class="status warning">Vacaciones</span></td>
+                    <td>
+                        <div class="card-actions-inline">
+                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
+                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="story-card">
+    <h4>Historias de usuario reflejadas</h4>
+    <div class="accordion">
+        <div class="accordion-item">
+            <button class="accordion-header">Registro exitoso de empleado <span>+</span></button>
+            <div class="accordion-content">Si todos los datos son válidos, el sistema confirma el registro correctamente.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Validación de duplicados <span>+</span></button>
+            <div class="accordion-content">Si la identificación ya existe, se bloquea el registro del nuevo empleado.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Campos obligatorios <span>+</span></button>
+            <div class="accordion-content">No se permite continuar si faltan datos indispensables.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Correo inválido <span>+</span></button>
+            <div class="accordion-content">El sistema muestra una alerta visual al detectar formato incorrecto.</div>
+        </div>
+        <div class="accordion-item">
+            <button class="accordion-header">Salario inválido <span>+</span></button>
+            <div class="accordion-content">No se acepta un salario por hora menor o igual a cero.</div>
+        </div>
+    </div>
+</div>

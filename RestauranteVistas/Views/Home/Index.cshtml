@@ -1,33 +1,132 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
+<div class="hero-card">
+    <h2>Panel principal del restaurante</h2>
+    <p>
+        Bienvenido al sistema visual de gestión del restaurante El Colibrí. Desde este panel puedes
+        navegar por todos los módulos del sistema y visualizar las historias de usuario representadas
+        con una interfaz moderna, limpia y profesional.
+    </p>
+</div>
 
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
+<div class="grid-4">
+    <div class="metric-card">
+        <h3>Ventas del día</h3>
+        <div class="value">₡428k</div>
     </div>
-</main>
+    <div class="metric-card alt-blue">
+        <h3>Pedidos activos</h3>
+        <div class="value">17</div>
+    </div>
+    <div class="metric-card alt-orange">
+        <h3>Mesas ocupadas</h3>
+        <div class="value">11</div>
+    </div>
+    <div class="metric-card alt-teal">
+        <h3>Empleados turno</h3>
+        <div class="value">14</div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-title">
+        <div>
+            <h3>Accesos rápidos</h3>
+            <p>Navegación directa a los módulos principales</p>
+        </div>
+    </div>
+
+    <div class="quick-grid">
+        <a class="quick-card" href="@Url.Action("Index","Empleados")">
+            <div class="quick-icon bg-emerald"><span class="material-symbols-outlined">badge</span></div>
+            <h4>Empleados</h4>
+            <p>Registro y control del personal</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","Usuarios")">
+            <div class="quick-icon bg-sapphire"><span class="material-symbols-outlined">group</span></div>
+            <h4>Usuarios</h4>
+            <p>Gestión de cuentas del sistema</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","Pedidos")">
+            <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">receipt_long</span></div>
+            <h4>Pedidos</h4>
+            <p>Seguimiento de órdenes y mesas</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","Inventario")">
+            <div class="quick-icon bg-iridescent"><span class="material-symbols-outlined">inventory_2</span></div>
+            <h4>Inventario</h4>
+            <p>Stock y alertas de insumos</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","Contabilidad")">
+            <div class="quick-icon bg-ruby"><span class="material-symbols-outlined">point_of_sale</span></div>
+            <h4>Contabilidad</h4>
+            <p>Cierres diarios y caja</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","Reporteria")">
+            <div class="quick-icon bg-sapphire"><span class="material-symbols-outlined">monitoring</span></div>
+            <h4>Reportería</h4>
+            <p>Indicadores y exportaciones</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Index","PuntoVenta")">
+            <div class="quick-icon bg-emerald"><span class="material-symbols-outlined">shopping_cart</span></div>
+            <h4>Punto de Venta</h4>
+            <p>Cobro rápido en caja</p>
+        </a>
+
+        <div class="quick-card" onclick="mostrarToast('Módulo extra visual listo')">
+            <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">bolt</span></div>
+            <h4>Acción rápida</h4>
+            <p>Botón visual demostrativo</p>
+        </div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="section-card">
+        <div class="section-title">
+            <div>
+                <h3>Actividad reciente</h3>
+                <p>Movimiento visual del sistema</p>
+            </div>
+        </div>
+
+        <div class="info-list">
+            <div class="info-row"><span>Pedido de Mesa 8 actualizado</span><span class="status info">Hace 2 min</span></div>
+            <div class="info-row"><span>Se registró un nuevo empleado</span><span class="status success">Hace 8 min</span></div>
+            <div class="info-row"><span>Alerta de stock mínimo en papas</span><span class="status danger">Hace 12 min</span></div>
+            <div class="info-row"><span>Reporte diario exportado</span><span class="status warning">Hace 20 min</span></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">
+            <div>
+                <h3>Resumen del sistema</h3>
+                <p>Estado general de los módulos</p>
+            </div>
+        </div>
+
+        <div class="banner">
+            <strong>Resumen:</strong> el sistema presenta todas las áreas clave del restaurante con
+            una interfaz visual coherente, moderna y alineada a la cromática definida en tu documento.
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="mostrarToast('Vista general cargada correctamente')">
+                <span class="material-symbols-outlined">check_circle</span> Probar dashboard
+            </button>
+            <button class="btn btn-secondary" onclick="abrirModal('modalAyuda')">
+                <span class="material-symbols-outlined">help</span> Ver ayuda
+            </button>
+        </div>
+    </div>
+</div>
