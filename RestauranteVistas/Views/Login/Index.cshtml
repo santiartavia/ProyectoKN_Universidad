@@ -23,20 +23,22 @@
                 </div>
                 <div>
                     <h1>El Colibrí</h1>
-                    <p>Sistema de gestión visual del restaurante</p>
+                    <p>Sistema visual del restaurante</p>
                 </div>
             </div>
 
             <div class="login-message">
-                <h2>Bienvenido</h2>
+                <h2>Ingreso por rol</h2>
                 <p>
-                    Ingresa al sistema para visualizar los módulos de empleados, usuarios,
-                    pedidos, inventario, contabilidad, reportería y punto de venta.
+                    Este prototipo permite entrar como Administrador, Cajero, Mesero o Cocinero.
+                    Cada rol accede a su propio panel visual y a las vistas que le corresponden.
                 </p>
 
                 <div class="login-tags">
-                    <span class="chip"><i class="fa-solid fa-palette"></i> Restaurante El Colibrí</span>
-                
+                    <span class="chip"><i class="fa-solid fa-user-shield"></i> Admin</span>
+                    <span class="chip"><i class="fa-solid fa-cash-register"></i> Cajero</span>
+                    <span class="chip"><i class="fa-solid fa-bell-concierge"></i> Mesero</span>
+                    <span class="chip"><i class="fa-solid fa-utensils"></i> Cocinero</span>
                 </div>
             </div>
         </div>
@@ -44,27 +46,43 @@
         <div class="login-panel right">
             <div class="login-card">
                 <h2>Iniciar sesión</h2>
-                <p>Acceso visual al sistema</p>
+                <p>Acceso visual por rol</p>
 
-                <div class="form-group">
-                    <label>Usuario</label>
-                    <input type="text" placeholder="Ingrese su usuario" />
-                </div>
+                @if (TempData["ErrorLogin"] != null)
+                {
+                    <div class="banner" style="margin-bottom:18px;">
+                        <strong>Error:</strong> @TempData["ErrorLogin"]
+                    </div>
+                }
 
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" placeholder="************" />
-                </div>
+                @using (Html.BeginForm("Entrar", "Login", FormMethod.Post))
+                {
+                    <div class="form-group">
+                        <label>Nombre del usuario</label>
+                        <input type="text" name="usuario" placeholder="Ej: Santiago Artavia" />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rol</label>
+                        <select name="rol">
+                            <option value="">Seleccione un rol</option>
+                            <option value="Admin">Administrador</option>
+                            <option value="Cajero">Cajero</option>
+                            <option value="Mesero">Mesero</option>
+                            <option value="Cocinero">Cocinero</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span class="material-symbols-outlined">login</span> Entrar al sistema
+                        </button>
+                    </div>
+                }
 
                 <div class="form-actions">
-                    <a class="btn btn-primary btn-full" href="@Url.Action("Index", "Home")">
-                        <span class="material-symbols-outlined">login</span> Entrar al sistema
-                    </a>
-                </div>
-
-                <div class="form-actions">
-                    <button class="btn btn-soft btn-full" onclick="mostrarToast('Esta es una pantalla visual de acceso')">
-                        <span class="material-symbols-outlined">info</span> Mostrar información
+                    <button class="btn btn-soft btn-full" onclick="mostrarToast('Seleccione un rol para entrar al sistema')">
+                        <span class="material-symbols-outlined">info</span> Mostrar ayuda
                     </button>
                 </div>
             </div>

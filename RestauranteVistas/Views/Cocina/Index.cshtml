@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Panel de Cocina";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Panel principal de cocina</h2>
+    <p>
+        Desde esta vista el cocinero visualiza la cola de preparación,
+        los pedidos en proceso, los tiempos estimados y los platos listos.
+    </p>
+</div>
+
+<div class="grid-4">
+    <div class="metric-card"><h3>Pedidos nuevos</h3><div class="value">5</div></div>
+    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">8</div></div>
+    <div class="metric-card alt-orange"><h3>Por entregar</h3><div class="value">3</div></div>
+    <div class="metric-card alt-teal"><h3>Completados</h3><div class="value">17</div></div>
+</div>
+
+<div class="grid-3">
+    <div class="quick-card">
+        <div class="quick-icon bg-ruby"><span class="material-symbols-outlined">restaurant</span></div>
+        <h4>Preparación</h4>
+        <p>Pedidos que están activos en cocina.</p>
+        <button class="btn btn-primary" onclick="mostrarToast('Vista de preparación cargada')">Abrir</button>
+    </div>
+
+    <div class="quick-card">
+        <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">schedule</span></div>
+        <h4>Tiempos</h4>
+        <p>Control visual de tiempos estimados.</p>
+        <button class="btn btn-warning" onclick="mostrarToast('Tiempos estimados consultados')">Ver</button>
+    </div>
+
+    <div class="quick-card">
+        <div class="quick-icon bg-emerald"><span class="material-symbols-outlined">check_circle</span></div>
+        <h4>Pedidos listos</h4>
+        <p>Pedidos listos para entregar a salón.</p>
+        <a class="btn btn-secondary" href="@Url.Action("Index","Pedidos")">Ir</a>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Cola de cocina</h3>
+            <p>Pedidos en curso</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Mesa</th>
+                <th>Plato</th>
+                <th>Observación</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>2</td>
+                <td>Casado de pollo</td>
+                <td>Sin ensalada</td>
+                <td><span class="status warning">Pendiente</span></td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>Hamburguesa</td>
+                <td>Término medio</td>
+                <td><span class="status info">En preparación</span></td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td>Pasta Alfredo</td>
+                <td>Extra queso</td>
+                <td><span class="status success">Lista</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,98 @@
+﻿@{
+    ViewBag.Title = "Panel de Mesero";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Panel principal del mesero</h2>
+    <p>
+        Desde esta vista el mesero puede atender mesas, registrar órdenes,
+        agregar productos y dar seguimiento al servicio.
+    </p>
+</div>
+
+<div class="grid-4">
+    <div class="metric-card"><h3>Mesas asignadas</h3><div class="value">6</div></div>
+    <div class="metric-card alt-blue"><h3>Pedidos activos</h3><div class="value">9</div></div>
+    <div class="metric-card alt-orange"><h3>Listos para servir</h3><div class="value">3</div></div>
+    <div class="metric-card alt-teal"><h3>Clientes atendidos</h3><div class="value">21</div></div>
+</div>
+
+<div class="grid-2">
+    <div class="section-card">
+        <div class="section-title">
+            <div>
+                <h3>Mis mesas</h3>
+                <p>Control visual del salón</p>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="metric-card"><h3>Mesa 1</h3><div class="value">Ocupada</div></div>
+            <div class="metric-card alt-blue"><h3>Mesa 4</h3><div class="value">En espera</div></div>
+            <div class="metric-card alt-orange"><h3>Mesa 6</h3><div class="value">Pidiendo cuenta</div></div>
+            <div class="metric-card alt-teal"><h3>Mesa 9</h3><div class="value">Atendida</div></div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <div class="section-title">
+            <div>
+                <h3>Acciones rápidas</h3>
+                <p>Operación del mesero</p>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a class="btn btn-primary" href="@Url.Action("Index","Pedidos")">
+                <span class="material-symbols-outlined">receipt_long</span> Ir a pedidos
+            </a>
+            <button class="btn btn-secondary" onclick="mostrarToast('Nueva orden creada visualmente')">
+                <span class="material-symbols-outlined">add_circle</span> Nueva orden
+            </button>
+            <button class="btn btn-warning" onclick="mostrarToast('Cuenta solicitada a caja')">
+                <span class="material-symbols-outlined">payments</span> Pedir cuenta
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Pedidos de mis mesas</h3>
+            <p>Seguimiento visual</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Mesa</th>
+                <th>Pedido</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>Casado + refresco</td>
+                <td><span class="status info">En cocina</span></td>
+                <td><button class="btn btn-soft" onclick="mostrarToast('Detalle de pedido abierto')">Ver</button></td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Pasta + café</td>
+                <td><span class="status warning">Pendiente</span></td>
+                <td><button class="btn btn-soft" onclick="mostrarToast('Detalle de pedido abierto')">Ver</button></td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>Hamburguesa + papas</td>
+                <td><span class="status success">Lista</span></td>
+                <td><button class="btn btn-soft" onclick="mostrarToast('Pedido marcado para servir')">Servir</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>

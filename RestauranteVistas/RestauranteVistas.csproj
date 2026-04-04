@@ -120,11 +120,14 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\CajeroController.cs" />
+    <Compile Include="Controllers\CocinaController.cs" />
     <Compile Include="Controllers\ContabilidadController.cs" />
     <Compile Include="Controllers\EmpleadosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventarioController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\MeseroController.cs" />
     <Compile Include="Controllers\PedidosController.cs" />
     <Compile Include="Controllers\PuntoVentaController.cs" />
     <Compile Include="Controllers\ReporteriaController.cs" />
@@ -194,6 +197,9 @@
     <Content Include="Views\Contabilidad\Index.cshtml" />
     <Content Include="Views\Reporteria\Index.cshtml" />
     <Content Include="Views\PuntoVenta\Index.cshtml" />
+    <Content Include="Views\Cajero\Index.cshtml" />
+    <Content Include="Views\Mesero\Index.cshtml" />
+    <Content Include="Views\Cocina\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
