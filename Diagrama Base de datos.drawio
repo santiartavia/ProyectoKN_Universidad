@@ -1,0 +1,792 @@
+<mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="2339" math="0" shadow="0">
+  <root>
+    <mxCell id="0" />
+    <mxCell id="1" parent="0" />
+
+    <!-- ===== TÍTULO ===== -->
+    <mxCell id="title" value="MER — Restaurante Colibrí  v2.0" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=22;fontStyle=1;fontColor=#1a1a2e;" vertex="1" parent="1">
+      <mxGeometry x="900" y="20" width="700" height="40" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: GESTIÓN DE USUARIOS  (azul marino)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_gus" value="Módulo: Gestión de Usuarios" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="20" y="80" width="520" height="380" as="geometry" />
+    </mxCell>
+
+    <!-- ROLES -->
+    <mxCell id="roles_h" value="Roles" style="swimlane;startSize=25;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001dbc;fontStyle=1;fontSize=11;" vertex="1" parent="zone_gus">
+      <mxGeometry x="10" y="35" width="220" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="roles_pk" value="PK  id_rol : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="roles_h">
+      <mxGeometry x="0" y="25" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="roles_f1" value="     nombre_rol : NVARCHAR(60) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="roles_h">
+      <mxGeometry x="0" y="45" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="roles_f2" value="     descripcion : NVARCHAR(255)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="roles_h">
+      <mxGeometry x="0" y="65" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="roles_f3" value="     estado : BIT (1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="roles_h">
+      <mxGeometry x="0" y="85" width="220" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- USUARIOS -->
+    <mxCell id="usr_h" value="Usuarios  ★ NUEVO: bloqueado, intentos, pwd_requerido" style="swimlane;startSize=25;fillColor=#0050ef;fontColor=#ffffff;strokeColor=#001dbc;fontStyle=1;fontSize=10;" vertex="1" parent="zone_gus">
+      <mxGeometry x="240" y="35" width="270" height="260" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_pk" value="PK  id_usuario : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="25" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f1" value="FK  id_rol : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="45" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f2" value="     nombre_usuario : NVARCHAR(80) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="65" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f3" value="     correo : NVARCHAR(150) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="85" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f4" value="     password_hash : NVARCHAR(255)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="105" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f5" value="★   cambio_password_requerido : BIT" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="125" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f6" value="★   intentos_fallidos : TINYINT" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="145" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f7" value="★   bloqueado : BIT" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="165" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f8" value="★   fecha_ultimo_acceso : DATETIME2" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="185" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="usr_f9" value="     estado : BIT  |  fecha_creacion : DT2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="usr_h">
+      <mxGeometry x="0" y="205" width="270" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_ACCESO -->
+    <mxCell id="bitacc_h" value="★ Bitacora_Acceso  (RQNF-029)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_gus">
+      <mxGeometry x="10" y="205" width="220" height="160" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="25" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_f1" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="45" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_f2" value="     tipo_evento : NVARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="65" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_f3" value="     ip_origen : NVARCHAR(50)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="85" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_f4" value="     resultado : NVARCHAR(20)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="105" width="220" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitacc_f5" value="     fecha_hora : DATETIME2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitacc_h">
+      <mxGeometry x="0" y="125" width="220" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: GESTIÓN DE EMPLEADOS / RRHH  (verde)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_ges" value="Módulo: Gestión de Empleados / RRHH" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="20" y="480" width="840" height="660" as="geometry" />
+    </mxCell>
+
+    <!-- EMPLEADOS -->
+    <mxCell id="emp_h" value="Empleados  ★ días_vacaciones" style="swimlane;startSize=25;fillColor=#00897b;fontColor=#ffffff;strokeColor=#00574B;fontStyle=1;fontSize=11;" vertex="1" parent="zone_ges">
+      <mxGeometry x="10" y="35" width="260" height="240" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_pk" value="PK  id_empleado : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="25" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f1" value="FK  id_usuario : INT UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="45" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f2" value="     cedula : NVARCHAR(20) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="65" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f3" value="     nombre / apellidos : NVARCHAR" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="85" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f4" value="     telefono / correo_personal" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="105" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f5" value="     salario_hora : DECIMAL(10,2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="125" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f6" value="★   dias_vacaciones_disponibles : DEC" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="145" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="emp_f7" value="     fecha_ingreso : DATE  |  estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="emp_h">
+      <mxGeometry x="0" y="165" width="260" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- TURNOS_TRABAJO -->
+    <mxCell id="tur_h" value="★ Turnos_Trabajo  (GES 003)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_ges">
+      <mxGeometry x="290" y="35" width="240" height="175" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_pk" value="PK  id_turno : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="25" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_f1" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="45" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_f2" value="     fecha_turno : DATE" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="65" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_f3" value="     hora_inicio : TIME" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="85" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_f4" value="     hora_fin : TIME" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="105" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_f5" value="     descripcion / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="125" width="240" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="tur_note" value="UQ (id_empleado, fecha_turno)" style="text;strokeColor=none;fillColor=#f8cecc;align=left;verticalAlign=top;spacingLeft=6;fontSize=9;fontStyle=2;" vertex="1" parent="tur_h">
+      <mxGeometry x="0" y="145" width="240" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ASISTENCIA -->
+    <mxCell id="asi_h" value="★ Asistencia  (GES 003)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_ges">
+      <mxGeometry x="550" y="35" width="270" height="175" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_pk" value="PK  id_asistencia : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="25" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_f1" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="45" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_f2" value="FK  id_turno : INT (nullable)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="65" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_f3" value="     fecha_hora_entrada : DATETIME2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="85" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_f4" value="     fecha_hora_salida : DATETIME2 NULL" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="105" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="asi_f5" value="     observaciones / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="asi_h">
+      <mxGeometry x="0" y="125" width="270" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- VACACIONES -->
+    <mxCell id="vac_h" value="★ Vacaciones  (GES 005)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_ges">
+      <mxGeometry x="10" y="295" width="260" height="215" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_pk" value="PK  id_vacacion : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="25" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f1" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="45" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f2" value="FK  id_aprobador : INT (nullable)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="65" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f3" value="     fecha_inicio / fecha_fin : DATE" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="85" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f4" value="     dias_solicitados : DECIMAL(5,1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="105" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f5" value="     estado_solicitud: pendiente|aprob|rech" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="125" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="vac_f6" value="     motivo_rechazo / fecha_solicitud / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="vac_h">
+      <mxGeometry x="0" y="145" width="260" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- HORAS_EXTRA -->
+    <mxCell id="he_h" value="★ Horas_Extra  (GES 006)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_ges">
+      <mxGeometry x="290" y="230" width="260" height="175" as="geometry" />
+    </mxCell>
+    <mxCell id="he_pk" value="PK  id_hora_extra : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="25" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="he_f1" value="FK  id_asistencia : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="45" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="he_f2" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="65" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="he_f3" value="     cantidad_horas : DECIMAL(5,2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="85" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="he_f4" value="     factor_pago : DECIMAL(4,2) (1.50)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="105" width="260" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="he_f5" value="CALC monto_calculado (horas × factor)" style="text;strokeColor=none;fillColor=#e1f5e1;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="he_h">
+      <mxGeometry x="0" y="125" width="260" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_USUARIOS_RRHH -->
+    <mxCell id="bitrr_h" value="Bitacora_Usuarios_RRHH  (GES 007)" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="zone_ges">
+      <mxGeometry x="560" y="230" width="265" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrr_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrr_h">
+      <mxGeometry x="0" y="25" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrr_f1" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrr_h">
+      <mxGeometry x="0" y="45" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrr_f2" value="     tabla_afectada / id_registro_afectado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrr_h">
+      <mxGeometry x="0" y="65" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrr_f3" value="     accion : INSERT|UPDATE|DELETE|ACTIV" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrr_h">
+      <mxGeometry x="0" y="85" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrr_f4" value="     detalle / fecha_hora" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrr_h">
+      <mxGeometry x="0" y="105" width="265" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: INVENTARIO  (naranja)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_inv" value="Módulo: Inventario" style="swimlane;startSize=25;fillColor=#ffe6cc;strokeColor=#d79b00;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="880" y="80" width="580" height="480" as="geometry" />
+    </mxCell>
+
+    <!-- CATEGORIAS_INSUMO -->
+    <mxCell id="catins_h" value="Categorias_Insumo" style="swimlane;startSize=25;fillColor=#e65100;fontColor=#ffffff;strokeColor=#bf360c;fontStyle=1;fontSize=11;" vertex="1" parent="zone_inv">
+      <mxGeometry x="10" y="35" width="250" height="115" as="geometry" />
+    </mxCell>
+    <mxCell id="catins_pk" value="PK  id_categoria : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catins_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="catins_f1" value="     nombre_categoria : NVARCHAR(100) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catins_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="catins_f2" value="     estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catins_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- INSUMOS -->
+    <mxCell id="ins_h" value="Insumos  ★ costo_unitario" style="swimlane;startSize=25;fillColor=#e65100;fontColor=#ffffff;strokeColor=#bf360c;fontStyle=1;fontSize=11;" vertex="1" parent="zone_inv">
+      <mxGeometry x="10" y="170" width="250" height="195" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_pk" value="PK  id_insumo : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f1" value="FK  id_categoria : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f2" value="     nombre_insumo / unidad_medida" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f3" value="     stock_minimo : DECIMAL(10,2) ≥ 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="85" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f4" value="     stock_actual : DECIMAL(10,2) ≥ 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="105" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f5" value="★   costo_unitario : DECIMAL(10,2)" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="125" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ins_f6" value="     estado : BIT (borrado lógico INV 005)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ins_h">
+      <mxGeometry x="0" y="145" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_INVENTARIO -->
+    <mxCell id="bitinv_h" value="Bitacora_Inventario  (INV 006)" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="zone_inv">
+      <mxGeometry x="290" y="35" width="275" height="195" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_f1" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_f2" value="FK  id_insumo : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_f3" value="     accion: entrada|salida|ajuste|baja|activ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_f4" value="     valor_anterior / valor_nuevo" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitinv_f5" value="     detalle / fecha_hora" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitinv_h">
+      <mxGeometry x="0" y="125" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: CARTA / PRODUCTOS  (morado)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_prod" value="★ Módulo: Carta / Menú  (NUEVO)" style="swimlane;startSize=25;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="880" y="580" width="580" height="320" as="geometry" />
+    </mxCell>
+
+    <!-- CATEGORIAS_PRODUCTO -->
+    <mxCell id="catprod_h" value="★ Categorias_Producto" style="swimlane;startSize=25;fillColor=#9c27b0;fontColor=#ffffff;strokeColor=#6a0080;fontStyle=1;fontSize=11;" vertex="1" parent="zone_prod">
+      <mxGeometry x="10" y="35" width="250" height="115" as="geometry" />
+    </mxCell>
+    <mxCell id="catprod_pk" value="PK  id_categoria_prod : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catprod_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="catprod_f1" value="     nombre_categoria : NVARCHAR(100) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catprod_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="catprod_f2" value="     estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="catprod_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- PRODUCTOS -->
+    <mxCell id="prod_h" value="★ Productos  (carta del restaurante)" style="swimlane;startSize=25;fillColor=#9c27b0;fontColor=#ffffff;strokeColor=#6a0080;fontStyle=1;fontSize=11;" vertex="1" parent="zone_prod">
+      <mxGeometry x="10" y="170" width="250" height="135" as="geometry" />
+    </mxCell>
+    <mxCell id="prod_pk" value="PK  id_producto : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="prod_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="prod_f1" value="FK  id_categoria_prod : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="prod_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="prod_f2" value="     nombre_producto / descripcion" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="prod_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="prod_f3" value="     precio_venta : DECIMAL(10,2) ≥ 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="prod_h">
+      <mxGeometry x="0" y="85" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="prod_f4" value="     disponible : BIT  |  estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="prod_h">
+      <mxGeometry x="0" y="105" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: SEGUIMIENTO DE PEDIDOS  (cyan)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_sps" value="Módulo: Seguimiento de Pedidos" style="swimlane;startSize=25;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1490" y="80" width="580" height="560" as="geometry" />
+    </mxCell>
+
+    <!-- MESAS -->
+    <mxCell id="mesas_h" value="Mesas  ★ estado 'sucia'" style="swimlane;startSize=25;fillColor=#006eaf;fontColor=#ffffff;strokeColor=#005885;fontStyle=1;fontSize=11;" vertex="1" parent="zone_sps">
+      <mxGeometry x="10" y="35" width="250" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_pk" value="PK  id_mesa : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_f1" value="     numero_mesa : NVARCHAR(10) UQ" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_f2" value="     capacidad : TINYINT > 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_f3" value="★   estado_mesa: disponible|ocupada|" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="85" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_f4" value="             reservada|sucia|inactiva" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="105" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="mesas_f5" value="     estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="mesas_h">
+      <mxGeometry x="0" y="125" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- PEDIDOS -->
+    <mxCell id="ped_h" value="Pedidos" style="swimlane;startSize=25;fillColor=#006eaf;fontColor=#ffffff;strokeColor=#005885;fontStyle=1;fontSize=11;" vertex="1" parent="zone_sps">
+      <mxGeometry x="10" y="210" width="250" height="215" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_pk" value="PK  id_pedido : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="25" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f1" value="FK  id_mesa : INT (nullable)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="45" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f2" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="65" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f3" value="     tipo_servicio: mesa|para_llevar|delivery" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="85" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f4" value="     cantidad_comensales : TINYINT NULL" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="105" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f5" value="     estado_pedido: abierto|en_proceso|" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="125" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f6" value="     listo|entregado|cancelado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="145" width="250" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ped_f7" value="     fecha_hora / observaciones / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ped_h">
+      <mxGeometry x="0" y="165" width="250" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- DETALLE_PEDIDO -->
+    <mxCell id="det_h" value="Detalle_Pedido  ★ → id_producto" style="swimlane;startSize=25;fillColor=#006eaf;fontColor=#ffffff;strokeColor=#005885;fontStyle=1;fontSize=11;" vertex="1" parent="zone_sps">
+      <mxGeometry x="290" y="35" width="275" height="215" as="geometry" />
+    </mxCell>
+    <mxCell id="det_pk" value="PK  id_detalle : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f1" value="FK  id_pedido : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f2" value="★FK id_producto : INT  (antes: id_insumo)" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f3" value="     cantidad : DECIMAL(10,2) > 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f4" value="     precio_unitario : DECIMAL(10,2) ≥ 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f5" value="     observaciones_item / estado_item" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="125" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f6" value="     estado_item: pendiente|preparando|" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="145" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="det_f7" value="     listo|entregado|cancelado  |  estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="det_h">
+      <mxGeometry x="0" y="165" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_PEDIDOS -->
+    <mxCell id="bitped_h" value="★ Bitacora_Pedidos  (SPS 007)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_sps">
+      <mxGeometry x="290" y="270" width="275" height="175" as="geometry" />
+    </mxCell>
+    <mxCell id="bitped_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitped_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitped_f1" value="FK  id_usuario / id_pedido : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitped_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitped_f2" value="     accion: CREACION|MODIF|CANCEL|ENTREGA|PAGO" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=9;" vertex="1" parent="bitped_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitped_f3" value="     estado_anterior / estado_nuevo" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitped_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitped_f4" value="     detalle / fecha_hora" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitped_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: CONTABILIDAD / CAJA  (rojo)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_cnt" value="Módulo: Contabilidad / Caja" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="1490" y="660" width="880" height="680" as="geometry" />
+    </mxCell>
+
+    <!-- APERTURA_CAJA -->
+    <mxCell id="aper_h" value="★ Apertura_Caja  (CNT 005)" style="swimlane;startSize=25;fillColor=#c62828;fontColor=#ffffff;strokeColor=#8e0000;fontStyle=1;fontSize=11;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="10" y="35" width="255" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_pk" value="PK  id_apertura : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="25" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_f1" value="FK  id_cajero : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="45" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_f2" value="     monto_inicial : DECIMAL(12,2) ≥ 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="65" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_f3" value="     fecha_apertura : DATETIME2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="85" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_f4" value="     observaciones" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="105" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="aper_f5" value="     estado : BIT (1=activa 0=cerrada)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="aper_h">
+      <mxGeometry x="0" y="125" width="255" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- VENTAS -->
+    <mxCell id="ven_h" value="Ventas  ★ vuelto, monto_recibido, id_apertura" style="swimlane;startSize=25;fillColor=#c62828;fontColor=#ffffff;strokeColor=#8e0000;fontStyle=1;fontSize=10;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="285" y="35" width="275" height="255" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_pk" value="PK  id_venta : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f1" value="FK  id_pedido : INT UQ (1:1)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f2" value="FK  id_empleado : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f3" value="★FK id_apertura : INT" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f4" value="     tipo_venta: normal|cortesia|descuento" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f5" value="     total_cobrado : DECIMAL(12,2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="125" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f6" value="★   monto_recibido : DECIMAL(12,2)" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="145" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f7" value="★   vuelto : DECIMAL(12,2)  (CNT 002)" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="165" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f8" value="     metodo_pago: efectivo|tarjeta|sinpe|mixto" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=9;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="185" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ven_f9" value="     estado_venta / fecha_hora / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="ven_h">
+      <mxGeometry x="0" y="205" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- NOTAS_CREDITO -->
+    <mxCell id="nc_h" value="★ Notas_Credito  (CNT 003)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="10" y="210" width="255" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_pk" value="PK  id_nota_credito : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="25" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_f1" value="FK  id_venta : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="45" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_f2" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="65" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_f3" value="     motivo : NVARCHAR(300)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="85" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_f4" value="     monto : DECIMAL(12,2) > 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="105" width="255" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="nc_f5" value="     fecha_hora  |  estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="nc_h">
+      <mxGeometry x="0" y="125" width="255" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- EGRESOS_CAJA -->
+    <mxCell id="egr_h" value="★ Egresos_Caja  (CNT 004)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="580" y="35" width="275" height="195" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_pk" value="PK  id_egreso : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_f1" value="FK  id_apertura : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_f2" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_f3" value="     categoria_gasto : NVARCHAR(100)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_f4" value="     descripcion / monto > 0" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="egr_f5" value="     fecha_hora  |  estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="egr_h">
+      <mxGeometry x="0" y="125" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- CIERRES_CAJA -->
+    <mxCell id="cier_h" value="Cierres_Caja  ★ id_apertura" style="swimlane;startSize=25;fillColor=#c62828;fontColor=#ffffff;strokeColor=#8e0000;fontStyle=1;fontSize=11;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="580" y="255" width="275" height="255" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_pk" value="PK  id_cierre : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="25" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f1" value="FK  id_cajero : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="45" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f2" value="★FK id_apertura : INT UQ" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="65" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f3" value="     fecha_cierre / monto_apertura" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="85" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f4" value="     total_efectivo / total_sinpe / total_tarjeta" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=9;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="105" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f5" value="     total_egresos : DECIMAL(12,2)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="125" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f6" value="     saldo_esperado / saldo_real" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="145" width="275" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="cier_f7" value="     descuadre : BIT  |  estado : BIT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="cier_h">
+      <mxGeometry x="0" y="165" width="275" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_FINANCIERA -->
+    <mxCell id="bitfin_h" value="Bitacora_Financiera  (CNT auditoría)" style="swimlane;startSize=25;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=1;fontSize=10;" vertex="1" parent="zone_cnt">
+      <mxGeometry x="10" y="390" width="560" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="bitfin_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitfin_h">
+      <mxGeometry x="0" y="25" width="560" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitfin_f1" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitfin_h">
+      <mxGeometry x="0" y="45" width="560" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitfin_f2" value="     tabla_afectada / id_registro_afectado / accion: INSERT|UPDATE|DELETE|ANULACION" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitfin_h">
+      <mxGeometry x="0" y="65" width="560" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitfin_f3" value="     detalle / fecha_hora" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitfin_h">
+      <mxGeometry x="0" y="85" width="560" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         ZONA: REPORTERÍA  (gris-verde)
+    ═══════════════════════════════════════════ -->
+    <mxCell id="zone_rpt" value="Módulo: Reportería" style="swimlane;startSize=25;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=11;" vertex="1" parent="1">
+      <mxGeometry x="2400" y="80" width="580" height="380" as="geometry" />
+    </mxCell>
+
+    <!-- REPORTES_GENERADOS -->
+    <mxCell id="rep_h" value="★ Reportes_Generados  (RPT 001-008)" style="swimlane;startSize=25;fillColor=#2e7d32;fontColor=#ffffff;strokeColor=#1b5e20;fontStyle=1;fontSize=11;" vertex="1" parent="zone_rpt">
+      <mxGeometry x="10" y="35" width="270" height="195" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_pk" value="PK  id_reporte : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="25" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f1" value="FK  id_usuario : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="45" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f2" value="     tipo_reporte : ventas|productos|ingresos|" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="65" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f3" value="     desempenio|inventario|egresos|cierre|bit" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=9;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="85" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f4" value="     parametros : NVARCHAR(500) (JSON)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="105" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f5" value="     formato_salida : pdf|excel|csv" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="125" width="270" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="rep_f6" value="     fecha_generacion / estado" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="rep_h">
+      <mxGeometry x="0" y="145" width="270" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- BITACORA_REPORTES -->
+    <mxCell id="bitrep_h" value="★ Bitacora_Reportes  (RPT 008)" style="swimlane;startSize=25;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=10;" vertex="1" parent="zone_rpt">
+      <mxGeometry x="300" y="35" width="265" height="155" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrep_pk" value="PK  id_registro : INT IDENTITY" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrep_h">
+      <mxGeometry x="0" y="25" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrep_f1" value="FK  id_usuario / id_reporte : INT" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrep_h">
+      <mxGeometry x="0" y="45" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrep_f2" value="     accion: GENERACION|DESCARGA|VISUAL" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrep_h">
+      <mxGeometry x="0" y="65" width="265" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="bitrep_f3" value="     fecha_hora : DATETIME2" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="bitrep_h">
+      <mxGeometry x="0" y="85" width="265" height="20" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         LEYENDA
+    ═══════════════════════════════════════════ -->
+    <mxCell id="leyenda" value="LEYENDA" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+      <mxGeometry x="20" y="1170" width="500" height="20" as="geometry" />
+    </mxCell>
+    <mxCell id="ley1" value="★ Tabla/campo NUEVO agregado en v2.0" style="text;strokeColor=none;fillColor=#fff2cc;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="20" y="1195" width="300" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="ley2" value="CALC  Columna calculada (no almacenada)" style="text;strokeColor=none;fillColor=#e1f5e1;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="20" y="1220" width="300" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="ley3" value="PK  Clave primaria  |  FK  Clave foránea  |  UQ  Unique" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;" vertex="1" parent="1">
+      <mxGeometry x="20" y="1245" width="400" height="22" as="geometry" />
+    </mxCell>
+    <mxCell id="ley4" value="Módulos cubiertos: GUS · GES · SPS · INV · CNT · RPT · PDV (v_ventas_totales)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;fontSize=10;fontStyle=2;" vertex="1" parent="1">
+      <mxGeometry x="20" y="1270" width="560" height="22" as="geometry" />
+    </mxCell>
+
+    <!-- ═══════════════════════════════════════════
+         RELACIONES (FK arrows — abreviadas)
+    ═══════════════════════════════════════════ -->
+
+    <!-- Roles → Usuarios -->
+    <mxCell id="rel_rol_usr" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="roles_h" target="usr_h" parent="zone_gus">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Usuarios → Bitacora_Acceso -->
+    <mxCell id="rel_usr_bacc" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="usr_h" target="bitacc_h" parent="zone_gus">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Usuarios → Empleados -->
+    <mxCell id="rel_usr_emp" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="usr_h" target="emp_h" parent="1">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Empleados → Turnos -->
+    <mxCell id="rel_emp_tur" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="emp_h" target="tur_h" parent="zone_ges">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Turnos → Asistencia -->
+    <mxCell id="rel_tur_asi" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="tur_h" target="asi_h" parent="zone_ges">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Empleados → Asistencia -->
+    <mxCell id="rel_emp_asi" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="emp_h" target="asi_h" parent="zone_ges">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Empleados → Vacaciones -->
+    <mxCell id="rel_emp_vac" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="emp_h" target="vac_h" parent="zone_ges">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Asistencia → Horas_Extra -->
+    <mxCell id="rel_asi_he" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="asi_h" target="he_h" parent="zone_ges">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Categorias_Insumo → Insumos -->
+    <mxCell id="rel_catins_ins" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="catins_h" target="ins_h" parent="zone_inv">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Insumos → Bitacora_Inventario -->
+    <mxCell id="rel_ins_bitinv" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="ins_h" target="bitinv_h" parent="zone_inv">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Categorias_Producto → Productos -->
+    <mxCell id="rel_catprod_prod" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="catprod_h" target="prod_h" parent="zone_prod">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Mesas → Pedidos -->
+    <mxCell id="rel_mes_ped" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="mesas_h" target="ped_h" parent="zone_sps">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Pedidos → Detalle_Pedido -->
+    <mxCell id="rel_ped_det" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="ped_h" target="det_h" parent="zone_sps">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Pedidos → Bitacora_Pedidos -->
+    <mxCell id="rel_ped_bitped" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="ped_h" target="bitped_h" parent="zone_sps">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Apertura_Caja → Ventas -->
+    <mxCell id="rel_aper_ven" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="aper_h" target="ven_h" parent="zone_cnt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Apertura_Caja → Egresos_Caja -->
+    <mxCell id="rel_aper_egr" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="aper_h" target="egr_h" parent="zone_cnt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Apertura_Caja → Cierres_Caja -->
+    <mxCell id="rel_aper_cier" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERone;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="aper_h" target="cier_h" parent="zone_cnt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Ventas → Notas_Credito -->
+    <mxCell id="rel_ven_nc" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="ven_h" target="nc_h" parent="zone_cnt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+    <!-- Reportes → Bitacora_Reportes -->
+    <mxCell id="rel_rep_bitrep" style="edgeStyle=orthogonalEdgeStyle;endArrow=ERmany;endFill=0;startArrow=ERone;startFill=0;" edge="1" source="rep_h" target="bitrep_h" parent="zone_rpt">
+      <mxGeometry relative="1" as="geometry" />
+    </mxCell>
+
+  </root>
+</mxGraphModel>
