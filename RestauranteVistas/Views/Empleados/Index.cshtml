@@ -1,171 +1,514 @@
-﻿@{
+﻿@model RestauranteVistas.Controllers.EmpleadosViewModel
+
+@{
     ViewBag.Title = "Gestión de Empleados";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="hero-card">
-    <h2>Gestión visual de empleados</h2>
+    <h2>Gestión de Empleados - Sprint 1</h2>
     <p>
-        Visualiza y administra el personal del restaurante, con métricas clave, búsqueda rápida y control administrativo.
+        Desarrollo de las historias de usuario GES-001 a GES-007 del módulo de Gestión de Empleados.
     </p>
 </div>
 
-<div class="grid-3">
-    <div class="metric-card"><h3>Activos</h3><div class="value">18</div></div>
-    <div class="metric-card alt-blue"><h3>Vacaciones</h3><div class="value">3</div></div>
-    <div class="metric-card alt-orange"><h3>Nuevos ingresos</h3><div class="value">4</div></div>
-</div>
-
-<div class="section-card">
-    <div class="section-title">
-        <div>
-            <h3>Búsqueda de personal</h3>
-            <p>Filtro visual</p>
-        </div>
+@if (TempData["Mensaje"] != null)
+{
+    <div class="section-card">
+        <h3>@TempData["Mensaje"]</h3>
     </div>
-    <div class="search-bar">
-        <input type="text" placeholder="Buscar por nombre, cédula o rol..." />
-        <button class="btn btn-secondary" onclick="mostrarToast('Búsqueda visual ejecutada')">
-            <span class="material-symbols-outlined">search</span> Buscar
-        </button>
+}
+
+<div class="grid-3">
+    <div class="metric-card">
+        <h3>Empleados</h3>
+        <div class="value">@Model.Empleados.Count</div>
+    </div>
+    <div class="metric-card alt-blue">
+        <h3>Turnos</h3>
+        <div class="value">@Model.Turnos.Count</div>
+    </div>
+    <div class="metric-card alt-orange">
+        <h3>Horas extra</h3>
+        <div class="value">@Model.HorasExtra.Count</div>
     </div>
 </div>
 
 <div class="grid-2">
+
     <div class="form-card">
         <div class="section-title">
             <div>
-                <h3>Registrar empleado</h3>
-                <p>HU de registro del personal</p>
+                <h3>GES-001 Registrar empleados</h3>
+                <p>Formulario para agregar empleados al sistema.</p>
             </div>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group"><label>ID Empleado</label><input type="text" placeholder="1001" /></div>
-            <div class="form-group"><label>Nombre</label><input type="text" placeholder="Nombre" /></div>
-            <div class="form-group"><label>Apellidos</label><input type="text" placeholder="Apellidos" /></div>
-            <div class="form-group"><label>Cédula</label><input type="text" placeholder="Cédula" /></div>
-            <div class="form-group"><label>Teléfono</label><input type="text" placeholder="8888-8888" /></div>
-            <div class="form-group"><label>Correo</label><input type="email" placeholder="correo@empresa.com" /></div>
-            <div class="form-group">
-                <label>Rol</label>
-                <select>
-                    <option>Mesero</option>
-                    <option>Cocinero</option>
-                    <option>Cajero</option>
-                    <option>Administrador</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Fecha de ingreso</label><input type="date" /></div>
-            <div class="form-group"><label>Salario por hora</label><input type="number" placeholder="2500" /></div>
-            <div class="form-group">
-                <label>Estado</label>
-                <select>
-                    <option>Activo</option>
-                    <option>Inactivo</option>
-                </select>
-            </div>
-        </div>
+        @using (Html.BeginForm("RegistrarEmpleado", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre completo</label>
+                    <input type="text" name="nombre" required />
+                </div>
 
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Empleado registrado correctamente')">
-                <span class="material-symbols-outlined">save</span> Guardar
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('Correo inválido o salario incorrecto')">
-                <span class="material-symbols-outlined">warning</span> Validar
-            </button>
-            <button class="btn btn-danger" onclick="accionDemo('El empleado ya existe en el sistema')">
-                <span class="material-symbols-outlined">person_off</span> Duplicado
-            </button>
-        </div>
+                <div class="form-group">
+                    <label>Cédula</label>
+                    <input type="text" name="cedula" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select name="rol">
+                        <option>Administrador</option>
+                        <option>Mesero</option>
+                        <option>Cocinero</option>
+                        <option>Cajero</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Correo</label>
+                    <input type="email" name="correo" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span> Registrar empleado
+                </button>
+            </div>
+        }
     </div>
 
-    <div class="table-card">
+    <div class="form-card">
         <div class="section-title">
             <div>
-                <h3>Listado de empleados</h3>
-                <p>Vista de control administrativo</p>
+                <h3>GES-003 Crear turnos</h3>
+                <p>Asignación de horarios laborales.</p>
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Empleado</th>
-                    <th>Rol</th>
-                    <th>Correo</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1001</td>
-                    <td>María Rodríguez</td>
-                    <td>Mesera</td>
-                    <td>maria@colibri.com</td>
-                    <td><span class="status success">Activo</span></td>
-                    <td>
-                        <div class="card-actions-inline">
-                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
-                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>1002</td>
-                    <td>Luis Vargas</td>
-                    <td>Cocinero</td>
-                    <td>luis@colibri.com</td>
-                    <td><span class="status info">Turno tarde</span></td>
-                    <td>
-                        <div class="card-actions-inline">
-                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
-                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>1003</td>
-                    <td>Ana Solano</td>
-                    <td>Cajera</td>
-                    <td>ana@colibri.com</td>
-                    <td><span class="status warning">Vacaciones</span></td>
-                    <td>
-                        <div class="card-actions-inline">
-                            <button class="btn btn-soft" onclick="accionDemo('Vista editar empleado')">Editar</button>
-                            <button class="btn btn-danger" onclick="accionDemo('Eliminar empleado visual')">Eliminar</button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        @using (Html.BeginForm("CrearTurno", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Empleado</label>
+                    <select name="empleado">
+                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        {
+                            <option>@empleado.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Día</label>
+                    <input type="text" name="dia" placeholder="Lunes" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Hora inicio</label>
+                    <input type="time" name="horaInicio" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Hora fin</label>
+                    <input type="time" name="horaFin" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">schedule</span> Crear turno
+                </button>
+            </div>
+        }
     </div>
+
+</div>
+
+<div class="grid-2">
+
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>GES-004 Registrar mesas atendidas</h3>
+                <p>Control de mesas atendidas por empleado.</p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("RegistrarMesa", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Empleado</label>
+                    <select name="empleado">
+                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        {
+                            <option>@empleado.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Número de mesa</label>
+                    <input type="number" name="numeroMesa" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">table_restaurant</span> Registrar mesa
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>GES-005 Gestionar vacaciones</h3>
+                <p>Registro de vacaciones solicitadas por empleados.</p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("GestionarVacaciones", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Empleado</label>
+                    <select name="empleado">
+                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        {
+                            <option>@empleado.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha inicio</label>
+                    <input type="date" name="fechaInicio" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha fin</label>
+                    <input type="date" name="fechaFin" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Días solicitados</label>
+                    <input type="number" name="dias" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">beach_access</span> Registrar vacaciones
+                </button>
+            </div>
+        }
+    </div>
+
+</div>
+
+<div class="grid-2">
+
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>GES-006 Registrar horas extra</h3>
+                <p>Control de horas adicionales trabajadas.</p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("RegistrarHorasExtra", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Empleado</label>
+                    <select name="empleado">
+                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        {
+                            <option>@empleado.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" name="fecha" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Cantidad de horas</label>
+                    <input type="number" name="cantidadHoras" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">more_time</span> Registrar horas extra
+                </button>
+            </div>
+        }
+    </div>
+
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>GES-002 Administrar empleados</h3>
+                <p>Actualizar información básica de empleados.</p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("AdministrarEmpleado", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>ID empleado</label>
+                    <input type="number" name="id" placeholder="1001" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" name="nombre" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select name="rol">
+                        <option>Administrador</option>
+                        <option>Mesero</option>
+                        <option>Cocinero</option>
+                        <option>Cajero</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Correo</label>
+                    <input type="email" name="correo" required />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-warning">
+                    <span class="material-symbols-outlined">edit</span> Actualizar empleado
+                </button>
+            </div>
+        }
+    </div>
+
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Listado de empleados</h3>
+            <p>Incluye GES-002 administración y GES-007 eliminación/desactivación.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Cédula</th>
+                <th>Rol</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th>GES-007</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var empleado in Model.Empleados)
+            {
+                <tr>
+                    <td>@empleado.Id</td>
+                    <td>@empleado.Nombre</td>
+                    <td>@empleado.Cedula</td>
+                    <td>@empleado.Rol</td>
+                    <td>@empleado.Telefono</td>
+                    <td>@empleado.Correo</td>
+                    <td>
+                        @if (empleado.Estado == "Activo")
+                        {
+                            <span class="status success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="status danger">Inactivo</span>
+                        }
+                    </td>
+                    <td>
+                        @if (empleado.Estado == "Activo")
+                        {
+                            using (Html.BeginForm("EliminarEmpleado", "Empleados", FormMethod.Post))
+                            {
+                                <input type="hidden" name="id" value="@empleado.Id" />
+                                <button type="submit" class="btn btn-danger">
+                                    Desactivar
+                                </button>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Registros creados durante el Sprint</h3>
+            <p>Evidencia funcional de turnos, mesas, vacaciones y horas extra.</p>
+        </div>
+    </div>
+
+    <h4>Turnos registrados</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Día</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var turno in Model.Turnos)
+            {
+                <tr>
+                    <td>@turno.Empleado</td>
+                    <td>@turno.Dia</td>
+                    <td>@turno.HoraInicio</td>
+                    <td>@turno.HoraFin</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Mesas atendidas</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Mesa</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mesa in Model.MesasAtendidas)
+            {
+                <tr>
+                    <td>@mesa.Empleado</td>
+                    <td>@mesa.NumeroMesa</td>
+                    <td>@mesa.Fecha</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Vacaciones registradas</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Días</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vacacion in Model.Vacaciones)
+            {
+                <tr>
+                    <td>@vacacion.Empleado</td>
+                    <td>@vacacion.FechaInicio</td>
+                    <td>@vacacion.FechaFin</td>
+                    <td>@vacacion.Dias</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h4>Horas extra registradas</h4>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Fecha</th>
+                <th>Horas</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var hora in Model.HorasExtra)
+            {
+                <tr>
+                    <td>@hora.Empleado</td>
+                    <td>@hora.Fecha</td>
+                    <td>@hora.CantidadHoras</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
 
 <div class="story-card">
-    <h4>Historias de usuario reflejadas</h4>
+    <h4>Historias de usuario desarrolladas en código</h4>
+
     <div class="accordion">
         <div class="accordion-item">
-            <button class="accordion-header">Registro exitoso de empleado <span>+</span></button>
-            <div class="accordion-content">Si todos los datos son válidos, el sistema confirma el registro correctamente.</div>
+            <button class="accordion-header">GES-001 Registrar empleados <span>+</span></button>
+            <div class="accordion-content">Permite registrar empleados con nombre, cédula, rol, teléfono y correo.</div>
         </div>
+
         <div class="accordion-item">
-            <button class="accordion-header">Validación de duplicados <span>+</span></button>
-            <div class="accordion-content">Si la identificación ya existe, se bloquea el registro del nuevo empleado.</div>
+            <button class="accordion-header">GES-002 Administrar empleados <span>+</span></button>
+            <div class="accordion-content">Permite actualizar información básica de un empleado existente.</div>
         </div>
+
         <div class="accordion-item">
-            <button class="accordion-header">Campos obligatorios <span>+</span></button>
-            <div class="accordion-content">No se permite continuar si faltan datos indispensables.</div>
+            <button class="accordion-header">GES-003 Crear turnos <span>+</span></button>
+            <div class="accordion-content">Permite asignar día, hora de inicio y hora de fin a un empleado.</div>
         </div>
+
         <div class="accordion-item">
-            <button class="accordion-header">Correo inválido <span>+</span></button>
-            <div class="accordion-content">El sistema muestra una alerta visual al detectar formato incorrecto.</div>
+            <button class="accordion-header">GES-004 Registrar mesas atendidas <span>+</span></button>
+            <div class="accordion-content">Permite registrar qué empleado atendió una mesa en una fecha específica.</div>
         </div>
+
         <div class="accordion-item">
-            <button class="accordion-header">Salario inválido <span>+</span></button>
-            <div class="accordion-content">No se acepta un salario por hora menor o igual a cero.</div>
+            <button class="accordion-header">GES-005 Gestionar vacaciones <span>+</span></button>
+            <div class="accordion-content">Permite registrar vacaciones con fecha de inicio, fecha final y días solicitados.</div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header">GES-006 Registrar horas extra <span>+</span></button>
+            <div class="accordion-content">Permite registrar la cantidad de horas extra trabajadas por empleado.</div>
+        </div>
+
+        <div class="accordion-item">
+            <button class="accordion-header">GES-007 Desactivar usuarios inactivos <span>+</span></button>
+            <div class="accordion-content">Permite desactivar empleados que ya no trabajan en la empresa.</div>
         </div>
     </div>
 </div>
