@@ -3,13 +3,19 @@
 @{
     ViewBag.Title = "Gestión de Empleados";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var empleadosActivos = Model.Empleados.Where(e => e.Estado == "Activo").ToList();
 }
 
-<div class="hero-card">
-    <h2>Gestión de Empleados - Sprint 1</h2>
-    <p>
-        Desarrollo de las historias de usuario GES-001 a GES-007 del módulo de Gestión de Empleados.
-    </p>
+<div class="hero-card empleados-hero">
+    <div>
+        <span class="mini-badge">Equipo operativo</span>
+        <h2>Gestión de Empleados</h2>
+        <p>Control diario.</p>
+    </div>
+    <div class="hero-summary">
+        <strong>@Model.UltimoMovimiento</strong>
+        <span>Último movimiento registrado</span>
+    </div>
 </div>
 
 @if (TempData["Mensaje"] != null)
@@ -21,16 +27,16 @@
 
 <div class="grid-3">
     <div class="metric-card">
-        <h3>Empleados</h3>
-        <div class="value">@Model.Empleados.Count</div>
+        <h3>Empleados activos</h3>
+        <div class="value">@Model.EmpleadosActivos</div>
     </div>
     <div class="metric-card alt-blue">
-        <h3>Turnos</h3>
-        <div class="value">@Model.Turnos.Count</div>
+        <h3>Turnos programados</h3>
+        <div class="value">@Model.TurnosProgramados</div>
     </div>
     <div class="metric-card alt-orange">
-        <h3>Horas extra</h3>
-        <div class="value">@Model.HorasExtra.Count</div>
+        <h3>Mesas gestionadas</h3>
+        <div class="value">@Model.MesasGestionadas</div>
     </div>
 </div>
 
@@ -40,7 +46,7 @@
         <div class="section-title">
             <div>
                 <h3>GES-001 Registrar empleados</h3>
-                <p>Formulario para agregar empleados al sistema.</p>
+                <p>Nuevo empleado.</p>
             </div>
         </div>
 
@@ -86,11 +92,12 @@
         }
     </div>
 
-    <div class="form-card">
+    <div class="form-card feature-form-card">
         <div class="section-title">
             <div>
-                <h3>GES-003 Crear turnos</h3>
-                <p>Asignación de horarios laborales.</p>
+                <span class="mini-badge">GES-003</span>
+                <h3>Programar turno</h3>
+                <p>Nuevo turno.</p>
             </div>
         </div>
 
@@ -100,7 +107,7 @@
                 <div class="form-group">
                     <label>Empleado</label>
                     <select name="empleado">
-                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        @foreach (var empleado in empleadosActivos)
                         {
                             <option>@empleado.Nombre</option>
                         }
@@ -109,7 +116,15 @@
 
                 <div class="form-group">
                     <label>Día</label>
-                    <input type="text" name="dia" placeholder="Lunes" required />
+                    <select name="dia" required>
+                        <option>Lunes</option>
+                        <option>Martes</option>
+                        <option>Miércoles</option>
+                        <option>Jueves</option>
+                        <option>Viernes</option>
+                        <option>Sábado</option>
+                        <option>Domingo</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -121,11 +136,27 @@
                     <label>Hora fin</label>
                     <input type="time" name="horaFin" required />
                 </div>
+
+                <div class="form-group">
+                    <label>Área</label>
+                    <select name="area" required>
+                        <option>Salón principal</option>
+                        <option>Terraza</option>
+                        <option>Cocina caliente</option>
+                        <option>Cocina fría</option>
+                        <option>Caja</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-group-wide">
+                    <label>Observaciones</label>
+                    <textarea name="observaciones" placeholder="Notas breves"></textarea>
+                </div>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-symbols-outlined">schedule</span> Crear turno
+                    <span class="material-symbols-outlined">event_available</span> Guardar turno
                 </button>
             </div>
         }
@@ -135,11 +166,12 @@
 
 <div class="grid-2">
 
-    <div class="form-card">
+    <div class="form-card feature-form-card">
         <div class="section-title">
             <div>
-                <h3>GES-004 Registrar mesas atendidas</h3>
-                <p>Control de mesas atendidas por empleado.</p>
+                <span class="mini-badge">GES-004</span>
+                <h3>Registrar atención de mesa</h3>
+                <p>Nueva atención.</p>
             </div>
         </div>
 
@@ -149,7 +181,7 @@
                 <div class="form-group">
                     <label>Empleado</label>
                     <select name="empleado">
-                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                        @foreach (var empleado in empleadosActivos)
                         {
                             <option>@empleado.Nombre</option>
                         }
@@ -158,18 +190,43 @@
 
                 <div class="form-group">
                     <label>Número de mesa</label>
-                    <input type="number" name="numeroMesa" required />
+                    <input type="number" name="numeroMesa" min="1" required />
                 </div>
 
                 <div class="form-group">
                     <label>Fecha</label>
                     <input type="date" name="fecha" required />
                 </div>
+
+                <div class="form-group">
+                    <label>Franja</label>
+                    <select name="franja" required>
+                        <option>Desayuno</option>
+                        <option>Almuerzo</option>
+                        <option>Cena</option>
+                        <option>Evento especial</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select name="estadoAtencion" required>
+                        <option>Atendida</option>
+                        <option>Reservada</option>
+                        <option>En seguimiento</option>
+                        <option>Cerrada</option>
+                    </select>
+                </div>
+
+                <div class="form-group form-group-wide">
+                    <label>Observaciones</label>
+                    <textarea name="observaciones" placeholder="Notas breves"></textarea>
+                </div>
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-symbols-outlined">table_restaurant</span> Registrar mesa
+                    <span class="material-symbols-outlined">room_service</span> Registrar atención
                 </button>
             </div>
         }
@@ -179,7 +236,7 @@
         <div class="section-title">
             <div>
                 <h3>GES-005 Gestionar vacaciones</h3>
-                <p>Registro de vacaciones solicitadas por empleados.</p>
+                <p>Vacaciones.</p>
             </div>
         </div>
 
@@ -228,7 +285,7 @@
         <div class="section-title">
             <div>
                 <h3>GES-006 Registrar horas extra</h3>
-                <p>Control de horas adicionales trabajadas.</p>
+                <p>Horas extra.</p>
             </div>
         </div>
 
@@ -268,7 +325,7 @@
         <div class="section-title">
             <div>
                 <h3>GES-002 Administrar empleados</h3>
-                <p>Actualizar información básica de empleados.</p>
+                <p>Editar empleado.</p>
             </div>
         </div>
 
@@ -320,7 +377,7 @@
     <div class="section-title">
         <div>
             <h3>Listado de empleados</h3>
-            <p>Incluye GES-002 administración y GES-007 eliminación/desactivación.</p>
+            <p>Estado actual.</p>
         </div>
     </div>
 
@@ -379,7 +436,7 @@
     <div class="section-title">
         <div>
             <h3>Registros creados durante el Sprint</h3>
-            <p>Evidencia funcional de turnos, mesas, vacaciones y horas extra.</p>
+            <p>Registros recientes.</p>
         </div>
     </div>
 
@@ -391,6 +448,9 @@
                 <th>Día</th>
                 <th>Inicio</th>
                 <th>Fin</th>
+                <th>Área</th>
+                <th>Estado</th>
+                <th>Observaciones</th>
             </tr>
         </thead>
         <tbody>
@@ -401,6 +461,9 @@
                     <td>@turno.Dia</td>
                     <td>@turno.HoraInicio</td>
                     <td>@turno.HoraFin</td>
+                    <td>@turno.Area</td>
+                    <td><span class="status info">@turno.Estado</span></td>
+                    <td>@turno.Observaciones</td>
                 </tr>
             }
         </tbody>
@@ -413,6 +476,9 @@
                 <th>Empleado</th>
                 <th>Mesa</th>
                 <th>Fecha</th>
+                <th>Franja</th>
+                <th>Estado</th>
+                <th>Observaciones</th>
             </tr>
         </thead>
         <tbody>
@@ -422,6 +488,9 @@
                     <td>@mesa.Empleado</td>
                     <td>@mesa.NumeroMesa</td>
                     <td>@mesa.Fecha</td>
+                    <td>@mesa.Franja</td>
+                    <td><span class="status success">@mesa.EstadoAtencion</span></td>
+                    <td>@mesa.Observaciones</td>
                 </tr>
             }
         </tbody>
@@ -473,42 +542,95 @@
 </div>
 
 <div class="story-card">
-    <h4>Historias de usuario desarrolladas en código</h4>
+    <h4>Historias</h4>
 
     <div class="accordion">
         <div class="accordion-item">
             <button class="accordion-header">GES-001 Registrar empleados <span>+</span></button>
-            <div class="accordion-content">Permite registrar empleados con nombre, cédula, rol, teléfono y correo.</div>
+            <div class="accordion-content">Registro de empleados.</div>
         </div>
 
         <div class="accordion-item">
             <button class="accordion-header">GES-002 Administrar empleados <span>+</span></button>
-            <div class="accordion-content">Permite actualizar información básica de un empleado existente.</div>
+            <div class="accordion-content">Edición de empleados.</div>
         </div>
 
         <div class="accordion-item">
-            <button class="accordion-header">GES-003 Crear turnos <span>+</span></button>
-            <div class="accordion-content">Permite asignar día, hora de inicio y hora de fin a un empleado.</div>
+            <button class="accordion-header">GES-003 Programar turnos <span>+</span></button>
+            <div class="accordion-content">Programación de turnos.</div>
         </div>
 
         <div class="accordion-item">
-            <button class="accordion-header">GES-004 Registrar mesas atendidas <span>+</span></button>
-            <div class="accordion-content">Permite registrar qué empleado atendió una mesa en una fecha específica.</div>
+            <button class="accordion-header">GES-004 Registrar atención de mesas <span>+</span></button>
+            <div class="accordion-content">Atención de mesas.</div>
         </div>
 
         <div class="accordion-item">
             <button class="accordion-header">GES-005 Gestionar vacaciones <span>+</span></button>
-            <div class="accordion-content">Permite registrar vacaciones con fecha de inicio, fecha final y días solicitados.</div>
+            <div class="accordion-content">Gestión de vacaciones.</div>
         </div>
 
         <div class="accordion-item">
             <button class="accordion-header">GES-006 Registrar horas extra <span>+</span></button>
-            <div class="accordion-content">Permite registrar la cantidad de horas extra trabajadas por empleado.</div>
+            <div class="accordion-content">Registro de horas extra.</div>
         </div>
 
         <div class="accordion-item">
             <button class="accordion-header">GES-007 Desactivar usuarios inactivos <span>+</span></button>
-            <div class="accordion-content">Permite desactivar empleados que ya no trabajan en la empresa.</div>
+            <div class="accordion-content">Desactivación de empleados.</div>
         </div>
     </div>
 </div>
+
+<style>
+    .empleados-hero {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .hero-summary {
+        min-width: 260px;
+        padding: 18px;
+        border-radius: var(--radius-md);
+        background: rgba(255,255,255,0.72);
+        border: 1px solid var(--border);
+    }
+
+    .hero-summary strong,
+    .hero-summary span {
+        display: block;
+    }
+
+    .hero-summary strong {
+        color: var(--sapphire);
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .feature-form-card {
+        border-top: 6px solid var(--emerald);
+    }
+
+    .form-group-wide {
+        grid-column: 1 / -1;
+    }
+
+    .table-card h4 {
+        margin: 26px 0 12px;
+        color: var(--emerald);
+    }
+
+    @@media (max-width: 900px) {
+        .empleados-hero {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .hero-summary {
+            min-width: 0;
+            width: 100%;
+        }
+    }
+</style>
