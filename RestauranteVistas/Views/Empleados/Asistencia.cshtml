@@ -1,0 +1,193 @@
+@model RestauranteVistas.Models.ViewModels.EmpleadosViewModel
+
+@{
+    ViewBag.Title = "Control de Asistencia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="justify-content:space-between;align-items:center;display:flex;">
+    <div>
+        <span class="mini-badge">GES-003</span>
+        <h2>Control de Asistencia</h2>
+        <p>Ponchador de entrada y salida del personal.</p>
+    </div>
+    <a href="@Url.Action("Index", "Empleados")" class="btn btn-soft">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin-bottom:16px;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin-bottom:16px;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="grid-2">
+    <div class="form-card" style="border-top:6px solid #2e7d32;">
+        <div class="section-title">
+            <h3>Registrar entrada</h3>
+            <p>Ingrese su ID de empleado para marcar entrada.</p>
+        </div>
+        @using (Html.BeginForm("RegistrarEntrada", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid" style="grid-template-columns:1fr auto;">
+                <div class="form-group">
+                    <label>ID Empleado *</label>
+                    <input type="number" name="idEmpleado" required min="1" placeholder="Ej. 1" />
+                </div>
+                <div class="form-actions" style="align-self:flex-end;">
+                    <button type="submit" class="btn btn-success">
+                        <span class="material-symbols-outlined">login</span> Entrada
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="form-card" style="border-top:6px solid #c62828;">
+        <div class="section-title">
+            <h3>Registrar salida</h3>
+            <p>Ingrese su ID de empleado para marcar salida (auto-detecta entrada pendiente).</p>
+        </div>
+        @using (Html.BeginForm("RegistrarSalidaPorEmpleado", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid" style="grid-template-columns:1fr auto;">
+                <div class="form-group">
+                    <label>ID Empleado *</label>
+                    <input type="number" name="idEmpleado" required min="1" placeholder="Su ID" />
+                </div>
+                <div class="form-actions" style="align-self:flex-end;">
+                    <button type="submit" class="btn btn-danger">
+                        <span class="material-symbols-outlined">logout</span> Salida
+                    </button>
+                </div>
+            </div>
+        }
+        <hr style="margin:16px 0;border-color:var(--border);" />
+        <p style="font-size:13px;color:#666;">O si conoce el ID de asistencia:</p>
+        @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post))
+        {
+            <div class="form-grid" style="grid-template-columns:1fr auto;">
+                <div class="form-group">
+                    <label>ID Asistencia</label>
+                    <input type="number" name="idAsistencia" placeholder="Ej. 1" />
+                </div>
+                <div class="form-actions" style="align-self:flex-end;">
+                    <button type="submit" class="btn btn-soft">
+                        <span class="material-symbols-outlined">logout</span> Salida por ID
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.AsistenciasPendientes != null && Model.AsistenciasPendientes.Any())
+{
+    <div class="section-card" style="border-left:4px solid #ff9800;padding:12px 18px;margin:16px 0;background:#fff3e0;">
+        <h3 style="color:#e65100;margin:0;">
+            <span class="material-symbols-outlined" style="vertical-align:middle;">warning</span>
+            Asistencias pendientes de salida: @Model.AsistenciasPendientes.Count
+        </h3>
+    </div>
+}
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Asistencias de hoy (@DateTime.Today.ToString("dd/MM/yyyy"))</h3>
+            <p>Registros del d&iacute;a.</p>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Asistencias != null && Model.Asistencias.Any())
+            {
+                foreach (var a in Model.Asistencias)
+                {
+                    <tr>
+                        <td>@a.IdAsistencia</td>
+                        <td>@a.Empleado?.Nombre @a.Empleado?.Apellidos (#@a.IdEmpleado)</td>
+                        <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@(a.FechaHoraSalida?.ToString("yyyy-MM-dd HH:mm:ss") ?? "—")</td>
+                        <td>
+                            @if (a.FechaHoraSalida == null)
+                            {
+                                <span class="status warning"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">schedule</span> Pendiente</span>
+                            }
+                            else
+                            {
+                                <span class="status success">Completado</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5">Sin registros de asistencia para hoy.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Asistencias pendientes general</h3>
+            <p>Registros sin salida.</p>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Empleado</th>
+                <th>Entrada</th>
+                <th>Acci&oacute;n</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AsistenciasPendientes != null && Model.AsistenciasPendientes.Any())
+            {
+                foreach (var a in Model.AsistenciasPendientes)
+                {
+                    <tr>
+                        <td>@a.IdAsistencia</td>
+                        <td>@a.Empleado?.Nombre @a.Empleado?.Apellidos (#@a.IdEmpleado)</td>
+                        <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>
+                            @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                <input type="hidden" name="idAsistencia" value="@a.IdAsistencia" />
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <span class="material-symbols-outlined" style="font-size:14px;">logout</span> Registrar salida
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="4">No hay asistencias pendientes.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

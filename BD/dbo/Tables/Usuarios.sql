@@ -8,6 +8,7 @@
     [intentos_fallidos]         TINYINT        CONSTRAINT [DF_Usr_intentos] DEFAULT ((0)) NOT NULL,
     [bloqueado]                 BIT            CONSTRAINT [DF_Usr_bloqueado] DEFAULT ((0)) NOT NULL,
     [fecha_ultimo_acceso]       DATETIME2 (7)  NULL,
+    [fecha_password]            DATETIME2 (7)  NULL,
     [estado]                    BIT            CONSTRAINT [DF_Usuarios_estado] DEFAULT ((1)) NOT NULL,
     [fecha_creacion]            DATETIME2 (7)  CONSTRAINT [DF_Usuarios_fecha] DEFAULT (sysutcdatetime()) NOT NULL,
     CONSTRAINT [PK_Usuarios] PRIMARY KEY CLUSTERED ([id_usuario] ASC),

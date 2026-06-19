@@ -1,6 +1,6 @@
 ﻿@{
-    var usuario = Session["UsuarioDemo"] != null ? Session["UsuarioDemo"].ToString() : "Usuario Demo";
-    var rol = Session["RolDemo"] != null ? Session["RolDemo"].ToString() : "";
+    var usuario = Session["UsuarioNombre"] != null ? Session["UsuarioNombre"].ToString() : "Usuario Demo";
+    var rol = Session["RolNombre"] != null ? Session["RolNombre"].ToString() : "";
 }
 
 <!DOCTYPE html>
@@ -38,10 +38,13 @@
             </div>
 
             <nav class="menu">
-                @if (rol == "Admin")
+                @if (rol == "Administrador")
                 {
                     <a href="@Url.Action("Index", "Home")"><span class="material-symbols-outlined">space_dashboard</span> Dashboard</a>
                     <a href="@Url.Action("Index", "Empleados")"><span class="material-symbols-outlined">badge</span> Empleados</a>
+                    <a href="@Url.Action("Asistencia", "Empleados")"><span class="material-symbols-outlined">fingerprint</span> Asistencia</a>
+                    <a href="@Url.Action("Bitacora", "Empleados")"><span class="material-symbols-outlined">history</span> Bitácora</a>
+                    <a href="@Url.Action("MetricasMesas", "Empleados")"><span class="material-symbols-outlined">leaderboard</span> Métricas Mesas</a>
                     <a href="@Url.Action("Index", "Usuarios")"><span class="material-symbols-outlined">group</span> Usuarios</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
                     <a href="@Url.Action("Index", "Inventario")"><span class="material-symbols-outlined">inventory_2</span> Inventario</a>
@@ -69,6 +72,9 @@
 
                 <a href="@Url.Action("Logout", "Login")">
                     <span class="material-symbols-outlined">logout</span> Cerrar sesión
+                </a>
+                <a href="@Url.Action("CambiarPassword", "Login")" style="font-size:13px;opacity:0.7;">
+                    <span class="material-symbols-outlined">lock</span> Cambiar contraseña
                 </a>
             </nav>
         </aside>

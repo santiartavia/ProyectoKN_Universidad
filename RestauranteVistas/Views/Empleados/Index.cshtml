@@ -1,16 +1,17 @@
-﻿@model RestauranteVistas.Controllers.EmpleadosViewModel
+﻿@model RestauranteVistas.Models.ViewModels.EmpleadosViewModel
 
 @{
     ViewBag.Title = "Gestión de Empleados";
+    var searchTerm = Model?.TerminoBusqueda ?? "";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var empleadosActivos = Model.Empleados.Where(e => e.Estado == "Activo").ToList();
+    var empleadosActivos = Model.Empleados.Where(e => e.Estado).ToList();
 }
 
 <div class="hero-card empleados-hero">
     <div>
         <span class="mini-badge">Equipo operativo</span>
         <h2>Gestión de Empleados</h2>
-        <p>Control diario.</p>
+        <p>Control diario del personal.</p>
     </div>
     <div class="hero-summary">
         <strong>@Model.UltimoMovimiento</strong>
@@ -18,10 +19,16 @@
     </div>
 </div>
 
-@if (TempData["Mensaje"] != null)
+@if (!string.IsNullOrEmpty(Model.Mensaje))
 {
-    <div class="section-card">
-        <h3>@TempData["Mensaje"]</h3>
+    <div class="section-card" style="border-left: 4px solid #2e7d32; padding: 12px 18px; margin-bottom: 16px; background: #e8f5e9;">
+        <h3 style="color: #2e7d32; margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left: 4px solid #c62828; padding: 12px 18px; margin-bottom: 16px; background: #ffebee;">
+        <h3 style="color: #c62828; margin:0;">@Model.Error</h3>
     </div>
 }
 
@@ -35,13 +42,12 @@
         <div class="value">@Model.TurnosProgramados</div>
     </div>
     <div class="metric-card alt-orange">
-        <h3>Mesas gestionadas</h3>
-        <div class="value">@Model.MesasGestionadas</div>
+        <h3>Vacaciones pendientes</h3>
+        <div class="value">@(Model.Vacaciones?.Count ?? 0)</div>
     </div>
 </div>
 
 <div class="grid-2">
-
     <div class="form-card">
         <div class="section-title">
             <div>
@@ -49,52 +55,48 @@
                 <p>Nuevo empleado.</p>
             </div>
         </div>
-
         @using (Html.BeginForm("RegistrarEmpleado", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Nombre completo</label>
-                    <input type="text" name="nombre" required title="Campo obligatorio" />
+                    <label>Cédula *</label>
+                    <input type="text" name="cedula" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Cédula</label>
-                    <input type="text" name="cedula" required title="Campo obligatorio" />
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Rol</label>
-                    <select name="rol" required>
-                        <option value="">Seleccione un rol...</option>
-                        <option>Administrador</option>
-                        <option>Mesero</option>
-                        <option>Cocinero</option>
-                        <option>Cajero</option>
-                    </select>
+                    <label>Apellidos *</label>
+                    <input type="text" name="apellidos" required />
                 </div>
-
                 <div class="form-group">
                     <label>Teléfono</label>
-                    <input type="text" name="telefono" required />
+                    <input type="text" name="telefono" />
                 </div>
-
                 <div class="form-group">
                     <label>Correo</label>
-                    <input type="email" name="correo" required title="Debe tener un formato válido" />
+                    <input type="email" name="correo" />
                 </div>
-
                 <div class="form-group">
-                    <label>Fecha de Ingreso</label>
-                    <input type="date" name="fechaIngreso" required />
+                    <label>Rol *</label>
+                    <select name="rol" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var r in Model.Roles)
+                        {
+                            <option value="@r.NombreRol">@r.NombreRol</option>
+                        }
+                    </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Salario por hora</label>
-                    <input type="number" step="0.01" min="0.01" name="salarioHora" placeholder="Ej. 2500" required title="El salario debe ser mayor a cero" />
+                    <label>Fecha de ingreso *</label>
+                    <input type="date" name="fechaIngreso" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                </div>
+                <div class="form-group">
+                    <label>Salario por hora *</label>
+                    <input type="number" step="0.01" min="0.01" name="salarioHora" required />
                 </div>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <span class="material-symbols-outlined">save</span> Registrar empleado
@@ -111,60 +113,36 @@
                 <p>Nuevo turno.</p>
             </div>
         </div>
-
         @using (Html.BeginForm("CrearTurno", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Empleado</label>
-                    <select name="empleado">
-                        @foreach (var empleado in empleadosActivos)
+                    <label>Empleado *</label>
+                    <select name="idEmpleado" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var emp in empleadosActivos)
                         {
-                            <option>@empleado.Nombre</option>
+                            <option value="@emp.IdEmpleado">@emp.Nombre @emp.Apellidos</option>
                         }
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Día</label>
-                    <select name="dia" required>
-                        <option>Lunes</option>
-                        <option>Martes</option>
-                        <option>Miércoles</option>
-                        <option>Jueves</option>
-                        <option>Viernes</option>
-                        <option>Sábado</option>
-                        <option>Domingo</option>
-                    </select>
+                    <label>Fecha *</label>
+                    <input type="date" name="fechaTurno" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Hora inicio</label>
+                    <label>Hora inicio *</label>
                     <input type="time" name="horaInicio" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Hora fin</label>
+                    <label>Hora fin *</label>
                     <input type="time" name="horaFin" required />
                 </div>
-
-                <div class="form-group">
-                    <label>Área</label>
-                    <select name="area" required>
-                        <option>Salón principal</option>
-                        <option>Terraza</option>
-                        <option>Cocina caliente</option>
-                        <option>Cocina fría</option>
-                        <option>Caja</option>
-                    </select>
-                </div>
-
                 <div class="form-group form-group-wide">
-                    <label>Observaciones</label>
-                    <textarea name="observaciones" placeholder="Notas breves"></textarea>
+                    <label>Descripción</label>
+                    <textarea name="descripcion" placeholder="Notas del turno"></textarea>
                 </div>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <span class="material-symbols-outlined">event_available</span> Guardar turno
@@ -172,125 +150,64 @@
             </div>
         }
     </div>
-
 </div>
 
 <div class="grid-2">
-
-    <div class="form-card feature-form-card">
-        <div class="section-title">
-            <div>
-                <span class="mini-badge">GES-004</span>
-                <h3>Registrar atención de mesa</h3>
-                <p>Nueva atención.</p>
-            </div>
-        </div>
-
-        @using (Html.BeginForm("RegistrarMesa", "Empleados", FormMethod.Post))
-        {
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Empleado</label>
-                    <select name="empleado">
-                        @foreach (var empleado in empleadosActivos)
-                        {
-                            <option>@empleado.Nombre</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Número de mesa</label>
-                    <input type="number" name="numeroMesa" min="1" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Franja</label>
-                    <select name="franja" required>
-                        <option>Desayuno</option>
-                        <option>Almuerzo</option>
-                        <option>Cena</option>
-                        <option>Evento especial</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Estado</label>
-                    <select name="estadoAtencion" required>
-                        <option>Atendida</option>
-                        <option>Reservada</option>
-                        <option>En seguimiento</option>
-                        <option>Cerrada</option>
-                    </select>
-                </div>
-
-                <div class="form-group form-group-wide">
-                    <label>Observaciones</label>
-                    <textarea name="observaciones" placeholder="Notas breves"></textarea>
-                </div>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <span class="material-symbols-outlined">room_service</span> Registrar atención
-                </button>
-            </div>
-        }
-    </div>
-
     <div class="form-card">
         <div class="section-title">
             <div>
-                <h3>GES-005 Gestionar vacaciones</h3>
-                <p>Vacaciones.</p>
+                <h3>GES-005 Solicitar vacaciones</h3>
+                <p>Nueva solicitud.</p>
             </div>
         </div>
-
-        @using (Html.BeginForm("GestionarVacaciones", "Empleados", FormMethod.Post))
+        @using (Html.BeginForm("SolicitarVacacion", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Empleado</label>
-                    <select name="empleado">
-                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
+                    <label>Empleado *</label>
+                    <select name="idEmpleado" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var emp in empleadosActivos)
                         {
-                            <option>@empleado.Nombre</option>
+                            <option value="@emp.IdEmpleado">@emp.Nombre @emp.Apellidos</option>
                         }
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Fecha inicio</label>
+                    <label>Fecha inicio *</label>
                     <input type="date" name="fechaInicio" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Fecha fin</label>
+                    <label>Fecha fin *</label>
                     <input type="date" name="fechaFin" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Días solicitados</label>
-                    <input type="number" name="dias" required />
+                    <label>Días calculados</label>
+                    <output id="diasCalculados" style="display:block;padding:10px;background:#f5f5f5;border-radius:6px;text-align:center;font-size:18px;font-weight:700;">—</output>
                 </div>
+                <script>
+                    document.querySelectorAll('[name="fechaInicio"],[name="fechaFin"]').forEach(function(el){
+                        el.addEventListener('change',function(){
+                            var fi=document.querySelector('[name="fechaInicio"]').value;
+                            var ff=document.querySelector('[name="fechaFin"]').value;
+                            if(fi&&ff){
+                                var d1=new Date(fi),d2=new Date(ff);
+                                if(d2>=d1){
+                                    var diff=Math.round((d2-d1)/(1000*60*60*24))+1;
+                                    document.getElementById('diasCalculados').textContent=diff+' día'+(diff>1?'s':'');
+                                }else{document.getElementById('diasCalculados').textContent='—';}
+                            }else{document.getElementById('diasCalculados').textContent='—';}
+                        });
+                    });
+                </script>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-symbols-outlined">beach_access</span> Registrar vacaciones
+                    <span class="material-symbols-outlined">beach_access</span> Solicitar vacaciones
                 </button>
             </div>
         }
     </div>
-
-</div>
-
-<div class="grid-2">
 
     <div class="form-card">
         <div class="section-title">
@@ -299,31 +216,18 @@
                 <p>Horas extra.</p>
             </div>
         </div>
-
         @using (Html.BeginForm("RegistrarHorasExtra", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Empleado</label>
-                    <select name="empleado">
-                        @foreach (var empleado in Model.Empleados.Where(e => e.Estado == "Activo"))
-                        {
-                            <option>@empleado.Nombre</option>
-                        }
-                    </select>
+                    <label>ID Asistencia *</label>
+                    <input type="number" name="idAsistencia" required placeholder="Ej. 1" />
                 </div>
-
                 <div class="form-group">
-                    <label>Fecha</label>
-                    <input type="date" name="fecha" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Cantidad de horas</label>
-                    <input type="number" name="cantidadHoras" required />
+                    <label>Cantidad de horas *</label>
+                    <input type="number" step="0.5" min="0.5" name="cantidadHoras" required />
                 </div>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
                     <span class="material-symbols-outlined">more_time</span> Registrar horas extra
@@ -331,62 +235,46 @@
             </div>
         }
     </div>
+</div>
 
+<div class="grid-2">
     <div class="form-card">
         <div class="section-title">
             <div>
-                <h3>GES-002 Administrar empleados</h3>
-                <p>Editar información y estados.</p>
+                <h3>GES-002 Editar empleado</h3>
+                <p>Actualizar datos contractuales.</p>
             </div>
         </div>
-
         @using (Html.BeginForm("AdministrarEmpleado", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>ID empleado</label>
-                    <input type="number" name="id" placeholder="1001" required />
+                    <label>ID empleado *</label>
+                    <input type="number" name="id" required />
                 </div>
-
                 <div class="form-group">
-                    <label>Nombre</label>
-                    <input type="text" name="nombre" required />
+                    <label>Teléfono</label>
+                    <input type="text" name="telefono" />
                 </div>
-
+                <div class="form-group">
+                    <label>Correo</label>
+                    <input type="email" name="correo" />
+                </div>
                 <div class="form-group">
                     <label>Rol</label>
                     <select name="rol">
-                        <option>Administrador</option>
-                        <option>Mesero</option>
-                        <option>Cocinero</option>
-                        <option>Cajero</option>
+                        <option value="">Sin cambio</option>
+                        @foreach (var r in Model.Roles)
+                        {
+                            <option value="@r.NombreRol">@r.NombreRol</option>
+                        }
                     </select>
                 </div>
-
                 <div class="form-group">
-                    <label>Correo</label>
-                    <input type="email" name="correo" required />
-                </div>
-
-                <div class="form-group">
-                    <label>Salario por hora</label>
+                    <label>Salario por hora *</label>
                     <input type="number" step="0.01" min="0.01" name="salarioHora" required />
                 </div>
-
-                <div class="form-group">
-                    <label>Estado Empleado</label>
-                    <select name="estadoEmpleado">
-                        <option value="Activo">Activo</option>
-                        <option value="Inactivo">Inactivo</option>
-                    </select>
-                </div>
-
-                <div class="form-group form-group-wide">
-                    <label>Motivo de inactivación (si aplica)</label>
-                    <input type="text" name="motivoInactivacion" placeholder="Ej. Renuncia, Despido..." />
-                </div>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn btn-warning">
                     <span class="material-symbols-outlined">edit</span> Actualizar empleado
@@ -395,41 +283,92 @@
         }
     </div>
 
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>GES-002 Inactivar / Reactivar</h3>
+                <p>Cambiar estado operativo.</p>
+            </div>
+        </div>
+        <div class="grid-2" style="gap:12px;">
+            @using (Html.BeginForm("InactivarEmpleado", "Empleados", FormMethod.Post, new { style = "margin:0;" }))
+            {
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID empleado *</label>
+                        <input type="number" name="id" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo de inactivación *</label>
+                        <input type="text" name="motivoInactivacion" required placeholder="Renuncia, despido..." />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">
+                        <span class="material-symbols-outlined">person_off</span> Inactivar
+                    </button>
+                </div>
+            }
+            @using (Html.BeginForm("ReactivarEmpleado", "Empleados", FormMethod.Post, new { style = "margin:0;" }))
+            {
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ID empleado *</label>
+                        <input type="number" name="id" required />
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        <span class="material-symbols-outlined">person</span> Reactivar
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
 <div class="table-card">
     <div class="section-title">
         <div>
             <h3>Listado de empleados</h3>
-            <p>Estado actual.</p>
+            <p>Estado actual del personal.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+            @using (Html.BeginForm("BuscarEmpleados", "Empleados", FormMethod.Get, new { style = "display:flex;gap:6px;" }))
+            {
+                <input type="text" name="termino" value="@searchTerm" placeholder="Buscar por nombre, cédula..." style="padding:6px 12px;border:1px solid var(--border);border-radius:6px;font-size:14px;" />
+                <button type="submit" class="btn btn-soft" style="padding:6px 14px;">
+                    <span class="material-symbols-outlined" style="font-size:18px;">search</span>
+                </button>
+            }
         </div>
     </div>
-
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Empleado</th>
+                <th>Nombre</th>
                 <th>Cédula</th>
                 <th>Rol</th>
                 <th>Teléfono</th>
                 <th>Correo</th>
+                <th>Salario/hora</th>
                 <th>Estado</th>
-                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var empleado in Model.Empleados)
+            @foreach (var emp in Model.Empleados)
             {
                 <tr>
-                    <td>@empleado.Id</td>
-                    <td>@empleado.Nombre</td>
-                    <td>@empleado.Cedula</td>
-                    <td>@empleado.Rol</td>
-                    <td>@empleado.Telefono</td>
-                    <td>@empleado.Correo</td>
+                    <td>@emp.IdEmpleado</td>
+                    <td>@emp.Nombre @emp.Apellidos</td>
+                    <td>@emp.Cedula</td>
+                    <td>@(emp.Usuario?.Rol?.NombreRol ?? "")</td>
+                    <td>@emp.Telefono</td>
+                    <td>@emp.CorreoPersonal</td>
+                    <td>@emp.SalarioHora.ToString("N2")</td>
                     <td>
-                        @if (empleado.Estado == "Activo")
+                        @if (emp.Estado)
                         {
                             <span class="status success">Activo</span>
                         }
@@ -438,24 +377,6 @@
                             <span class="status danger">Inactivo</span>
                         }
                     </td>
-                    <td>
-                        <div class="card-actions-inline" style="display: flex; gap: 8px;">
-                            <button class="btn btn-soft" onclick="document.getElementsByName('id')[0].value = '@empleado.Id'; window.scrollTo(0, document.querySelector('input[name=\'id\']').offsetTop);">
-                                Editar
-                            </button>
-
-                            @if (empleado.Estado == "Activo")
-                            {
-                                using (Html.BeginForm("EliminarEmpleado", "Empleados", FormMethod.Post, new { style = "margin: 0;" }))
-                                {
-                                    <input type="hidden" name="id" value="@empleado.Id" />
-                                    <button type="submit" class="btn btn-danger">
-                                        Desactivar
-                                    </button>
-                                }
-                            }
-                        </div>
-                    </td>
                 </tr>
             }
         </tbody>
@@ -465,68 +386,51 @@
 <div class="table-card">
     <div class="section-title">
         <div>
-            <h3>Registros creados durante el Sprint</h3>
-            <p>Registros recientes.</p>
+            <h3>Turnos programados (hoy)</h3>
+            <p>@DateTime.Today.ToString("dd/MM/yyyy")</p>
         </div>
     </div>
-
-    <h4>Turnos registrados</h4>
     <table>
         <thead>
             <tr>
                 <th>Empleado</th>
-                <th>Día</th>
+                <th>Fecha</th>
                 <th>Inicio</th>
                 <th>Fin</th>
-                <th>Área</th>
+                <th>Descripción</th>
                 <th>Estado</th>
-                <th>Observaciones</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var turno in Model.Turnos)
+            @if (Model.Turnos != null && Model.Turnos.Any())
             {
-                <tr>
-                    <td>@turno.Empleado</td>
-                    <td>@turno.Dia</td>
-                    <td>@turno.HoraInicio</td>
-                    <td>@turno.HoraFin</td>
-                    <td>@turno.Area</td>
-                    <td><span class="status info">@turno.Estado</span></td>
-                    <td>@turno.Observaciones</td>
-                </tr>
+                foreach (var t in Model.Turnos)
+                {
+                    <tr>
+                        <td>@t.Empleado?.Nombre @t.Empleado?.Apellidos</td>
+                        <td>@t.FechaTurno.ToString("dd/MM/yyyy")</td>
+                        <td>@t.HoraInicio.ToString(@"hh\:mm")</td>
+                        <td>@t.HoraFin.ToString(@"hh\:mm")</td>
+                        <td>@t.Descripcion</td>
+                        <td><span class="status info">@(t.Estado ? "Activo" : "Inactivo")</span></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6">Sin turnos programados para hoy.</td></tr>
             }
         </tbody>
     </table>
+</div>
 
-    <h4>Mesas atendidas</h4>
-    <table>
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Mesa</th>
-                <th>Fecha</th>
-                <th>Franja</th>
-                <th>Estado</th>
-                <th>Observaciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var mesa in Model.MesasAtendidas)
-            {
-                <tr>
-                    <td>@mesa.Empleado</td>
-                    <td>@mesa.NumeroMesa</td>
-                    <td>@mesa.Fecha</td>
-                    <td>@mesa.Franja</td>
-                    <td><span class="status success">@mesa.EstadoAtencion</span></td>
-                    <td>@mesa.Observaciones</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <h4>Vacaciones registradas</h4>
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Vacaciones pendientes</h3>
+            <p>Solicitudes por aprobar.</p>
+        </div>
+    </div>
     <table>
         <thead>
             <tr>
@@ -534,82 +438,43 @@
                 <th>Inicio</th>
                 <th>Fin</th>
                 <th>Días</th>
+                <th>Estado</th>
+                <th>Acción</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var vacacion in Model.Vacaciones)
+            @if (Model.Vacaciones != null && Model.Vacaciones.Any())
             {
-                <tr>
-                    <td>@vacacion.Empleado</td>
-                    <td>@vacacion.FechaInicio</td>
-                    <td>@vacacion.FechaFin</td>
-                    <td>@vacacion.Dias</td>
-                </tr>
+                foreach (var v in Model.Vacaciones)
+                {
+                    <tr>
+                        <td>@v.Empleado?.Nombre @v.Empleado?.Apellidos</td>
+                        <td>@v.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@v.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td>@v.DiasSolicitados</td>
+                        <td><span class="status warning">@v.EstadoSolicitud</span></td>
+                        <td>
+                            @using (Html.BeginForm("AprobarVacacion", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                <input type="hidden" name="idVacacion" value="@v.IdVacacion" />
+                                <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
+                            }
+                            @using (Html.BeginForm("RechazarVacacion", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                <input type="hidden" name="idVacacion" value="@v.IdVacacion" />
+                                <input type="text" name="motivoRechazo" placeholder="Motivo" required style="width:120px;font-size:12px;" />
+                                <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6">Sin solicitudes pendientes.</td></tr>
             }
         </tbody>
     </table>
-
-    <h4>Horas extra registradas</h4>
-    <table>
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Fecha</th>
-                <th>Horas</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var hora in Model.HorasExtra)
-            {
-                <tr>
-                    <td>@hora.Empleado</td>
-                    <td>@hora.Fecha</td>
-                    <td>@hora.CantidadHoras</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<div class="story-card">
-    <h4>Historias</h4>
-
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">GES-001 Registrar empleados <span>+</span></button>
-            <div class="accordion-content">Registro de empleados validando datos y duplicidad.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-002 Administrar empleados <span>+</span></button>
-            <div class="accordion-content">Edición de empleados, incluyendo activación e inactivación.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-003 Programar turnos <span>+</span></button>
-            <div class="accordion-content">Programación de turnos.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-004 Registrar atención de mesas <span>+</span></button>
-            <div class="accordion-content">Atención de mesas.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-005 Gestionar vacaciones <span>+</span></button>
-            <div class="accordion-content">Gestión de vacaciones.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-006 Registrar horas extra <span>+</span></button>
-            <div class="accordion-content">Registro de horas extra.</div>
-        </div>
-
-        <div class="accordion-item">
-            <button class="accordion-header">GES-007 Desactivar usuarios inactivos <span>+</span></button>
-            <div class="accordion-content">Desactivación de empleados.</div>
-        </div>
-    </div>
 </div>
 
 <style>
@@ -619,7 +484,6 @@
         align-items: center;
         gap: 24px;
     }
-
     .hero-summary {
         min-width: 260px;
         padding: 18px;
@@ -627,42 +491,19 @@
         background: rgba(255,255,255,0.72);
         border: 1px solid var(--border);
     }
-
-        .hero-summary strong,
-        .hero-summary span {
-            display: block;
-        }
-
-        .hero-summary strong {
-            color: var(--sapphire);
-            font-size: 18px;
-            margin-bottom: 4px;
-        }
-
-    .feature-form-card {
-        border-top: 6px solid var(--emerald);
+    .hero-summary strong,
+    .hero-summary span { display: block; }
+    .hero-summary strong {
+        color: var(--sapphire);
+        font-size: 18px;
+        margin-bottom: 4px;
     }
-
-    .form-group-wide {
-        grid-column: 1 / -1;
-    }
-
-    .table-card h4 {
-        margin: 26px 0 12px;
-        color: var(--emerald);
-    }
-
+    .feature-form-card { border-top: 6px solid var(--emerald); }
+    .form-group-wide { grid-column: 1 / -1; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .table-card h4 { margin: 26px 0 12px; color: var(--emerald); }
     @@media (max-width: 900px) {
-        .empleados-hero {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .hero-summary {
-            min-width: 0;
-            width: 100%;
-        }
+        .empleados-hero { flex-direction: column; align-items: flex-start; }
+        .hero-summary { min-width: 0; width: 100%; }
     }
 </style>
-
-// ges 001 a 007

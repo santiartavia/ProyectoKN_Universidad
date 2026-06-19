@@ -9,7 +9,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Restaurante El Colibrí</title>
-
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link href="~/Content/Site.css" rel="stylesheet" />
@@ -23,71 +22,49 @@
                 </div>
                 <div>
                     <h1>Restaurante El Colibrí</h1>
-                    <p>Sistema visual del restaurante</p>
+                    <p>Sistema de gestión restaurantera</p>
                 </div>
             </div>
-
             <div class="login-message">
-                <h2>Ingreso por rol</h2>
-                <p>
-                   ¡Inicia Sesión con tu nombre y selecciona tu respectivo rol!
-                </p>
-
+                <h2>Inicio de sesión</h2>
+                <p>Ingrese sus credenciales para acceder al sistema.</p>
                 <div class="login-tags">
-                    <span class="chip"><i class="fa-solid fa-user-shield"></i> Admin</span>
+                    <span class="chip"><i class="fa-solid fa-user-shield"></i> Administrador</span>
                     <span class="chip"><i class="fa-solid fa-cash-register"></i> Cajero</span>
                     <span class="chip"><i class="fa-solid fa-bell-concierge"></i> Mesero</span>
                     <span class="chip"><i class="fa-solid fa-utensils"></i> Cocinero</span>
                 </div>
             </div>
         </div>
-
         <div class="login-panel right">
             <div class="login-card">
                 <h2>Iniciar sesión</h2>
-                <p>Acceso visual por rol</p>
-
+                <p>Acceso al sistema</p>
                 @if (TempData["ErrorLogin"] != null)
                 {
                     <div class="banner" style="margin-bottom:18px;">
                         <strong>Error:</strong> @TempData["ErrorLogin"]
                     </div>
                 }
-
                 @using (Html.BeginForm("Entrar", "Login", FormMethod.Post))
                 {
                     <div class="form-group">
-                        <label>Nombre del usuario</label>
-                        <input type="text" name="usuario" placeholder="Ej: Santiago Artavia" />
+                        <label>Usuario</label>
+                        <input type="text" name="usuario" placeholder="Nombre de usuario" required />
                     </div>
-
                     <div class="form-group">
-                        <label>Rol</label>
-                        <select name="rol">
-                            <option value="">Seleccione un rol</option>
-                            <option value="Admin">Administrador</option>
-                            <option value="Cajero">Cajero</option>
-                            <option value="Mesero">Mesero</option>
-                            <option value="Cocinero">Cocinero</option>
-                        </select>
+                        <label>Contraseña</label>
+                        <input type="password" name="password" placeholder="Contraseña" required />
                     </div>
-
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-full">
                             <span class="material-symbols-outlined">login</span> Entrar al sistema
                         </button>
                     </div>
                 }
-
-                <div class="form-actions">
-                    <button class="btn btn-soft btn-full" onclick="mostrarToast('Seleccione un rol para entrar al sistema')">
-                        <span class="material-symbols-outlined">info</span> Mostrar ayuda
-                    </button>
-                </div>
             </div>
         </div>
     </div>
-
     <div id="toast" class="toast"></div>
     <script src="~/Scripts/site.js"></script>
 </body>

@@ -1,6 +1,9 @@
-﻿@{
+﻿@using Abstracciones.Models
+@{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var ultimosMovimientos = ViewBag.UltimosMovimientos as List<BitacoraRRHH> ?? new List<BitacoraRRHH>();
+    var totalEmpleados = ViewBag.TotalEmpleados ?? 0;
 }
 
 <div class="hero-card">
@@ -14,19 +17,19 @@
 <div class="grid-4">
     <div class="metric-card">
         <h3>Ventas del día</h3>
-        <div class="value">₡428k</div>
+        <div class="value">₡—</div>
     </div>
     <div class="metric-card alt-blue">
         <h3>Pedidos activos</h3>
-        <div class="value">17</div>
+        <div class="value">—</div>
     </div>
     <div class="metric-card alt-orange">
         <h3>Mesas ocupadas</h3>
-        <div class="value">11</div>
+        <div class="value">—</div>
     </div>
     <div class="metric-card alt-teal">
-        <h3>Empleados turno</h3>
-        <div class="value">14</div>
+        <h3>Empleados activos</h3>
+        <div class="value">@totalEmpleados</div>
     </div>
 </div>
 
@@ -43,6 +46,24 @@
             <div class="quick-icon bg-emerald"><span class="material-symbols-outlined">badge</span></div>
             <h4>Empleados</h4>
             <p>Registro y control del personal</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Asistencia","Empleados")">
+            <div class="quick-icon bg-sapphire"><span class="material-symbols-outlined">fingerprint</span></div>
+            <h4>Asistencia</h4>
+            <p>Ponchador de entrada/salida</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("Bitacora","Empleados")">
+            <div class="quick-icon bg-iridescent"><span class="material-symbols-outlined">history</span></div>
+            <h4>Bitácora</h4>
+            <p>Auditoría del sistema</p>
+        </a>
+
+        <a class="quick-card" href="@Url.Action("MetricasMesas","Empleados")">
+            <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">leaderboard</span></div>
+            <h4>Métricas Mesas</h4>
+            <p>Productividad de meseros</p>
         </a>
 
         <a class="quick-card" href="@Url.Action("Index","Usuarios")">
@@ -80,12 +101,6 @@
             <h4>Punto de Venta</h4>
             <p>Cobro rápido en caja</p>
         </a>
-
-        <div class="quick-card" onclick="mostrarToast('Módulo extra visual listo')">
-            <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">bolt</span></div>
-            <h4>Acción rápida</h4>
-            <p>Botón visual demostrativo</p>
-        </div>
     </div>
 </div>
 
@@ -93,16 +108,29 @@
     <div class="section-card">
         <div class="section-title">
             <div>
-                <h3>Actividad reciente</h3>
-                <p>Movimiento visual del sistema</p>
+                <h3>Bitácora — últimos movimientos</h3>
+                <p>Registro de auditoría del sistema</p>
             </div>
+            <a href="@Url.Action("Bitacora","Empleados")" class="btn btn-soft" style="padding:6px 12px;font-size:13px;">
+                <span class="material-symbols-outlined">open_in_new</span> Ver todas
+            </a>
         </div>
 
         <div class="info-list">
-            <div class="info-row"><span>Pedido de Mesa 8 actualizado</span><span class="status info">Hace 2 min</span></div>
-            <div class="info-row"><span>Se registró un nuevo empleado</span><span class="status success">Hace 8 min</span></div>
-            <div class="info-row"><span>Alerta de stock mínimo en papas</span><span class="status danger">Hace 12 min</span></div>
-            <div class="info-row"><span>Reporte diario exportado</span><span class="status warning">Hace 20 min</span></div>
+            @if (ultimosMovimientos.Any())
+            {
+                foreach (var mov in ultimosMovimientos)
+                {
+                    <div class="info-row">
+                        <span>[@mov.Accion] @mov.TablaAfectada — @(mov.Detalle?.Length > 60 ? mov.Detalle.Substring(0, 60) + "..." : mov.Detalle)</span>
+                        <span class="status info">@mov.FechaHora.ToString("dd/MM HH:mm")</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="info-row"><span>No hay movimientos registrados aún</span><span class="status warning">—</span></div>
+            }
         </div>
     </div>
 
@@ -115,17 +143,18 @@
         </div>
 
         <div class="banner">
-            <strong>Resumen:</strong> el sistema presenta todas las áreas clave del restaurante con
-            una interfaz visual coherente, moderna y alineada a la cromática definida en tu documento.
+            <strong>@totalEmpleados empleados activos</strong> en el sistema.
+            Los módulos de RRHH (empleados, turnos, asistencia, vacaciones, horas extra, bitácora)
+            están operativos con base de datos SQL Server.
         </div>
 
         <div class="form-actions">
-            <button class="btn btn-primary" onclick="mostrarToast('Vista general cargada correctamente')">
-                <span class="material-symbols-outlined">check_circle</span> Probar dashboard
-            </button>
-            <button class="btn btn-secondary" onclick="abrirModal('modalAyuda')">
-                <span class="material-symbols-outlined">help</span> Ver ayuda
-            </button>
+            <a href="@Url.Action("Asistencia","Empleados")" class="btn btn-primary">
+                <span class="material-symbols-outlined">fingerprint</span> Ir a Asistencia
+            </a>
+            <a href="@Url.Action("Bitacora","Empleados")" class="btn btn-secondary">
+                <span class="material-symbols-outlined">history</span> Ir a Bitácora
+            </a>
         </div>
     </div>
 </div>

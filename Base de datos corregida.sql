@@ -73,6 +73,7 @@ CREATE TABLE dbo.Usuarios (
     intentos_fallidos           TINYINT       NOT NULL CONSTRAINT DF_Usr_intentos    DEFAULT 0,
     bloqueado                   BIT           NOT NULL CONSTRAINT DF_Usr_bloqueado   DEFAULT 0,
     fecha_ultimo_acceso         DATETIME2         NULL,
+    fecha_password              DATETIME2         NULL,
     estado                      BIT           NOT NULL CONSTRAINT DF_Usuarios_estado DEFAULT 1,
     fecha_creacion              DATETIME2     NOT NULL CONSTRAINT DF_Usuarios_fecha  DEFAULT SYSUTCDATETIME(),
 
@@ -204,6 +205,9 @@ CREATE TABLE dbo.Empleados (
     salario_hora                DECIMAL(10,2) NOT NULL CONSTRAINT CK_Emp_salario CHECK (salario_hora >= 0),
     dias_vacaciones_disponibles DECIMAL(6,2)  NOT NULL CONSTRAINT DF_Emp_vac     DEFAULT 0,
     fecha_ingreso               DATE          NOT NULL CONSTRAINT DF_Emp_ingreso  DEFAULT CAST(SYSUTCDATETIME() AS DATE),
+    fecha_modificacion          DATETIME2         NULL,
+    fecha_reactivacion          DATETIME2         NULL,
+    motivo_inactivacion         NVARCHAR(300)     NULL,
     estado                      BIT           NOT NULL CONSTRAINT DF_Emp_estado   DEFAULT 1,
 
     CONSTRAINT PK_Empleados   PRIMARY KEY (id_empleado),
@@ -326,7 +330,8 @@ CREATE TABLE dbo.Horas_Extra (
     id_asistencia   INT            NOT NULL,
     cantidad_horas  DECIMAL(5,2)   NOT NULL CONSTRAINT CK_HE_horas  CHECK (cantidad_horas > 0),
     factor_pago     DECIMAL(4,2)   NOT NULL CONSTRAINT DF_HE_factor DEFAULT 1.50,
-    monto_calculado AS (cantidad_horas * factor_pago),
+    monto_calculado DECIMAL(12,2)      NULL,
+    motivo_ajuste   NVARCHAR(300)      NULL,
     fecha_registro  DATETIME2      NOT NULL CONSTRAINT DF_HE_fecha  DEFAULT SYSUTCDATETIME(),
     estado          BIT            NOT NULL CONSTRAINT DF_HE_estado DEFAULT 1,
 

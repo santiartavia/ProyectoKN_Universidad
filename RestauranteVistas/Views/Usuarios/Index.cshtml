@@ -1,134 +1,89 @@
-﻿@{
+﻿@model RestauranteVistas.Models.ViewModels.UsuariosViewModel
+
+@{
     ViewBag.Title = "Gestión de Usuarios";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="hero-card">
     <h2>Administración de usuarios del sistema</h2>
-    <p>
-        Pantalla visual para crear, consultar y simular mantenimiento de usuarios con roles,
-        validaciones de contraseña y control de datos obligatorios.
-    </p>
+    <p>Gestión de accesos y roles del personal.</p>
 </div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin-bottom:16px;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin-bottom:16px;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
 
 <div class="grid-3">
-    <div class="metric-card"><h3>Usuarios activos</h3><div class="value">12</div></div>
-    <div class="metric-card alt-blue"><h3>Administradores</h3><div class="value">2</div></div>
-    <div class="metric-card alt-orange"><h3>Roles definidos</h3><div class="value">4</div></div>
+    <div class="metric-card"><h3>Usuarios activos</h3><div class="value">@Model.UsuariosActivos</div></div>
+    <div class="metric-card alt-blue"><h3>Administradores</h3><div class="value">@Model.Administradores</div></div>
+    <div class="metric-card alt-orange"><h3>Roles definidos</h3><div class="value">@Model.RolesDefinidos</div></div>
 </div>
 
-<div class="grid-2">
-    <div class="form-card">
-        <div class="section-title">
-            <div>
-                <h3>Crear usuario</h3>
-                <p>Gestión visual de accesos</p>
-            </div>
-        </div>
-
-        <div class="form-grid">
-            <div class="form-group"><label>ID Usuario</label><input type="text" placeholder="501" /></div>
-            <div class="form-group"><label>Nombre</label><input type="text" placeholder="Nombre" /></div>
-            <div class="form-group"><label>Apellido</label><input type="text" placeholder="Apellido" /></div>
-            <div class="form-group"><label>Correo</label><input type="email" placeholder="usuario@correo.com" /></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" placeholder="************" /></div>
-            <div class="form-group"><label>Teléfono</label><input type="text" placeholder="88888888" /></div>
-            <div class="form-group"><label>Cédula</label><input type="text" placeholder="Cédula" /></div>
-            <div class="form-group">
-                <label>Rol</label>
-                <select>
-                    <option>Administrador</option>
-                    <option>Cajero</option>
-                    <option>Mesero</option>
-                    <option>Cocinero</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Usuario agregado de manera exitosa')">
-                <span class="material-symbols-outlined">person_add</span> Agregar
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('Contraseña insegura: debe contener mayúscula y carácter especial')">
-                <span class="material-symbols-outlined">key</span> Validar contraseña
-            </button>
-            <button class="btn btn-danger" onclick="accionDemo('El usuario ya existe')">
-                <span class="material-symbols-outlined">person_off</span> Duplicado
-            </button>
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Usuarios registrados</h3>
+            <p>Control de accesos</p>
         </div>
     </div>
 
-    <div class="table-card">
-        <div class="section-title">
-            <div>
-                <h3>Usuarios registrados</h3>
-                <p>Control de accesos</p>
-            </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Correo</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>501</td>
-                    <td>Santiago Artavia</td>
-                    <td>Administrador</td>
-                    <td>admin@colibri.com</td>
-                    <td><span class="status success">Activo</span></td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Editar usuario visual')">Editar</button></td>
-                </tr>
-                <tr>
-                    <td>502</td>
-                    <td>Valeria Castro</td>
-                    <td>Cajera</td>
-                    <td>valeria@colibri.com</td>
-                    <td><span class="status info">Disponible</span></td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Editar usuario visual')">Editar</button></td>
-                </tr>
-                <tr>
-                    <td>503</td>
-                    <td>Andrés Mora</td>
-                    <td>Mesero</td>
-                    <td>andres@colibri.com</td>
-                    <td><span class="status warning">Pendiente</span></td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Editar usuario visual')">Editar</button></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div class="story-card">
-    <h4>Escenarios del módulo</h4>
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">Creación de usuario correcta <span>+</span></button>
-            <div class="accordion-content">El sistema permite agregar un nuevo usuario con datos completos y válidos.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Usuario ya existe <span>+</span></button>
-            <div class="accordion-content">Si la cuenta ya está registrada, se bloquea la operación y se avisa al administrador.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Campos obligatorios vacíos <span>+</span></button>
-            <div class="accordion-content">Se solicita completar nombre, correo, contraseña y rol.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Caracteres inválidos <span>+</span></button>
-            <div class="accordion-content">La interfaz representa una validación cuando un campo no cumple el formato esperado.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Contraseña débil <span>+</span></button>
-            <div class="accordion-content">La contraseña debe tener mayúscula, longitud mínima y carácter especial.</div>
-        </div>
-    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Correo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Usuarios != null && Model.Usuarios.Any())
+            {
+                foreach (var u in Model.Usuarios)
+                {
+                    <tr>
+                        <td>@u.IdUsuario</td>
+                        <td>@(Model.NombresEmpleados.ContainsKey(u.IdUsuario) ? Model.NombresEmpleados[u.IdUsuario] : u.NombreUsuario)</td>
+                        <td>@(u.Rol != null ? u.Rol.NombreRol : "")</td>
+                        <td>@u.Correo</td>
+                        <td>
+                            @if (u.Bloqueado)
+                            {
+                                <span class="status danger">Bloqueado</span>
+                            }
+                            else
+                            {
+                                <span class="status success">Activo</span>
+                            }
+                        </td>
+                        <td>
+                            @using (Html.BeginForm("BloquearUsuario", "Usuarios", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                <input type="hidden" name="id" value="@u.IdUsuario" />
+                                <button type="submit" class="btn btn-sm @(u.Bloqueado ? "btn-success" : "btn-warning")">
+                                    @(u.Bloqueado ? "Desbloquear" : "Bloquear")
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6">No hay usuarios registrados.</td></tr>
+            }
+        </tbody>
+    </table>
 </div>
