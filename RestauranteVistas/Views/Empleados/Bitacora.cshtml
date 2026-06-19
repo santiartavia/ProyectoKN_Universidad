@@ -84,7 +84,7 @@
                 {
                     <tr>
                         <td>@b.IdRegistro</td>
-                        <td>@b.Usuario?.NombreUsuario</td>
+                        <td>@(b.Usuario != null ? b.Usuario.NombreUsuario : "")</td>
                         <td>@b.TablaAfectada</td>
                         <td>@b.IdRegistroAfectado</td>
                         <td><span class="status info">@b.Accion</span></td>

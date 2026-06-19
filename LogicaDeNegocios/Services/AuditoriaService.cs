@@ -3,6 +3,7 @@ using Abstracciones.Models;
 using AccesoADatos;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 
 namespace LogicaDeNegocios.Services
@@ -46,7 +47,7 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                var query = ctx.BitacoraRRHH.AsQueryable();
+                var query = ctx.BitacoraRRHH.Include(b => b.Usuario).AsQueryable();
 
                 if (idRegistroAfectado.HasValue)
                     query = query.Where(b => b.IdRegistroAfectado == idRegistroAfectado.Value);

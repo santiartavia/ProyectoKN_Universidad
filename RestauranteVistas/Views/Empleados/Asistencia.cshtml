@@ -123,9 +123,9 @@
                 {
                     <tr>
                         <td>@a.IdAsistencia</td>
-                        <td>@a.Empleado?.Nombre @a.Empleado?.Apellidos (#@a.IdEmpleado)</td>
+                        <td>@(a.Empleado != null ? a.Empleado.Nombre + " " + a.Empleado.Apellidos : "") (#@a.IdEmpleado)</td>
                         <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                        <td>@(a.FechaHoraSalida?.ToString("yyyy-MM-dd HH:mm:ss") ?? "—")</td>
+                        <td>@(a.FechaHoraSalida != null ? a.FechaHoraSalida.Value.ToString("yyyy-MM-dd HH:mm:ss") : "—")</td>
                         <td>
                             @if (a.FechaHoraSalida == null)
                             {
