@@ -1,6 +1,8 @@
-﻿using LogicaDeNegocios.General.Fechas;
+﻿using AccesoADatos;
+using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using System;
+using System.Linq;
 using System.Web.Mvc;
 
 namespace RestauranteVistas.Controllers
@@ -9,6 +11,7 @@ namespace RestauranteVistas.Controllers
     public class MeseroController : Controller
     {
         private readonly MesaAtendidaService _mesaAtendidaService;
+        private ColibriDbContext db = new ColibriDbContext();
 
         public MeseroController()
         {
@@ -19,6 +22,23 @@ namespace RestauranteVistas.Controllers
 
         public ActionResult Index()
         {
+            int idEmpleado = 0;
+
+            if (Session["UsuarioId"] != null)
+            {
+                idEmpleado = Convert.ToInt32(Session["UsuarioId"]);
+            }
+
+            ViewBag.PedidosListos = db.Pedidos
+                .Where(p => p.Estado == true &&
+                            p.EstadoPedido == "listo" &&
+                            (idEmpleado == 0 || p.IdEmpleado == idEmpleado))
+                .OrderByDescending(p => p.FechaHora)
+                .ToList();
+
+            ViewBag.Detalles = db.DetallePedidos.Where(d => d.Estado == true).ToList();
+            ViewBag.Productos = db.Productos.Where(p => p.Estado == true).ToList();
+
             return View();
         }
 
@@ -39,6 +59,16 @@ namespace RestauranteVistas.Controllers
                 TempData["Error"] = $"Error: {ex.Message}";
             }
             return RedirectToAction("Index");
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

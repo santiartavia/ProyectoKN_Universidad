@@ -1,12 +1,18 @@
-﻿@{
+﻿@model List<Abstracciones.Models.Pedido>
+@using System.Linq;
+@{
     ViewBag.Title = "Panel de Cocina";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var mesas = ViewBag.Mesas as List<Abstracciones.Models.Mesa>;
+    var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
+    var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
 }
 
 <div class="hero-card">
     <h2>Panel principal de cocina</h2>
     <p>
-         Visualiza la cola de preparación,
+        Visualiza la cola de preparación,
         los pedidos en proceso, los tiempos estimados y los platos listos.
     </p>
 </div>
@@ -41,42 +47,101 @@
     </div>
 </div>
 
-<div class="table-card">
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success" style="margin-top:20px;">
+        @TempData["Mensaje"]
+    </div>
+}
+
+<div class="table-card" style="margin-top:25px;">
     <div class="section-title">
         <div>
-            <h3>Cola de cocina</h3>
-            <p>Pedidos en curso</p>
+            <h3>Cola de cocina funcional</h3>
+            <p>Pedidos reales cargados desde base de datos</p>
         </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Mesa</th>
-                <th>Plato</th>
-                <th>Observación</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>2</td>
-                <td>Casado de pollo</td>
-                <td>Sin ensalada</td>
-                <td><span class="status warning">Pendiente</span></td>
-            </tr>
-            <tr>
-                <td>5</td>
-                <td>Hamburguesa</td>
-                <td>Término medio</td>
-                <td><span class="status info">En preparación</span></td>
-            </tr>
-            <tr>
-                <td>7</td>
-                <td>Pasta Alfredo</td>
-                <td>Extra queso</td>
-                <td><span class="status success">Lista</span></td>
-            </tr>
-        </tbody>
-    </table>
+    @if (Model == null || !Model.Any())
+    {
+        <p>No hay pedidos pendientes para cocina.</p>
+    }
+    else
+    {
+        foreach (var pedido in Model)
+        {
+            var mesa = mesas != null ? mesas.FirstOrDefault(m => m.IdMesa == pedido.IdMesa) : null;
+            var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+
+            <div class="quick-card" style="margin-bottom:20px;">
+                <h4>Pedido #@pedido.IdPedido</h4>
+                <p><strong>Mesa:</strong> @(mesa != null ? mesa.NumeroMesa : "Sin mesa")</p>
+                <p><strong>Estado:</strong> @pedido.EstadoPedido</p>
+                <p><strong>Observaciones:</strong> @pedido.Observaciones</p>
+
+                @if (pedido.EstadoPedido == "solicitado")
+                {
+                    using (Html.BeginForm("IniciarPreparacion", "Cocina", FormMethod.Post))
+                    {
+                        @Html.Hidden("idPedido", pedido.IdPedido)
+                        <button type="submit" class="btn btn-primary">Iniciar preparación</button>
+                    }
+                }
+
+                <table style="margin-top:15px;">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Observación</th>
+                            <th>Estado item</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (detallesPedido != null && detallesPedido.Any())
+                        {
+                            foreach (var item in detallesPedido)
+                            {
+                                var producto = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+
+                                <tr>
+                                    <td>@(producto != null ? producto.NombreProducto : "Producto no encontrado")</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.ObservacionesItem</td>
+                                    <td>@item.EstadoItem</td>
+                                    <td>
+                                        @if (item.EstadoItem == "pendiente")
+                                        {
+                                            using (Html.BeginForm("MarcarItemPreparando", "Cocina", FormMethod.Post))
+                                            {
+                                                @Html.Hidden("idDetalle", item.IdDetalle)
+                                                <button type="submit" class="btn btn-warning">Marcar preparando</button>
+                                            }
+                                        }
+
+                                        @if (item.EstadoItem == "pendiente" || item.EstadoItem == "preparando")
+                                        {
+                                            using (Html.BeginForm("MarcarItemListo", "Cocina", FormMethod.Post))
+                                            {
+                                                @Html.Hidden("idDetalle", item.IdDetalle)
+                                                <button type="submit" class="btn btn-secondary">Marcar listo</button>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5">Este pedido no tiene productos registrados.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
 </div>

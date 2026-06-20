@@ -1,11 +1,15 @@
 using Abstracciones.Models;
+using System;
 using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 
 namespace AccesoADatos
 {
     public class ColibriDbContext : DbContext
     {
         public ColibriDbContext() : base("name=ColibriDbContext") { }
+        private static readonly Type _ = typeof(SqlProviderServices);
+
 
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
@@ -17,6 +21,9 @@ namespace AccesoADatos
         public DbSet<BitacoraRRHH> BitacoraRRHH { get; set; }
         public DbSet<Mesa> Mesas { get; set; }
         public DbSet<Pedido> Pedidos { get; set; }
+        public DbSet<Producto> Productos { get; set; }
+        public DbSet<DetallePedido> DetallePedidos { get; set; }
+        public DbSet<BitacoraPedido> BitacoraPedidos { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -137,6 +144,36 @@ namespace AccesoADatos
             modelBuilder.Entity<Pedido>().Property(p => p.FechaHora).HasColumnName("fecha_hora");
             modelBuilder.Entity<Pedido>().Property(p => p.Observaciones).HasColumnName("observaciones");
             modelBuilder.Entity<Pedido>().Property(p => p.Estado).HasColumnName("estado");
+
+
+            modelBuilder.Entity<Producto>().ToTable("Productos").HasKey(p => p.IdProducto);
+            modelBuilder.Entity<Producto>().Property(p => p.IdProducto).HasColumnName("id_producto");
+            modelBuilder.Entity<Producto>().Property(p => p.IdCategoriaProd).HasColumnName("id_categoria_prod");
+            modelBuilder.Entity<Producto>().Property(p => p.NombreProducto).HasColumnName("nombre_producto");
+            modelBuilder.Entity<Producto>().Property(p => p.Descripcion).HasColumnName("descripcion");
+            modelBuilder.Entity<Producto>().Property(p => p.PrecioVenta).HasColumnName("precio_venta");
+            modelBuilder.Entity<Producto>().Property(p => p.Disponible).HasColumnName("disponible");
+            modelBuilder.Entity<Producto>().Property(p => p.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<DetallePedido>().ToTable("Detalle_Pedido").HasKey(d => d.IdDetalle);
+            modelBuilder.Entity<DetallePedido>().Property(d => d.IdDetalle).HasColumnName("id_detalle");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.IdPedido).HasColumnName("id_pedido");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.IdProducto).HasColumnName("id_producto");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.Cantidad).HasColumnName("cantidad");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.PrecioUnitario).HasColumnName("precio_unitario");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.ObservacionesItem).HasColumnName("observaciones_item");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.EstadoItem).HasColumnName("estado_item");
+            modelBuilder.Entity<DetallePedido>().Property(d => d.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<BitacoraPedido>().ToTable("Bitacora_Pedidos").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.IdPedido).HasColumnName("id_pedido");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.Accion).HasColumnName("accion");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.EstadoAnterior).HasColumnName("estado_anterior");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.EstadoNuevo).HasColumnName("estado_nuevo");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraPedido>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
         }
     }
 }

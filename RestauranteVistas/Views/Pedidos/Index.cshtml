@@ -1,7 +1,12 @@
-﻿
+﻿@using System.Linq
+@using System.Collections.Generic
 @{
     ViewBag.Title = "Seguimiento de Pedidos";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
+    var pedidos = ViewBag.Pedidos as List<Abstracciones.Models.Pedido>;
+    var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
 }
 
 <div class="hero-card">
@@ -10,6 +15,16 @@
         Sigue los pedidos de tus mesas en tiempo real. Crea nuevas órdenes, agrega productos a las existentes y monitorea el estado de cada pedido para brindar un servicio eficiente y personalizado.
     </p>
 </div>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
 <div class="grid-4">
     <div class="metric-card"><h3>Mesas ocupadas</h3><div class="value">11</div></div>
@@ -27,39 +42,108 @@
             </div>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group"><label>ID Mesa</label><input type="text" placeholder="12" /></div>
-            <div class="form-group"><label>Número de mesa</label><input type="text" placeholder="Mesa 12" /></div>
-            <div class="form-group"><label>ID Mesero</label><input type="text" placeholder="301" /></div>
-            <div class="form-group"><label>Nombre mesero</label><input type="text" placeholder="Daniel Rojas" /></div>
-            <div class="form-group"><label>Comensales</label><input type="number" placeholder="4" /></div>
-            <div class="form-group"><label>Producto</label><input type="text" placeholder="Casado de pollo" /></div>
-            <div class="form-group"><label>Cantidad</label><input type="number" placeholder="1" /></div>
-            <div class="form-group">
-                <label>Tipo de servicio</label>
-                <select>
-                    <option>Salón</option>
-                    <option>Para llevar</option>
-                </select>
+        @using (Html.BeginForm("CrearOrden", "Pedidos", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group"><label>ID Mesa</label><input type="number" name="idMesa" placeholder="12" required /></div>
+                <div class="form-group"><label>Número de mesa</label><input type="text" placeholder="Mesa 12" /></div>
+                <div class="form-group"><label>ID Mesero</label><input type="number" name="idMesero" placeholder="301" required /></div>
+                <div class="form-group"><label>Nombre mesero</label><input type="text" placeholder="Daniel Rojas" /></div>
+                <div class="form-group"><label>Comensales</label><input type="number" name="comensales" placeholder="4" required /></div>
+
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select name="idProducto" required>
+                        <option value="">Seleccione producto</option>
+                        @if (productos != null)
+                        {
+                            foreach (var prod in productos)
+                            {
+                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group"><label>Cantidad</label><input type="number" name="cantidad" placeholder="1" min="1" required /></div>
+
+                <div class="form-group">
+                    <label>Tipo de servicio</label>
+                    <select name="tipoServicio">
+                        <option value="mesa">Salón</option>
+                        <option value="para_llevar">Para llevar</option>
+                        <option value="delivery">Delivery</option>
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group" style="margin-top:16px;">
-            <label>Observaciones</label>
-            <textarea placeholder="Sin cebolla, extra salsa, término medio..."></textarea>
-        </div>
+            <div class="form-group" style="margin-top:16px;">
+                <label>Observaciones</label>
+                <textarea name="observaciones" placeholder="Sin cebolla, extra salsa, término medio..."></textarea>
+            </div>
 
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Orden creada exitosamente')">
-                <span class="material-symbols-outlined">add_shopping_cart</span> Crear orden
-            </button>
-            <button class="btn btn-secondary" onclick="accionDemo('Productos agregados a la orden existente')">
-                <span class="material-symbols-outlined">playlist_add</span> Agregar producto
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('Hay campos obligatorios sin completar')">
-                <span class="material-symbols-outlined">error</span> Validar campos
-            </button>
-        </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">add_shopping_cart</span> Crear orden
+                </button>
+            </div>
+        }
+
+        <hr />
+
+        <h3>Agregar producto a orden existente</h3>
+
+        @using (Html.BeginForm("AgregarProducto", "Pedidos", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Pedido existente</label>
+                    <select name="idPedido" required>
+                        <option value="">Seleccione pedido</option>
+                        @if (pedidos != null)
+                        {
+                            foreach (var pedido in pedidos.Where(p => p.EstadoPedido != "entregado" && p.EstadoPedido != "cancelado"))
+                            {
+                                <option value="@pedido.IdPedido">Pedido #@pedido.IdPedido - Mesa @pedido.IdMesa - @pedido.EstadoPedido</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select name="idProducto" required>
+                        <option value="">Seleccione producto</option>
+                        @if (productos != null)
+                        {
+                            foreach (var prod in productos)
+                            {
+                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Cantidad</label>
+                    <input type="number" name="cantidad" min="1" placeholder="1" required />
+                </div>
+
+                <div class="form-group">
+                    <label>Observaciones del producto</label>
+                    <input type="text" name="observacionesItem" placeholder="Sin cebolla, extra salsa..." />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary">
+                    <span class="material-symbols-outlined">playlist_add</span> Agregar producto
+                </button>
+                <button type="button" class="btn btn-warning" onclick="accionDemo('Validación realizada')">
+                    <span class="material-symbols-outlined">error</span> Validar campos
+                </button>
+            </div>
+        }
     </div>
 
     <div class="table-card">
@@ -75,60 +159,72 @@
                 <tr>
                     <th>Mesa</th>
                     <th>Mesero</th>
+                    <th>Descripción</th>
                     <th>Estado</th>
                     <th>Total</th>
                     <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Mesa 4</td>
-                    <td>Daniel</td>
-                    <td><span class="status info">En preparación</span></td>
-                    <td>₡13 500</td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>Mesa 8</td>
-                    <td>Carla</td>
-                    <td><span class="status warning">Pendiente</span></td>
-                    <td>₡8 900</td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
-                </tr>
-                <tr>
-                    <td>Mesa 12</td>
-                    <td>Andrea</td>
-                    <td><span class="status success">Lista</span></td>
-                    <td>₡21 200</td>
-                    <td><button class="btn btn-soft" onclick="accionDemo('Ver detalle de pedido')">Ver</button></td>
-                </tr>
+                @if (pedidos != null && pedidos.Any())
+                {
+                    foreach (var pedido in pedidos)
+                    {
+                        var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+                        decimal total = detallesPedido != null ? detallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) : 0;
+
+                        <tr>
+                            <td>Mesa @pedido.IdMesa</td>
+                            <td>@pedido.IdEmpleado</td>
+                            <td>
+                                @if (detallesPedido != null && detallesPedido.Any())
+                                {
+                                    foreach (var item in detallesPedido)
+                                    {
+                                        var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+                                        <div>
+                                            @(prod != null ? prod.NombreProducto : "Producto no encontrado")
+                                            x @item.Cantidad
+                                            - @item.ObservacionesItem
+                                            [@item.EstadoItem]
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Sin productos</span>
+                                }
+                            </td>
+                            <td>
+                                @if (pedido.EstadoPedido == "solicitado")
+                                {
+                                    <span class="status warning">Pendiente</span>
+                                }
+                                else if (pedido.EstadoPedido == "preparando")
+                                {
+                                    <span class="status info">En preparación</span>
+                                }
+                                else if (pedido.EstadoPedido == "listo")
+                                {
+                                    <span class="status success">Lista</span>
+                                }
+                                else
+                                {
+                                    <span class="status">@pedido.EstadoPedido</span>
+                                }
+                            </td>
+                            <td>₡@total</td>
+                            <td><button class="btn btn-soft" onclick="accionDemo('Pedido #@pedido.IdPedido: @pedido.Observaciones')">Ver</button></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">No hay pedidos activos registrados.</td>
+                    </tr>
+                }
             </tbody>
         </table>
-    </div>
-</div>
-
-<div class="story-card">
-    <h4>Historias de usuario reflejadas</h4>
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">Crear cuenta asociada a una mesa <span>+</span></button>
-            <div class="accordion-content">El mesero genera una nueva orden cuando la mesa está disponible.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Agregar productos a orden existente <span>+</span></button>
-            <div class="accordion-content">El sistema permite sumar nuevos productos y recalcular el total.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Campos obligatorios <span>+</span></button>
-            <div class="accordion-content">Debe existir al menos un producto y una cantidad válida.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Cantidad inválida <span>+</span></button>
-            <div class="accordion-content">La interfaz alerta cuando la cantidad es menor o igual a cero.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Observaciones especiales <span>+</span></button>
-            <div class="accordion-content">Se representa el registro de condiciones especiales por producto.</div>
-        </div>
     </div>
 </div>
