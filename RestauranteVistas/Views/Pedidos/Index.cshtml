@@ -102,7 +102,7 @@
                         <option value="">Seleccione pedido</option>
                         @if (pedidos != null)
                         {
-                            foreach (var pedido in pedidos.Where(p => p.EstadoPedido != "entregado" && p.EstadoPedido != "cancelado"))
+                            foreach (var pedido in pedidos.Where(p => p.EstadoPedido == "abierto"))
                             {
                                 <option value="@pedido.IdPedido">Pedido #@pedido.IdPedido - Mesa @pedido.IdMesa - @pedido.EstadoPedido</option>
                             }
@@ -196,17 +196,21 @@
                                 }
                             </td>
                             <td>
-                                @if (pedido.EstadoPedido == "solicitado")
+                                @if (pedido.EstadoPedido == "abierto")
                                 {
-                                    <span class="status warning">Pendiente</span>
+                                    <span class="status warning">Abierto</span>
                                 }
-                                else if (pedido.EstadoPedido == "preparando")
+                                else if (pedido.EstadoPedido == "en_proceso")
                                 {
                                     <span class="status info">En preparación</span>
                                 }
                                 else if (pedido.EstadoPedido == "listo")
                                 {
                                     <span class="status success">Lista</span>
+                                }
+                                else if (pedido.EstadoPedido == "cancelado")
+                                {
+                                    <span class="status danger">Cancelado</span>
                                 }
                                 else
                                 {
@@ -227,4 +231,90 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Modificar o cancelar órdenes</h3>
+            <p>Solo órdenes abiertas pueden modificarse o cancelarse</p>
+        </div>
+    </div>
+
+    @if (pedidos != null && pedidos.Any(p => p.EstadoPedido == "abierto"))
+    {
+        foreach (var pedido in pedidos.Where(p => p.EstadoPedido == "abierto"))
+        {
+            var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+
+            <div class="quick-card" style="margin-bottom:20px;">
+                <h4>Pedido #@pedido.IdPedido</h4>
+                <p><strong>Mesa:</strong> @pedido.IdMesa</p>
+                <p><strong>Estado:</strong> @pedido.EstadoPedido</p>
+                <p><strong>Observaciones:</strong> @pedido.Observaciones</p>
+
+                <table style="margin-top:15px;">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad actual</th>
+                            <th>Observación actual</th>
+                            <th>Editar</th>
+                            <th>Eliminar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (detallesPedido != null && detallesPedido.Any())
+                        {
+                            foreach (var item in detallesPedido)
+                            {
+                                var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+
+                                <tr>
+                                    <td>@(prod != null ? prod.NombreProducto : "Producto no encontrado")</td>
+                                    <td>@item.Cantidad</td>
+                                    <td>@item.ObservacionesItem</td>
+                                    <td>
+                                        @using (Html.BeginForm("EditarProducto", "Pedidos", FormMethod.Post))
+                                        {
+                                            @Html.Hidden("idDetalle", item.IdDetalle)
+                                            <input type="number" name="cantidad" value="@item.Cantidad" min="1" step="0.01" required />
+                                            <input type="text" name="observacionesItem" value="@item.ObservacionesItem" />
+                                            <button type="submit" class="btn btn-warning">Modificar producto</button>
+                                        }
+                                    </td>
+                                    <td>
+                                        @using (Html.BeginForm("EliminarProducto", "Pedidos", FormMethod.Post))
+                                        {
+                                            @Html.Hidden("idDetalle", item.IdDetalle)
+                                            <button type="submit" class="btn btn-secondary">Eliminar producto</button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5">Esta orden no tiene productos activos.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="form-actions" style="margin-top:15px;">
+                    @using (Html.BeginForm("CancelarPedido", "Pedidos", FormMethod.Post))
+                    {
+                        @Html.Hidden("idPedido", pedido.IdPedido)
+                        <input type="text" name="motivoCancelacion" placeholder="Motivo de cancelación" />
+                        <button type="submit" class="btn btn-warning">Cancelar orden</button>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No hay órdenes abiertas disponibles para modificación.</p>
+    }
 </div>

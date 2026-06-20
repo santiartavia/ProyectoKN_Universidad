@@ -80,7 +80,7 @@
                 <p><strong>Estado:</strong> @pedido.EstadoPedido</p>
                 <p><strong>Observaciones:</strong> @pedido.Observaciones</p>
 
-                @if (pedido.EstadoPedido == "solicitado")
+                @if (pedido.EstadoPedido == "abierto")
                 {
                     using (Html.BeginForm("IniciarPreparacion", "Cocina", FormMethod.Post))
                     {
