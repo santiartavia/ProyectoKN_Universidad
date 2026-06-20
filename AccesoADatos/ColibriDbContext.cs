@@ -144,7 +144,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Pedido>().Property(p => p.FechaHora).HasColumnName("fecha_hora");
             modelBuilder.Entity<Pedido>().Property(p => p.Observaciones).HasColumnName("observaciones");
             modelBuilder.Entity<Pedido>().Property(p => p.Estado).HasColumnName("estado");
-
+            modelBuilder.Entity<Pedido>().Property(p => p.FechaHoraEntrega).HasColumnName("fecha_hora_entrega");
 
             modelBuilder.Entity<Producto>().ToTable("Productos").HasKey(p => p.IdProducto);
             modelBuilder.Entity<Producto>().Property(p => p.IdProducto).HasColumnName("id_producto");

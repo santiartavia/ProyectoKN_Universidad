@@ -22,17 +22,13 @@ namespace RestauranteVistas.Controllers
 
         public ActionResult Index()
         {
-            int idEmpleado = 0;
-
-            if (Session["UsuarioId"] != null)
-            {
-                idEmpleado = Convert.ToInt32(Session["UsuarioId"]);
-            }
-
             ViewBag.PedidosListos = db.Pedidos
-                .Where(p => p.Estado == true &&
-                            p.EstadoPedido == "listo" &&
-                            (idEmpleado == 0 || p.IdEmpleado == idEmpleado))
+                .Where(p => p.Estado == true && p.EstadoPedido == "listo")
+                .OrderByDescending(p => p.FechaHora)
+                .ToList();
+
+            ViewBag.PedidosEntregados = db.Pedidos
+                .Where(p => p.Estado == true && p.EstadoPedido == "entregado")
                 .OrderByDescending(p => p.FechaHora)
                 .ToList();
 
@@ -58,6 +54,33 @@ namespace RestauranteVistas.Controllers
             {
                 TempData["Error"] = $"Error: {ex.Message}";
             }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult EntregarPedido(int idPedido)
+        {
+            var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado == true);
+
+            if (pedido == null)
+            {
+                TempData["Error"] = "El pedido no existe.";
+                return RedirectToAction("Index");
+            }
+
+            if (pedido.EstadoPedido != "listo")
+            {
+                TempData["Error"] = "Solo se pueden entregar pedidos en estado listo.";
+                return RedirectToAction("Index");
+            }
+
+            pedido.EstadoPedido = "entregado";
+            pedido.FechaHoraEntrega = DateTime.Now;
+
+            db.SaveChanges();
+
+            TempData["Mensaje"] = "Pedido entregado correctamente. Queda habilitado para pago.";
             return RedirectToAction("Index");
         }
 

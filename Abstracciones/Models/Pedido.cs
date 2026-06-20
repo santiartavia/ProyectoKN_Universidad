@@ -13,5 +13,7 @@ namespace Abstracciones.Models
         public DateTime FechaHora { get; set; }
         public string Observaciones { get; set; }
         public bool Estado { get; set; }
+
+        public DateTime? FechaHoraEntrega { get; set; }
     }
 }
