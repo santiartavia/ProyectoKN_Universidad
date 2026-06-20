@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\meserocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|solutionrelative:controllers\\meserocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|solutionrelative:views\\mesero\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|d:\\usuario\\documents\\github\\proyectokn_universidad\\restaurantevistas\\controllers\\cajerocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|solutionrelative:controllers\\cajerocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +14,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
-              "RelativeDocumentMoniker": "Views\\Mesero\\Index.cshtml",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Views\\Mesero\\Index.cshtml",
-              "RelativeToolTip": "Views\\Mesero\\Index.cshtml",
-              "ViewState": "AgIAACwAAAAAAAAAAAAuwEEAAAAKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-06-20T18:56:19.015Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "MeseroController.cs",
-              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\MeseroController.cs",
-              "RelativeDocumentMoniker": "Controllers\\MeseroController.cs",
-              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\MeseroController.cs",
-              "RelativeToolTip": "Controllers\\MeseroController.cs",
-              "ViewState": "AgIAADwAAAAAAAAAAAAuwEkAAAABAAAAAAAAAA==",
+              "Title": "CajeroController.cs",
+              "DocumentMoniker": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CajeroController.cs",
+              "RelativeDocumentMoniker": "Controllers\\CajeroController.cs",
+              "ToolTip": "D:\\Usuario\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\CajeroController.cs",
+              "RelativeToolTip": "Controllers\\CajeroController.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAYwHEAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-20T18:47:14.457Z",
+              "WhenOpened": "2026-06-20T22:23:36.281Z",
               "EditorCaption": ""
             }
           ]

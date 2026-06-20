@@ -24,6 +24,8 @@ namespace AccesoADatos
         public DbSet<Producto> Productos { get; set; }
         public DbSet<DetallePedido> DetallePedidos { get; set; }
         public DbSet<BitacoraPedido> BitacoraPedidos { get; set; }
+        public DbSet<Venta> Ventas { get; set; }
+        public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -145,6 +147,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Pedido>().Property(p => p.Observaciones).HasColumnName("observaciones");
             modelBuilder.Entity<Pedido>().Property(p => p.Estado).HasColumnName("estado");
             modelBuilder.Entity<Pedido>().Property(p => p.FechaHoraEntrega).HasColumnName("fecha_hora_entrega");
+            modelBuilder.Entity<Pedido>().Property(p => p.FechaHoraFinalizacion).HasColumnName("fecha_hora_finalizacion");
 
             modelBuilder.Entity<Producto>().ToTable("Productos").HasKey(p => p.IdProducto);
             modelBuilder.Entity<Producto>().Property(p => p.IdProducto).HasColumnName("id_producto");
@@ -174,6 +177,27 @@ namespace AccesoADatos
             modelBuilder.Entity<BitacoraPedido>().Property(b => b.EstadoNuevo).HasColumnName("estado_nuevo");
             modelBuilder.Entity<BitacoraPedido>().Property(b => b.Detalle).HasColumnName("detalle");
             modelBuilder.Entity<BitacoraPedido>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+
+            modelBuilder.Entity<Venta>().ToTable("Ventas").HasKey(v => v.IdVenta);
+            modelBuilder.Entity<Venta>().Property(v => v.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<Venta>().Property(v => v.IdPedido).HasColumnName("id_pedido");
+            modelBuilder.Entity<Venta>().Property(v => v.IdSubcuenta).HasColumnName("id_subcuenta");
+            modelBuilder.Entity<Venta>().Property(v => v.IdEmpleado).HasColumnName("id_empleado");
+            modelBuilder.Entity<Venta>().Property(v => v.IdApertura).HasColumnName("id_apertura");
+            modelBuilder.Entity<Venta>().Property(v => v.TipoVenta).HasColumnName("tipo_venta");
+            modelBuilder.Entity<Venta>().Property(v => v.TotalCobrado).HasColumnName("total_cobrado");
+            modelBuilder.Entity<Venta>().Property(v => v.MontoRecibido).HasColumnName("monto_recibido");
+            modelBuilder.Entity<Venta>().Property(v => v.Vuelto).HasColumnName("vuelto");
+            modelBuilder.Entity<Venta>().Property(v => v.MetodoPago).HasColumnName("metodo_pago");
+            modelBuilder.Entity<Venta>().Property(v => v.EstadoVenta).HasColumnName("estado_venta");
+            modelBuilder.Entity<Venta>().Property(v => v.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<Venta>().Property(v => v.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<SubcuentaPedido>().ToTable("Subcuentas_Pedido").HasKey(s => s.IdSubcuenta);
+            modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdSubcuenta).HasColumnName("id_subcuenta");
+            modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdPedido).HasColumnName("id_pedido");
+            modelBuilder.Entity<SubcuentaPedido>().Property(s => s.NombreSubcuenta).HasColumnName("nombre_subcuenta");
+            modelBuilder.Entity<SubcuentaPedido>().Property(s => s.Estado).HasColumnName("estado");
         }
     }
 }

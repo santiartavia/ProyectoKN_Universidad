@@ -1,6 +1,19 @@
-﻿@{
+﻿@using System.Linq
+@using System.Collections.Generic
+@{
     ViewBag.Title = "Panel de Cajero";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var pedidosEntregados = ViewBag.PedidosEntregados as List<Abstracciones.Models.Pedido>;
+    var pedidosFinalizados = ViewBag.PedidosFinalizados as List<Abstracciones.Models.Pedido>;
+    var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
+    var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
+    var ventas = ViewBag.Ventas as List<Abstracciones.Models.Venta>;
+
+    decimal ventasTurno = ventas != null ? ventas.Where(v => v.EstadoVenta == "completada").Sum(v => v.TotalCobrado) : 0;
+    int facturasCobradas = ventas != null ? ventas.Count(v => v.EstadoVenta == "completada") : 0;
+    int pendientes = pedidosEntregados != null ? pedidosEntregados.Count : 0;
+    int finalizados = pedidosFinalizados != null ? pedidosFinalizados.Count : 0;
 }
 
 <div class="hero-card">
@@ -11,11 +24,21 @@
     </p>
 </div>
 
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <div class="grid-4">
-    <div class="metric-card"><h3>Ventas del turno</h3><div class="value">₡144k</div></div>
-    <div class="metric-card alt-blue"><h3>Facturas cobradas</h3><div class="value">23</div></div>
-    <div class="metric-card alt-orange"><h3>Pendientes</h3><div class="value">4</div></div>
-    <div class="metric-card alt-red"><h3>Cierres hoy</h3><div class="value">1</div></div>
+    <div class="metric-card"><h3>Ventas del turno</h3><div class="value">₡@ventasTurno</div></div>
+    <div class="metric-card alt-blue"><h3>Facturas cobradas</h3><div class="value">@facturasCobradas</div></div>
+    <div class="metric-card alt-orange"><h3>Pendientes</h3><div class="value">@pendientes</div></div>
+    <div class="metric-card alt-red"><h3>Finalizadas</h3><div class="value">@finalizados</div></div>
 </div>
 
 <div class="grid-3">
@@ -44,6 +67,148 @@
 <div class="table-card">
     <div class="section-title">
         <div>
+            <h3>Órdenes entregadas pendientes de pago</h3>
+            <p>Registrar pago antes de finalizar la orden</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Mesa</th>
+                <th>Pedido</th>
+                <th>Detalle</th>
+                <th>Total</th>
+                <th>Pago</th>
+                <th>Finalizar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (pedidosEntregados != null && pedidosEntregados.Any())
+            {
+                foreach (var pedido in pedidosEntregados)
+                {
+                    var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+                    decimal total = detallesPedido != null ? detallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) : 0;
+                    var venta = ventas != null ? ventas.FirstOrDefault(v => v.IdPedido == pedido.IdPedido && v.Estado == true && v.EstadoVenta == "completada") : null;
+
+                    <tr>
+                        <td>Mesa @pedido.IdMesa</td>
+                        <td>Pedido #@pedido.IdPedido</td>
+                        <td>
+                            @if (detallesPedido != null && detallesPedido.Any())
+                            {
+                                foreach (var item in detallesPedido)
+                                {
+                                    var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+                                    <div>
+                                        @(prod != null ? prod.NombreProducto : "Producto")
+                                        x @item.Cantidad
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span>Sin productos</span>
+                            }
+                        </td>
+                        <td>₡@total</td>
+                        <td>
+                            @if (venta == null)
+                            {
+                                using (Html.BeginForm("RegistrarPago", "Cajero", FormMethod.Post))
+                                {
+                                    @Html.Hidden("idPedido", pedido.IdPedido)
+
+                                    <select name="metodoPago" required>
+                                        <option value="efectivo">Efectivo</option>
+                                        <option value="tarjeta">Tarjeta</option>
+                                        <option value="sinpe">SINPE</option>
+                                        <option value="mixto">Mixto</option>
+                                    </select>
+
+                                    <input type="number" name="montoRecibido" min="@total" value="@total" step="0.01" required />
+
+                                    <button type="submit" class="btn btn-primary">Registrar pago</button>
+                                }
+                            }
+                            else
+                            {
+                                <span class="status success">Pago registrado</span>
+                                <div>Total: ₡@venta.TotalCobrado</div>
+                                <div>Vuelto: ₡@venta.Vuelto</div>
+                            }
+                        </td>
+                        <td>
+                            @if (venta != null)
+                            {
+                                using (Html.BeginForm("FinalizarOrden", "Cajero", FormMethod.Post))
+                                {
+                                    @Html.Hidden("idPedido", pedido.IdPedido)
+                                    <button type="submit" class="btn btn-secondary">Finalizar orden</button>
+                                }
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-warning" onclick="mostrarToast('Primero debe registrar el pago')">Finalizar orden</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">No hay órdenes entregadas pendientes de pago.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Órdenes finalizadas</h3>
+            <p>Historial de cuentas cobradas y mesas liberadas</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Mesa</th>
+                <th>Pedido</th>
+                <th>Fecha finalización</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (pedidosFinalizados != null && pedidosFinalizados.Any())
+            {
+                foreach (var pedido in pedidosFinalizados)
+                {
+                    <tr>
+                        <td>Mesa @pedido.IdMesa</td>
+                        <td>Pedido #@pedido.IdPedido</td>
+                        <td>@(pedido.FechaHoraFinalizacion.HasValue ? pedido.FechaHoraFinalizacion.Value.ToString("dd/MM/yyyy HH:mm") : "Sin fecha")</td>
+                        <td><span class="status success">Finalizado</span></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">No hay órdenes finalizadas.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
             <h3>Operaciones recientes</h3>
             <p>Actividad del cajero</p>
         </div>
@@ -59,24 +224,39 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>10:05 AM</td>
-                <td>Cobro mesa 8</td>
-                <td>₡12 900</td>
-                <td><span class="status success">Completado</span></td>
-            </tr>
-            <tr>
-                <td>10:18 AM</td>
-                <td>Venta rápida</td>
-                <td>₡4 900</td>
-                <td><span class="status info">Procesado</span></td>
-            </tr>
-            <tr>
-                <td>10:30 AM</td>
-                <td>Cierre parcial</td>
-                <td>₡58 000</td>
-                <td><span class="status warning">En revisión</span></td>
-            </tr>
+            @if (ventas != null && ventas.Any())
+            {
+                foreach (var venta in ventas.OrderByDescending(v => v.FechaHora).Take(10))
+                {
+                    <tr>
+                        <td>@venta.FechaHora.ToString("hh:mm tt")</td>
+                        <td>Cobro pedido #@venta.IdPedido</td>
+                        <td>₡@venta.TotalCobrado</td>
+                        <td><span class="status success">@venta.EstadoVenta</span></td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>10:05 AM</td>
+                    <td>Cobro mesa 8</td>
+                    <td>₡12 900</td>
+                    <td><span class="status success">Completado</span></td>
+                </tr>
+                <tr>
+                    <td>10:18 AM</td>
+                    <td>Venta rápida</td>
+                    <td>₡4 900</td>
+                    <td><span class="status info">Procesado</span></td>
+                </tr>
+                <tr>
+                    <td>10:30 AM</td>
+                    <td>Cierre parcial</td>
+                    <td>₡58 000</td>
+                    <td><span class="status warning">En revisión</span></td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>

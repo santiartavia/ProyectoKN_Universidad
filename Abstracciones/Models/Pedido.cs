@@ -15,5 +15,7 @@ namespace Abstracciones.Models
         public bool Estado { get; set; }
 
         public DateTime? FechaHoraEntrega { get; set; }
+
+        public DateTime? FechaHoraFinalizacion { get; set; }
     }
 }
