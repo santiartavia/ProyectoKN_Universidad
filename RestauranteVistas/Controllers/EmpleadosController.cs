@@ -1,4 +1,5 @@
 ﻿using Abstracciones.Interfaces;
+using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using RestauranteVistas.Models.ViewModels;
@@ -19,6 +20,8 @@ namespace RestauranteVistas.Controllers
         private readonly IAuditoriaService _auditoriaService;
         private readonly IMesaAtendidaService _mesaAtendidaService;
 
+        private ColibriDbContext db = new ColibriDbContext();
+
         public EmpleadosController()
         {
             var fechas = new FechasLN();
@@ -32,7 +35,6 @@ namespace RestauranteVistas.Controllers
             _mesaAtendidaService = new MesaAtendidaService(auditoria, fechas);
         }
 
-        // ========== PANEL PRINCIPAL ==========
         public ActionResult Index()
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -57,7 +59,6 @@ namespace RestauranteVistas.Controllers
             return View(modelo);
         }
 
-        // ========== GES-001: REGISTRAR EMPLEADOS ==========
         [HttpPost]
         public ActionResult RegistrarEmpleado(string cedula, string nombre, string apellidos,
                                                 string telefono, string correo, string rol,
@@ -81,7 +82,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Index");
         }
 
-        // ========== GES-002: ADMINISTRAR EMPLEADOS ==========
         [HttpGet]
         public ActionResult AdministrarEmpleado(int id)
         {
@@ -143,7 +143,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Index");
         }
 
-        // ========== GES-003: TURNOS ==========
         [HttpPost]
         public ActionResult CrearTurno(int idEmpleado, string fechaTurno, string horaInicio, string horaFin, string descripcion)
         {
@@ -164,7 +163,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Index");
         }
 
-        // ========== GES-003: ASISTENCIA (PONCHADOR) ==========
         [HttpGet]
         public ActionResult Asistencia()
         {
@@ -221,7 +219,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Asistencia");
         }
 
-        // ========== GES-004: MESAS ATENDIDAS ==========
         [HttpPost]
         public ActionResult AsignarMesa(int idMesa, int idEmpleado, int idPedido, string origenMesa)
         {
@@ -256,7 +253,6 @@ namespace RestauranteVistas.Controllers
             return View(modelo);
         }
 
-        // ========== GES-005: VACACIONES ==========
         [HttpPost]
         public ActionResult SolicitarVacacion(int idEmpleado, string fechaInicio, string fechaFin)
         {
@@ -310,7 +306,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Index");
         }
 
-        // ========== GES-006: HORAS EXTRA ==========
         [HttpPost]
         public ActionResult RegistrarHorasExtra(int idAsistencia, decimal cantidadHoras)
         {
@@ -345,7 +340,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Index");
         }
 
-        // ========== GES-007: BITACORA ==========
         [HttpGet]
         public ActionResult Bitacora(int? idEmpleado, string fechaInicio, string fechaFin, string accion)
         {
@@ -397,6 +391,89 @@ namespace RestauranteVistas.Controllers
             return File(withBom, "text/csv", $"bitacora_rrhh_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
         }
 
+        [HttpGet]
+        public ActionResult BitacoraPedidos(int? idPedido, string accion, string usuarioResponsable, string fechaInicio, string fechaFin)
+        {
+            var idAdmin = ObtenerIdUsuarioSesion();
+            if (idAdmin == null) return RedirectToAction("Index", "Login");
+
+            DateTime? fi = null, ff = null;
+            if (!string.IsNullOrWhiteSpace(fechaInicio)) fi = DateTime.Parse(fechaInicio);
+            if (!string.IsNullOrWhiteSpace(fechaFin)) ff = DateTime.Parse(fechaFin).Date.AddDays(1).AddSeconds(-1);
+
+            var consulta = db.HistorialEstadosPedido.Where(h => h.Estado == true);
+
+            if (idPedido.HasValue)
+                consulta = consulta.Where(h => h.IdPedido == idPedido.Value);
+
+            if (!string.IsNullOrWhiteSpace(accion))
+                consulta = consulta.Where(h => h.EstadoNuevo == accion || h.Detalle.Contains(accion));
+
+            if (!string.IsNullOrWhiteSpace(usuarioResponsable))
+                consulta = consulta.Where(h => h.UsuarioResponsable.Contains(usuarioResponsable));
+
+            if (fi.HasValue)
+                consulta = consulta.Where(h => h.FechaHoraCambio >= fi.Value);
+
+            if (ff.HasValue)
+                consulta = consulta.Where(h => h.FechaHoraCambio <= ff.Value);
+
+            ViewBag.BitacoraPedidos = consulta.OrderByDescending(h => h.FechaHoraCambio).ToList();
+            ViewBag.FiltroIdPedido = idPedido;
+            ViewBag.FiltroAccion = accion;
+            ViewBag.FiltroUsuarioResponsable = usuarioResponsable;
+            ViewBag.FiltroFechaInicio = fechaInicio;
+            ViewBag.FiltroFechaFin = fechaFin;
+
+            return View();
+        }
+
+        [HttpGet]
+        public ActionResult ExportarBitacoraPedidosExcel(int? idPedido, string accion, string usuarioResponsable, string fechaInicio, string fechaFin)
+        {
+            var idAdmin = ObtenerIdUsuarioSesion();
+            if (idAdmin == null) return RedirectToAction("Index", "Login");
+
+            DateTime? fi = null, ff = null;
+            if (!string.IsNullOrWhiteSpace(fechaInicio)) fi = DateTime.Parse(fechaInicio);
+            if (!string.IsNullOrWhiteSpace(fechaFin)) ff = DateTime.Parse(fechaFin).Date.AddDays(1).AddSeconds(-1);
+
+            var consulta = db.HistorialEstadosPedido.Where(h => h.Estado == true);
+
+            if (idPedido.HasValue)
+                consulta = consulta.Where(h => h.IdPedido == idPedido.Value);
+
+            if (!string.IsNullOrWhiteSpace(accion))
+                consulta = consulta.Where(h => h.EstadoNuevo == accion || h.Detalle.Contains(accion));
+
+            if (!string.IsNullOrWhiteSpace(usuarioResponsable))
+                consulta = consulta.Where(h => h.UsuarioResponsable.Contains(usuarioResponsable));
+
+            if (fi.HasValue)
+                consulta = consulta.Where(h => h.FechaHoraCambio >= fi.Value);
+
+            if (ff.HasValue)
+                consulta = consulta.Where(h => h.FechaHoraCambio <= ff.Value);
+
+            var registros = consulta.OrderByDescending(h => h.FechaHoraCambio).ToList();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("ID,Pedido,Estado Anterior,Estado Nuevo,Responsable,Fecha/Hora,Detalle");
+
+            foreach (var r in registros)
+            {
+                sb.AppendLine($"{r.IdHistorial},{r.IdPedido},{EscapeCsv(r.EstadoAnterior)},{EscapeCsv(r.EstadoNuevo)},{EscapeCsv(r.UsuarioResponsable)},{r.FechaHoraCambio:yyyy-MM-dd HH:mm:ss},{EscapeCsv(r.Detalle)}");
+            }
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            var preamble = System.Text.Encoding.UTF8.GetPreamble();
+            var withBom = new byte[preamble.Length + bytes.Length];
+            preamble.CopyTo(withBom, 0);
+            bytes.CopyTo(withBom, preamble.Length);
+
+            return File(withBom, "text/csv", $"bitacora_pedidos_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+        }
+
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
@@ -435,6 +512,16 @@ namespace RestauranteVistas.Controllers
         {
             if (Session["UsuarioId"] == null) return null;
             return (int)Session["UsuarioId"];
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                db.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

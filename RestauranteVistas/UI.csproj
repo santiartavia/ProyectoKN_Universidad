@@ -214,10 +214,10 @@
     <Content Include="Views\Cajero\Index.cshtml" />
     <Content Include="Views\Mesero\Index.cshtml" />
     <Content Include="Views\Cocina\Index.cshtml" />
+    <Content Include="Views\Empleados\BitacoraPedidos.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Abstracciones\Abstracciones.csproj">

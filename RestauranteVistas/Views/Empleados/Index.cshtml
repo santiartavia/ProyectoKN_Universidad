@@ -32,6 +32,25 @@
     </div>
 }
 
+<div class="section-card" style="margin-bottom:20px;">
+    <div class="section-title">
+        <div>
+            <h3>Accesos de auditoría</h3>
+            <p>Consulta las bitácoras del sistema.</p>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a class="btn btn-primary" href="@Url.Action("Bitacora", "Empleados")">
+            <span class="material-symbols-outlined">history</span> Bitácora de Empleados
+        </a>
+
+        <a class="btn btn-secondary" href="@Url.Action("BitacoraPedidos", "Empleados")">
+            <span class="material-symbols-outlined">receipt_long</span> Bitácora de Pedidos
+        </a>
+    </div>
+</div>
+
 <div class="grid-3">
     <div class="metric-card">
         <h3>Empleados activos</h3>

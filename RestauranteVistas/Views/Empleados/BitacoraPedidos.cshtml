@@ -1,0 +1,112 @@
+﻿@using System.Linq
+@using System.Collections.Generic
+@{
+    ViewBag.Title = "Bitácora de Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var registros = ViewBag.BitacoraPedidos as List<Abstracciones.Models.HistorialEstadoPedido>;
+}
+
+<div class="hero-card">
+    <h2>Bitácora de Pedidos</h2>
+    <p>Auditoría de eventos, cambios de estado y trazabilidad de órdenes.</p>
+</div>
+
+<div class="form-card">
+    <h3>Filtros de consulta</h3>
+
+    @using (Html.BeginForm("BitacoraPedidos", "Empleados", FormMethod.Get))
+    {
+        <div class="form-grid">
+            <div class="form-group">
+                <label>ID Pedido</label>
+                <input type="number" name="idPedido" value="@ViewBag.FiltroIdPedido" />
+            </div>
+
+            <div class="form-group">
+                <label>Responsable</label>
+                <input type="text" name="usuarioResponsable" value="@ViewBag.FiltroUsuarioResponsable" placeholder="Cocinero, Mesero..." />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha inicio</label>
+                <input type="date" name="fechaInicio" value="@ViewBag.FiltroFechaInicio" />
+            </div>
+
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="date" name="fechaFin" value="@ViewBag.FiltroFechaFin" />
+            </div>
+
+            <div class="form-group">
+                <label>Acción / Estado</label>
+                <select name="accion">
+                    <option value="">Todas</option>
+                    <option value="abierto">Creación / Abierto</option>
+                    <option value="en_proceso">Cambio a preparación</option>
+                    <option value="listo">Cambio a listo</option>
+                    <option value="entregado">Entrega</option>
+                    <option value="finalizado">Finalización</option>
+                    <option value="cancelado">Cancelación</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Consultar</button>
+            <a class="btn btn-secondary" href="@Url.Action("ExportarBitacoraPedidosExcel", "Empleados", new {
+                idPedido = ViewBag.FiltroIdPedido,
+                accion = ViewBag.FiltroAccion,
+                usuarioResponsable = ViewBag.FiltroUsuarioResponsable,
+                fechaInicio = ViewBag.FiltroFechaInicio,
+                fechaFin = ViewBag.FiltroFechaFin
+            })">Exportar CSV</a>
+        </div>
+    }
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Registros de auditoría de pedidos</h3>
+            <p>Resultados: @(registros != null ? registros.Count : 0) registros.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pedido</th>
+                <th>Estado anterior</th>
+                <th>Estado nuevo</th>
+                <th>Responsable</th>
+                <th>Fecha/Hora</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (registros != null && registros.Any())
+            {
+                foreach (var r in registros)
+                {
+                    <tr>
+                        <td>@r.IdHistorial</td>
+                        <td>Pedido #@r.IdPedido</td>
+                        <td>@r.EstadoAnterior</td>
+                        <td><span class="status info">@r.EstadoNuevo</span></td>
+                        <td>@r.UsuarioResponsable</td>
+                        <td>@r.FechaHoraCambio.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@r.Detalle</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7">No hay registros de bitácora de pedidos.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
