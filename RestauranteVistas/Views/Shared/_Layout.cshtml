@@ -41,19 +41,24 @@
                 @if (rol == "Administrador")
                 {
                     <a href="@Url.Action("Index", "Home")"><span class="material-symbols-outlined">space_dashboard</span> Dashboard</a>
+                    <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
+                    <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Empleados")"><span class="material-symbols-outlined">badge</span> Empleados</a>
-                    <a href="@Url.Action("Asistencia", "Empleados")"><span class="material-symbols-outlined">fingerprint</span> Asistencia</a>
+                    <a href="@Url.Action("Asistencia", "Empleados")"><span class="material-symbols-outlined">admin_panel_settings</span> Control Asistencia</a>
                     <a href="@Url.Action("Bitacora", "Empleados")"><span class="material-symbols-outlined">history</span> Bitácora</a>
                     <a href="@Url.Action("MetricasMesas", "Empleados")"><span class="material-symbols-outlined">leaderboard</span> Métricas Mesas</a>
                     <a href="@Url.Action("Index", "Usuarios")"><span class="material-symbols-outlined">group</span> Usuarios</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
                     <a href="@Url.Action("Index", "Inventario")"><span class="material-symbols-outlined">inventory_2</span> Inventario</a>
+                    <a href="@Url.Action("Index", "NominaMensual")"><span class="material-symbols-outlined">payments</span> Nómina Mensual</a>
                     <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">point_of_sale</span> Contabilidad</a>
                     <a href="@Url.Action("Index", "Reporteria")"><span class="material-symbols-outlined">monitoring</span> Reportería</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
                 }
                 else if (rol == "Cajero")
                 {
+                    <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
+                    <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Cajero")"><span class="material-symbols-outlined">point_of_sale</span> Panel Cajero</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
                     <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">payments</span> Cierres</a>
@@ -61,22 +66,27 @@
                 }
                 else if (rol == "Mesero")
                 {
+                    <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
+                    <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Mesero")"><span class="material-symbols-outlined">room_service</span> Panel Mesero</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
                 }
                 else if (rol == "Cocinero")
                 {
+                    <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
+                    <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Cocina")"><span class="material-symbols-outlined">skillet</span> Panel Cocina</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Seguimiento</a>
                 }
 
-                <a href="@Url.Action("Logout", "Login")">
-                    <span class="material-symbols-outlined">logout</span> Cerrar sesión
-                </a>
-                <a href="@Url.Action("CambiarPassword", "Login")" style="font-size:13px;opacity:0.7;">
-                    <span class="material-symbols-outlined">lock</span> Cambiar contraseña
-                </a>
             </nav>
+
+            <a href="@Url.Action("Logout", "Login")" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:16px;color:var(--white);font-weight:600;transition:0.25s ease;margin-top:8px;">
+                <span class="material-symbols-outlined">logout</span> Cerrar sesión
+            </a>
+            <a href="@Url.Action("CambiarPassword", "Login")" style="font-size:13px;opacity:0.7;display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:16px;color:var(--white);">
+                <span class="material-symbols-outlined">lock</span> Cambiar contraseña
+            </a>
         </aside>
 
         <main class="main-content">

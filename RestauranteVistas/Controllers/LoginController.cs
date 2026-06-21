@@ -46,6 +46,9 @@ namespace RestauranteVistas.Controllers
                     Session["UsuarioNombre"] = user.NombreUsuario;
                     Session["RolNombre"] = user.Rol.NombreRol;
                     Session["RolId"] = user.IdRol;
+                    var empTmp = ctx.Empleados.FirstOrDefault(ee => ee.IdUsuario == user.IdUsuario && ee.Estado);
+                    if (empTmp != null)
+                        Session["UsuarioNombre"] = $"{empTmp.Nombre} {empTmp.Apellidos}";
                     return RedirectToAction("CrearPassword");
                 }
 
@@ -81,6 +84,9 @@ namespace RestauranteVistas.Controllers
                 Session["UsuarioNombre"] = user.NombreUsuario;
                 Session["RolNombre"] = user.Rol.NombreRol;
                 Session["RolId"] = user.IdRol;
+                var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == user.IdUsuario && e.Estado);
+                if (empleado != null)
+                    Session["UsuarioNombre"] = $"{empleado.Nombre} {empleado.Apellidos}";
 
                 if (user.CambioPasswordRequerido)
                     return RedirectToAction("CambiarPassword");

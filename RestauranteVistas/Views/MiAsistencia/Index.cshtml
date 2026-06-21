@@ -1,0 +1,134 @@
+@model RestauranteVistas.Models.ViewModels.MiAsistenciaViewModel
+
+@{
+    ViewBag.Title = "Mi Asistencia";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="justify-content:space-between;align-items:center;display:flex;">
+    <div>
+        <span class="mini-badge">Mi panel</span>
+        <h2>Mi Asistencia</h2>
+    </div>
+    <div style="text-align:right;">
+        <strong style="font-size:18px;color:var(--sapphire);">@(Model.Empleado != null ? Model.Empleado.Nombre + " " + Model.Empleado.Apellidos : "Sin asignar")</strong>
+        <br /><small style="color:#666;">@(Model.Empleado != null ? "#" + Model.Empleado.IdEmpleado : "")</small>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin-bottom:16px;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin-bottom:16px;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="grid-2">
+    <div class="form-card" style="border-top:6px solid #2e7d32;">
+        <div class="section-title">
+            <h3>Registrar entrada</h3>
+        </div>
+        @if (Model.EntradaPendiente == null)
+        {
+            using (Html.BeginForm("RegistrarEntrada", "MiAsistencia", FormMethod.Post))
+            {
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success btn-full" style="padding:18px;font-size:18px;">
+                        <span class="material-symbols-outlined" style="font-size:24px;">login</span> Marcar Entrada
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="section-card" style="border-left:4px solid #ff9800;background:#fff3e0;padding:12px 18px;margin:0;">
+                <h3 style="color:#e65100;margin:0;">
+                    <span class="material-symbols-outlined" style="vertical-align:middle;">schedule</span>
+                    Entrada registrada a las @Model.EntradaPendiente.FechaHoraEntrada.ToString("HH:mm:ss")
+                </h3>
+            </div>
+        }
+    </div>
+
+    <div class="form-card" style="border-top:6px solid #c62828;">
+        <div class="section-title">
+            <h3>Registrar salida</h3>
+        </div>
+        @if (Model.EntradaPendiente != null)
+        {
+            using (Html.BeginForm("RegistrarSalida", "MiAsistencia", FormMethod.Post))
+            {
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger btn-full" style="padding:18px;font-size:18px;">
+                        <span class="material-symbols-outlined" style="font-size:24px;">logout</span> Marcar Salida
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="section-card" style="border-left:4px solid #9e9e9e;background:#f5f5f5;padding:12px 18px;margin:0;">
+                <h3 style="color:#757575;margin:0;">
+                    <span class="material-symbols-outlined" style="vertical-align:middle;">info</span>
+                    No tiene una entrada pendiente. Debe marcar entrada primero.
+                </h3>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Mis registros recientes</h3>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Horas</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AsistenciasRecientes != null && Model.AsistenciasRecientes.Any())
+            {
+                foreach (var a in Model.AsistenciasRecientes)
+                {
+                    var horas = a.FechaHoraSalida.HasValue
+                        ? (a.FechaHoraSalida.Value - a.FechaHoraEntrada).TotalHours.ToString("N2")
+                        : "—";
+                    <tr>
+                        <td>@a.IdAsistencia</td>
+                        <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@(a.FechaHoraSalida?.ToString("yyyy-MM-dd HH:mm:ss") ?? "—")</td>
+                        <td>@horas</td>
+                        <td>
+                            @if (a.FechaHoraSalida == null)
+                            {
+                                <span class="status warning"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">schedule</span> Pendiente</span>
+                            }
+                            else
+                            {
+                                <span class="status success">Completado</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5">Sin registros de asistencia.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

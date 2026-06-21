@@ -17,5 +17,6 @@ namespace Abstracciones.Interfaces
         Empleado Reactivar(int idEmpleado, int idUsuarioAdmin);
         List<Empleado> ListarInactivos();
         List<Empleado> Buscar(string termino);
+        Empleado ObtenerPorUsuarioId(int idUsuario);
     }
 }

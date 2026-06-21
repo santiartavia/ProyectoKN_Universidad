@@ -14,5 +14,7 @@ namespace Abstracciones.Interfaces
         decimal CalcularSaldoVacacional(int idEmpleado);
         List<Vacacion> ListarTodas();
         List<Vacacion> ListarPorFiltros(int? idEmpleado, DateTime? fechaInicio, DateTime? fechaFin, string estado);
+        (decimal Earned, decimal Used, decimal Available) CalcularDetalleVacacional(int idEmpleado);
+        void ActualizarVacacionesAcumuladas(int idUsuario);
     }
 }

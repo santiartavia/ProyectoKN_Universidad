@@ -47,7 +47,7 @@ namespace LogicaDeNegocios.Services
                 ctx.Asistencias.Add(asistencia);
                 ctx.SaveChanges();
 
-                _auditoria.Registrar("Asistencia", asistencia.IdAsistencia, "ENTRADA",
+                _auditoria.Registrar("Asistencia", asistencia.IdAsistencia, "INSERT",
                     null,
                     Newtonsoft.Json.JsonConvert.SerializeObject(new { asistencia.IdEmpleado, asistencia.FechaHoraEntrada, turnoAsignado = turno?.IdTurno }),
                     $"Registro de entrada para empleado #{idEmpleado}",
@@ -71,7 +71,7 @@ namespace LogicaDeNegocios.Services
                 asistencia.FechaHoraSalida = _fechas.ObtenerFechaActual();
                 ctx.SaveChanges();
 
-                _auditoria.Registrar("Asistencia", asistencia.IdAsistencia, "SALIDA",
+                _auditoria.Registrar("Asistencia", asistencia.IdAsistencia, "UPDATE",
                     Newtonsoft.Json.JsonConvert.SerializeObject(new { entrada = asistencia.FechaHoraEntrada }),
                     Newtonsoft.Json.JsonConvert.SerializeObject(new { salida = asistencia.FechaHoraSalida, horasTrabajadas = (asistencia.FechaHoraSalida.Value - asistencia.FechaHoraEntrada).TotalHours }),
                     $"Registro de salida para empleado #{asistencia.IdEmpleado}",

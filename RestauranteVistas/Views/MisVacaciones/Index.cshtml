@@ -1,0 +1,170 @@
+@model RestauranteVistas.Models.ViewModels.MisVacacionesViewModel
+
+@{
+    ViewBag.Title = "Mis Vacaciones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="justify-content:space-between;align-items:center;display:flex;">
+    <div>
+        <span class="mini-badge">Mi panel</span>
+        <h2>Mis Vacaciones</h2>
+    </div>
+    <div style="text-align:right;">
+        <strong style="font-size:18px;color:var(--sapphire);">@(Model.Empleado != null ? Model.Empleado.Nombre + " " + Model.Empleado.Apellidos : "Sin asignar")</strong>
+        <br /><small style="color:#666;">@(Model.Empleado != null ? "#" + Model.Empleado.IdEmpleado : "")</small>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin-bottom:16px;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin-bottom:16px;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="grid-3">
+    <div class="metric-card">
+        <h3>Días acumulados</h3>
+        <div class="value">@Model.DiasAcumulados.ToString("N2")</div>
+    </div>
+    <div class="metric-card alt-orange">
+        <h3>Días usados</h3>
+        <div class="value">@Model.DiasUsados.ToString("N2")</div>
+    </div>
+    <div class="metric-card alt-teal">
+        <h3>Días disponibles</h3>
+        <div class="value">@Model.DiasDisponibles.ToString("N2")</div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="form-card" style="border-top:6px solid var(--emerald);">
+        <div class="section-title">
+            <h3>Solicitar vacaciones</h3>
+        </div>
+
+        @if (Model.DiasDisponibles > 0)
+        {
+            using (Html.BeginForm("Solicitar", "MisVacaciones", FormMethod.Post))
+            {
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Fecha inicio *</label>
+                        <input type="date" name="fechaInicio" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha fin *</label>
+                        <input type="date" name="fechaFin" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Días calculados</label>
+                        <output id="diasCalculados" style="display:block;padding:10px;background:#f5f5f5;border-radius:6px;text-align:center;font-size:18px;font-weight:700;">—</output>
+                    </div>
+                    <div class="form-group">
+                        <label>Disponible</label>
+                        <output style="display:block;padding:10px;background:#e8f5e9;border-radius:6px;text-align:center;font-size:18px;font-weight:700;color:#2e7d32;">@Model.DiasDisponibles.ToString("N0")</output>
+                    </div>
+                    <script>
+                        document.querySelectorAll('[name="fechaInicio"],[name="fechaFin"]').forEach(function(el){
+                            el.addEventListener('change',function(){
+                                var fi=document.querySelector('[name="fechaInicio"]').value;
+                                var ff=document.querySelector('[name="fechaFin"]').value;
+                                var disp=@Model.DiasDisponibles.ToString("F0");
+                                if(fi&&ff){
+                                    var d1=new Date(fi),d2=new Date(ff);
+                                    if(d2>=d1){
+                                        var diff=Math.round((d2-d1)/(1000*60*60*24))+1;
+                                        document.getElementById('diasCalculados').textContent=diff+' día'+(diff>1?'s':'');
+                                        if(diff>disp){
+                                            document.getElementById('diasCalculados').style.color='#c62828';
+                                        } else {
+                                            document.getElementById('diasCalculados').style.color='#2e7d32';
+                                        }
+                                    }else{document.getElementById('diasCalculados').textContent='—';}
+                                }else{document.getElementById('diasCalculados').textContent='—';}
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <span class="material-symbols-outlined">beach_access</span> Enviar solicitud
+                    </button>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="section-card" style="border-left:4px solid #ff9800;background:#fff3e0;padding:12px 18px;margin:0;">
+                <h3 style="color:#e65100;margin:0;">
+                    <span class="material-symbols-outlined" style="vertical-align:middle;">info</span>
+                    No tiene días de vacaciones disponibles.
+                </h3>
+            </div>
+        }
+    </div>
+
+
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Mis solicitudes de vacaciones</h3>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Días</th>
+                <th>Estado</th>
+                <th>Fecha solicitud</th>
+                <th>Motivo rechazo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Vacaciones != null && Model.Vacaciones.Any())
+            {
+                foreach (var v in Model.Vacaciones)
+                {
+                    <tr>
+                        <td>@v.IdVacacion</td>
+                        <td>@v.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@v.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td>@v.DiasSolicitados</td>
+                        <td>
+                            @if (v.EstadoSolicitud == "aprobada")
+                            {
+                                <span class="status success">Aprobada</span>
+                            }
+                            else if (v.EstadoSolicitud == "rechazada")
+                            {
+                                <span class="status danger">Rechazada</span>
+                            }
+                            else
+                            {
+                                <span class="status warning">Pendiente</span>
+                            }
+                        </td>
+                        <td>@v.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                        <td>@(v.MotivoRechazo ?? "—")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7">No ha realizado solicitudes de vacaciones.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

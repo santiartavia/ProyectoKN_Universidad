@@ -4,14 +4,13 @@
     ViewBag.Title = "Gestión de Empleados";
     var searchTerm = Model?.TerminoBusqueda ?? "";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var empleadosActivos = Model.Empleados.Where(e => e.Estado).ToList();
+    var empleadosActivos = Model.Empleados.Where(e => e.Estado && e.IdEmpleado != 1).ToList();
 }
 
 <div class="hero-card empleados-hero">
     <div>
         <span class="mini-badge">Equipo operativo</span>
         <h2>Gestión de Empleados</h2>
-        <p>Control diario del personal.</p>
     </div>
     <div class="hero-summary">
         <strong>@Model.UltimoMovimiento</strong>
@@ -36,7 +35,6 @@
     <div class="section-title">
         <div>
             <h3>Accesos de auditoría</h3>
-            <p>Consulta las bitácoras del sistema.</p>
         </div>
     </div>
 
@@ -47,6 +45,10 @@
 
         <a class="btn btn-secondary" href="@Url.Action("BitacoraPedidos", "Empleados")">
             <span class="material-symbols-outlined">receipt_long</span> Bitácora de Pedidos
+        </a>
+
+        <a class="btn btn-soft" href="@Url.Action("ResumenHorasExtra", "Empleados")">
+            <span class="material-symbols-outlined">more_time</span> Resumen Horas Extra
         </a>
     </div>
 </div>
@@ -71,7 +73,6 @@
         <div class="section-title">
             <div>
                 <h3>GES-001 Registrar empleados</h3>
-                <p>Nuevo empleado.</p>
             </div>
         </div>
         @using (Html.BeginForm("RegistrarEmpleado", "Empleados", FormMethod.Post))
@@ -129,7 +130,6 @@
             <div>
                 <span class="mini-badge">GES-003</span>
                 <h3>Programar turno</h3>
-                <p>Nuevo turno.</p>
             </div>
         </div>
         @using (Html.BeginForm("CrearTurno", "Empleados", FormMethod.Post))
@@ -176,7 +176,6 @@
         <div class="section-title">
             <div>
                 <h3>GES-005 Solicitar vacaciones</h3>
-                <p>Nueva solicitud.</p>
             </div>
         </div>
         @using (Html.BeginForm("SolicitarVacacion", "Empleados", FormMethod.Post))
@@ -232,15 +231,30 @@
         <div class="section-title">
             <div>
                 <h3>GES-006 Registrar horas extra</h3>
-                <p>Horas extra.</p>
             </div>
         </div>
+        <form method="get" action="@Url.Action("Index", "Empleados")" style="display:flex;align-items:center;gap:8px;padding:0 0 12px 0;">
+            <label for="fechaHE" style="white-space:nowrap;">Asistencias del:</label>
+            <input type="date" name="fechaHE" id="fechaHE" value="@ViewBag.FechaHE" class="form-control" style="width:auto;" />
+            <button type="submit" class="btn btn-sm btn-soft">Filtrar</button>
+        </form>
         @using (Html.BeginForm("RegistrarHorasExtra", "Empleados", FormMethod.Post))
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>ID Asistencia *</label>
-                    <input type="number" name="idAsistencia" required placeholder="Ej. 1" />
+                    <label>Asistencia *</label>
+                    <select name="idAsistencia" required>
+                        <option value="">Seleccione...</option>
+                        @if (Model.Asistencias != null)
+                        {
+                            foreach (var a in Model.Asistencias)
+                            {
+                                <option value="@a.IdAsistencia">
+                                    #@a.IdAsistencia - @(a.Empleado != null ? a.Empleado.Nombre + " " + a.Empleado.Apellidos : "") (@a.FechaHoraEntrada.ToString("dd/MM HH:mm"))
+                                </option>
+                            }
+                        }
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Cantidad de horas *</label>
@@ -261,7 +275,6 @@
         <div class="section-title">
             <div>
                 <h3>GES-002 Editar empleado</h3>
-                <p>Actualizar datos contractuales.</p>
             </div>
         </div>
         @using (Html.BeginForm("AdministrarEmpleado", "Empleados", FormMethod.Post))
@@ -306,7 +319,6 @@
         <div class="section-title">
             <div>
                 <h3>GES-002 Inactivar / Reactivar</h3>
-                <p>Cambiar estado operativo.</p>
             </div>
         </div>
         <div class="grid-2" style="gap:12px;">
@@ -350,7 +362,6 @@
     <div class="section-title">
         <div>
             <h3>Listado de empleados</h3>
-            <p>Estado actual del personal.</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
             @using (Html.BeginForm("BuscarEmpleados", "Empleados", FormMethod.Get, new { style = "display:flex;gap:6px;" }))
@@ -426,7 +437,7 @@
                 foreach (var t in Model.Turnos)
                 {
                     <tr>
-                        <td>@t.Empleado?.Nombre @t.Empleado?.Apellidos</td>
+                        <td>@(t.Empleado != null ? t.Empleado.Nombre + " " + t.Empleado.Apellidos : "")</td>
                         <td>@t.FechaTurno.ToString("dd/MM/yyyy")</td>
                         <td>@t.HoraInicio.ToString(@"hh\:mm")</td>
                         <td>@t.HoraFin.ToString(@"hh\:mm")</td>
@@ -447,8 +458,13 @@
     <div class="section-title">
         <div>
             <h3>Vacaciones pendientes</h3>
-            <p>Solicitudes por aprobar.</p>
         </div>
+        @using (Html.BeginForm("ActualizarVacacionesAcumuladas", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
+        {
+            <button type="submit" class="btn btn-soft" style="padding:6px 12px;font-size:13px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">sync</span> Recalcular saldos
+            </button>
+        }
     </div>
     <table>
         <thead>
@@ -467,7 +483,7 @@
                 foreach (var v in Model.Vacaciones)
                 {
                     <tr>
-                        <td>@v.Empleado?.Nombre @v.Empleado?.Apellidos</td>
+                        <td>@(v.Empleado != null ? v.Empleado.Nombre + " " + v.Empleado.Apellidos : "")</td>
                         <td>@v.FechaInicio.ToString("dd/MM/yyyy")</td>
                         <td>@v.FechaFin.ToString("dd/MM/yyyy")</td>
                         <td>@v.DiasSolicitados</td>
@@ -491,6 +507,42 @@
             else
             {
                 <tr><td colspan="6">Sin solicitudes pendientes.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Vacaciones aprobadas</h3>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Inicio</th>
+                <th>Fin</th>
+                <th>Días</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.VacacionesAprobadas != null && Model.VacacionesAprobadas.Any())
+            {
+                foreach (var v in Model.VacacionesAprobadas)
+                {
+                    <tr>
+                        <td>@(v.Empleado != null ? v.Empleado.Nombre + " " + v.Empleado.Apellidos : "")</td>
+                        <td>@v.FechaInicio.ToString("dd/MM/yyyy")</td>
+                        <td>@v.FechaFin.ToString("dd/MM/yyyy")</td>
+                        <td>@v.DiasSolicitados</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="4">Sin vacaciones aprobadas.</td></tr>
             }
         </tbody>
     </table>

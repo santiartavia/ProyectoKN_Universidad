@@ -47,6 +47,12 @@ a {
     height: 100vh;
 }
 
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .brand {
     display: flex;
     align-items: center;
@@ -110,27 +116,21 @@ a {
     opacity: 0.85;
 }
 
-.menu {
+.menu a {
+    color: var(--white);
+    padding: 14px 16px;
+    border-radius: 16px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 12px;
+    transition: 0.25s ease;
+    font-weight: 600;
 }
 
-    .menu a {
-        color: var(--white);
-        padding: 14px 16px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: 0.25s ease;
-        font-weight: 600;
+    .menu a:hover {
+        background: rgba(255,255,255,0.13);
+        transform: translateX(4px);
     }
-
-        .menu a:hover {
-            background: rgba(255,255,255,0.13);
-            transform: translateX(4px);
-        }
 
 .main-content {
     flex: 1;

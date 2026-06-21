@@ -27,6 +27,7 @@ namespace AccesoADatos
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
         public DbSet<HistorialEstadoPedido> HistorialEstadosPedido { get; set; }
+        public DbSet<NominaMensual> NominasMensuales { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -209,6 +210,30 @@ namespace AccesoADatos
             modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.FechaHoraCambio).HasColumnName("fecha_hora_cambio");
             modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.Detalle).HasColumnName("detalle");
             modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<NominaMensual>().ToTable("nomina_mensual").HasKey(n => n.IdNominaMensual);
+            modelBuilder.Entity<NominaMensual>().Property(n => n.IdNominaMensual).HasColumnName("id");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.IdEmpleado).HasColumnName("empleado_id");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Mes).HasColumnName("mes");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Anio).HasColumnName("anio");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.HorasTrabajadas).HasColumnName("horas_trabajadas");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.HorasExtra).HasColumnName("horas_extra");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.VacacionesPagadas).HasColumnName("vacaciones_pagadas");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.DiasTrabajados).HasColumnName("dias_trabajados");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.DiasAusentes).HasColumnName("dias_ausentes");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioBase).HasColumnName("salario_base");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.MontoHorasExtra).HasColumnName("monto_horas_extra");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Bonificaciones).HasColumnName("bonificaciones");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Deducciones).HasColumnName("deducciones");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioBruto).HasColumnName("salario_bruto");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioNeto).HasColumnName("salario_neto");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Estado).HasColumnName("estado");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.FechaCierre).HasColumnName("fecha_cierre");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.Observaciones).HasColumnName("observaciones");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.CreadoPor).HasColumnName("creado_por");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.CreatedAt).HasColumnName("created_at");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.UpdatedAt).HasColumnName("updated_at");
+            modelBuilder.Entity<NominaMensual>().HasRequired(n => n.Empleado).WithMany().HasForeignKey(n => n.IdEmpleado);
         }
     }
 }

@@ -9,7 +9,6 @@
     <div>
         <span class="mini-badge">GES-003</span>
         <h2>Control de Asistencia</h2>
-        <p>Ponchador de entrada y salida del personal.</p>
     </div>
     <a href="@Url.Action("Index", "Empleados")" class="btn btn-soft">
         <span class="material-symbols-outlined">arrow_back</span> Volver
@@ -33,7 +32,6 @@
     <div class="form-card" style="border-top:6px solid #2e7d32;">
         <div class="section-title">
             <h3>Registrar entrada</h3>
-            <p>Ingrese su ID de empleado para marcar entrada.</p>
         </div>
         @using (Html.BeginForm("RegistrarEntrada", "Empleados", FormMethod.Post))
         {
@@ -54,7 +52,6 @@
     <div class="form-card" style="border-top:6px solid #c62828;">
         <div class="section-title">
             <h3>Registrar salida</h3>
-            <p>Ingrese su ID de empleado para marcar salida (auto-detecta entrada pendiente).</p>
         </div>
         @using (Html.BeginForm("RegistrarSalidaPorEmpleado", "Empleados", FormMethod.Post))
         {
@@ -71,7 +68,6 @@
             </div>
         }
         <hr style="margin:16px 0;border-color:var(--border);" />
-        <p style="font-size:13px;color:#666;">O si conoce el ID de asistencia:</p>
         @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post))
         {
             <div class="form-grid" style="grid-template-columns:1fr auto;">
@@ -102,9 +98,13 @@
 <div class="table-card">
     <div class="section-title">
         <div>
-            <h3>Asistencias de hoy (@DateTime.Today.ToString("dd/MM/yyyy"))</h3>
-            <p>Registros del d&iacute;a.</p>
+            <h3>Asistencias del día (@ViewBag.FechaAsistencia)</h3>
         </div>
+        <form method="get" action="@Url.Action("Asistencia", "Empleados")" style="display:flex;align-items:center;gap:8px;">
+            <label for="fechaAsistencia" style="white-space:nowrap;">Filtrar por fecha:</label>
+            <input type="date" name="fecha" id="fechaAsistencia" value="@ViewBag.FechaAsistencia" class="form-control" style="width:auto;" />
+            <button type="submit" class="btn btn-sm btn-soft">Ver</button>
+        </form>
     </div>
     <table>
         <thead>
@@ -151,7 +151,6 @@
     <div class="section-title">
         <div>
             <h3>Asistencias pendientes general</h3>
-            <p>Registros sin salida.</p>
         </div>
     </div>
     <table>
@@ -170,7 +169,7 @@
                 {
                     <tr>
                         <td>@a.IdAsistencia</td>
-                        <td>@a.Empleado?.Nombre @a.Empleado?.Apellidos (#@a.IdEmpleado)</td>
+                        <td>@(a.Empleado != null ? a.Empleado.Nombre + " " + a.Empleado.Apellidos : "") (#@a.IdEmpleado)</td>
                         <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
                         <td>
                             @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post, new { style = "display:inline;" }))

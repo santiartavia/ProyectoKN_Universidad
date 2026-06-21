@@ -35,16 +35,21 @@ namespace RestauranteVistas.Controllers
             _mesaAtendidaService = new MesaAtendidaService(auditoria, fechas);
         }
 
-        public ActionResult Index()
+        public ActionResult Index(DateTime? fechaHE = null)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
             if (idAdmin == null) return RedirectToAction("Index", "Login");
+
+            DateTime fechaHorasExtra = fechaHE ?? DateTime.Today;
+            ViewBag.FechaHE = fechaHorasExtra.ToString("yyyy-MM-dd");
 
             var modelo = new EmpleadosViewModel
             {
                 Empleados = _empleadoService.ListarTodos(),
                 Turnos = _turnoService.ObtenerPorFecha(DateTime.Today),
                 Vacaciones = _vacacionService.ListarPendientes(),
+                VacacionesAprobadas = _vacacionService.ListarPorFiltros(null, null, null, "aprobada"),
+                Asistencias = _asistenciaService.ListarPorFecha(fechaHorasExtra),
                 Roles = _turnoService.ObtenerRoles(),
                 EmpleadosActivos = _empleadoService.ListarActivos().Count,
                 TurnosProgramados = _turnoService.ObtenerPorFecha(DateTime.Today).Count,
@@ -164,12 +169,14 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpGet]
-        public ActionResult Asistencia()
+        public ActionResult Asistencia(DateTime? fecha = null)
         {
+            DateTime fechaFiltro = fecha ?? DateTime.Today;
+            ViewBag.FechaAsistencia = fechaFiltro.ToString("yyyy-MM-dd");
             return View(new EmpleadosViewModel
             {
                 AsistenciasPendientes = _asistenciaService.ListarPendientes(),
-                Asistencias = _asistenciaService.ListarPorFecha(DateTime.Today),
+                Asistencias = _asistenciaService.ListarPorFecha(fechaFiltro),
                 UltimoMovimiento = "Control de asistencia"
             });
         }
@@ -337,7 +344,35 @@ namespace RestauranteVistas.Controllers
             {
                 TempData["Error"] = $"Error: {ex.Message}";
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("ResumenHorasExtra");
+        }
+
+        [HttpGet]
+        public ActionResult ResumenHorasExtra(int? idEmpleado, string fechaInicio, string fechaFin)
+        {
+            var idAdmin = ObtenerIdUsuarioSesion();
+            if (idAdmin == null) return RedirectToAction("Index", "Login");
+
+            DateTime? fi = null, ff = null;
+            if (!string.IsNullOrWhiteSpace(fechaInicio)) fi = DateTime.Parse(fechaInicio);
+            if (!string.IsNullOrWhiteSpace(fechaFin)) ff = DateTime.Parse(fechaFin);
+
+            var horasExtra = _horaExtraService.ListarPorFiltros(idEmpleado, fi, ff);
+
+            ViewBag.TotalHoras = horasExtra.Sum(h => h.CantidadHoras);
+            ViewBag.TotalMonto = horasExtra.Sum(h => h.MontoCalculado);
+            ViewBag.TotalRegistros = horasExtra.Count;
+            ViewBag.FiltroIdEmpleado = idEmpleado;
+            ViewBag.FiltroFechaInicio = fechaInicio;
+            ViewBag.FiltroFechaFin = fechaFin;
+            ViewBag.Empleados = _empleadoService.ListarActivos();
+
+            if (TempData["Mensaje"] != null)
+                ViewBag.Mensaje = TempData["Mensaje"].ToString();
+            if (TempData["Error"] != null)
+                ViewBag.Error = TempData["Error"].ToString();
+
+            return View(horasExtra);
         }
 
         [HttpGet]
@@ -506,6 +541,23 @@ namespace RestauranteVistas.Controllers
                     : $"Resultados para: {termino}",
                 TerminoBusqueda = termino
             });
+        }
+
+        [HttpPost]
+        public ActionResult ActualizarVacacionesAcumuladas()
+        {
+            var idAdmin = ObtenerIdUsuarioSesion();
+            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            try
+            {
+                _vacacionService.ActualizarVacacionesAcumuladas(idAdmin.Value);
+                TempData["Mensaje"] = "Saldo vacacional actualizado para todos los empleados según Código de Trabajo.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+            }
+            return RedirectToAction("Index");
         }
 
         private int? ObtenerIdUsuarioSesion()

@@ -1,0 +1,271 @@
+@model RestauranteVistas.Models.ViewModels.NominaMensualViewModel
+
+@{
+    ViewBag.Title = "Gestión de Nómina Mensual";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var meses = new[] {
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"
+    };
+}
+
+<div class="hero-card" style="display:flex;justify-content:space-between;align-items:center;">
+    <div>
+        <span class="mini-badge">NOM-001</span>
+        <h2>Gestión de Nómina Mensual</h2>
+    </div>
+    <a href="@Url.Action("Index", "Empleados")" class="btn btn-soft">
+        <span class="material-symbols-outlined">arrow_back</span> Volver
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin-bottom:16px;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin-bottom:16px;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="form-card" style="border-top:6px solid #1565c0;">
+    <div class="section-title">
+        <div>
+            <h3>Seleccionar período</h3>
+        </div>
+    </div>
+    <form method="get" action="@Url.Action("Index", "NominaMensual")">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr auto;align-items:end;">
+            <div class="form-group">
+                <label>Mes</label>
+                <select name="mes" class="form-control">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" @(Model.Mes == i ? "selected" : "")>@meses[i - 1]</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Año</label>
+                <input type="number" name="anio" value="@Model.Anio" min="2020" max="2035" class="form-control" />
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">search</span> Consultar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (Model.NominasPreview != null && Model.NominasPreview.Any())
+{
+    var totalSalarios = Model.NominasPreview.Sum(n => n.SalarioNeto);
+    var totalHoras = Model.NominasPreview.Sum(n => n.HorasTrabajadas);
+    var totalHE = Model.NominasPreview.Sum(n => n.MontoHorasExtra);
+
+    <div class="grid-3" style="margin:16px 0;">
+        <div class="section-card" style="border-left:4px solid #1565c0;padding:12px 18px;background:#e3f2fd;text-align:center;">
+            <h4 style="margin:0;color:#1565c0;font-size:14px;">TOTAL SALARIOS</h4>
+            <p style="margin:4px 0 0 0;font-size:22px;font-weight:700;color:#0d47a1;">₡@totalSalarios.ToString("N2")</p>
+        </div>
+        <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;background:#e8f5e9;text-align:center;">
+            <h4 style="margin:0;color:#2e7d32;font-size:14px;">HORAS TRABAJADAS</h4>
+            <p style="margin:4px 0 0 0;font-size:22px;font-weight:700;color:#1b5e20;">@totalHoras.ToString("N2")</p>
+        </div>
+        <div class="section-card" style="border-left:4px solid #e65100;padding:12px 18px;background:#fff3e0;text-align:center;">
+            <h4 style="margin:0;color:#e65100;font-size:14px;">MONTO HORAS EXTRA</h4>
+            <p style="margin:4px 0 0 0;font-size:22px;font-weight:700;color:#bf360c;">₡@totalHE.ToString("N2")</p>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Vista previa - @meses[Model.Mes - 1] @Model.Anio</h3>
+            </div>
+            @using (Html.BeginForm("CerrarMes", "NominaMensual", FormMethod.Post, new { style = "display:flex;align-items:center;gap:8px;" }))
+            {
+                <input type="hidden" name="mes" value="@Model.Mes" />
+                <input type="hidden" name="anio" value="@Model.Anio" />
+                <input type="text" name="observaciones" placeholder="Observaciones generales..." class="form-control" style="width:200px;" />
+                <button type="submit" class="btn btn-success" onclick="return confirm('¿Cerrar nómina de TODOS los empleados para @meses[Model.Mes - 1] @Model.Anio?');">
+                    <span class="material-symbols-outlined">check_circle</span> Cerrar mes completo
+                </button>
+            }
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Horas trab.</th>
+                        <th>Horas extra</th>
+                        <th>Vac. pagadas</th>
+                        <th>Días trab.</th>
+                        <th>Ausencias</th>
+                        <th>Salario base</th>
+                        <th>Pago HE</th>
+                        <th>Bonif.</th>
+                        <th>Deducc.</th>
+                        <th>Bruto</th>
+                        <th>Neto</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var n in Model.NominasPreview)
+                    {
+                        <tr>
+                            <td>@(n.Empleado != null ? n.Empleado.Nombre + " " + n.Empleado.Apellidos : "")</td>
+                            <td>@n.HorasTrabajadas.ToString("N2")</td>
+                            <td>@n.HorasExtra.ToString("N2")</td>
+                            <td>@n.VacacionesPagadas.ToString("N0")</td>
+                            <td>@n.DiasTrabajados</td>
+                            <td>@n.DiasAusentes</td>
+                            <td>₡@n.SalarioBase.ToString("N2")</td>
+                            <td>₡@n.MontoHorasExtra.ToString("N2")</td>
+                            <td>₡@n.Bonificaciones.ToString("N2")</td>
+                            <td>₡@n.Deducciones.ToString("N2")</td>
+                            <td><strong>₡@n.SalarioBruto.ToString("N2")</strong></td>
+                            <td><strong>₡@n.SalarioNeto.ToString("N2")</strong></td>
+                            <td><span class="status warning">Pendiente</span></td>
+                            <td>
+                                <details style="cursor:pointer;">
+                                    <summary class="btn btn-sm btn-soft" style="display:inline-block;">Ajustar</summary>
+                                    <div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;min-width:280px;">
+                                        @using (Html.BeginForm("AjustarHorasExtra", "NominaMensual", FormMethod.Post))
+                                        {
+                                            <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
+                                            <input type="hidden" name="mes" value="@Model.Mes" />
+                                            <input type="hidden" name="anio" value="@Model.Anio" />
+                                            <div class="form-group" style="margin-bottom:6px;">
+                                                <label style="font-size:12px;">Horas extra</label>
+                                                <input type="number" name="cantidadHoras" value="@n.HorasExtra.ToString("N2")" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:6px;">
+                                                <label style="font-size:12px;">Motivo</label>
+                                                <input type="text" name="motivoAjuste" class="form-control" style="width:100%;" placeholder="Ej. Ajuste manual" />
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-primary">Guardar ajuste</button>
+                                        }
+                                        <hr style="margin:8px 0;" />
+                                        @using (Html.BeginForm("Cerrar", "NominaMensual", FormMethod.Post))
+                                        {
+                                            <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
+                                            <input type="hidden" name="mes" value="@Model.Mes" />
+                                            <input type="hidden" name="anio" value="@Model.Anio" />
+                                            <div class="form-group" style="margin-bottom:6px;">
+                                                <label style="font-size:12px;">Observaciones de cierre</label>
+                                                <input type="text" name="observaciones" class="form-control" style="width:100%;" placeholder="Opcional" />
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Cerrar nómina para este empleado?');">
+                                                <span class="material-symbols-outlined" style="font-size:14px;">check_circle</span> Cerrar nómina
+                                            </button>
+                                        }
+                                    </div>
+                                </details>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="section-card" style="border-left:4px solid #ff9800;padding:12px 18px;margin:16px 0;background:#fff3e0;">
+        <h3 style="color:#e65100;margin:0;">No hay datos para @meses[Model.Mes - 1] @Model.Anio</h3>
+    </div>
+}
+
+@if (Model.Historial != null && Model.Historial.Any())
+{
+    <div class="table-card" style="margin-top:24px;">
+        <div class="section-title">
+            <div>
+                <h3>Historial de nóminas cerradas</h3>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Empleado</th>
+                        <th>Mes / Año</th>
+                        <th>Horas trab.</th>
+                        <th>Horas extra</th>
+                        <th>Vac. pag.</th>
+                        <th>Días trab.</th>
+                        <th>Ausencias</th>
+                        <th>Salario base</th>
+                        <th>Pago HE</th>
+                        <th>Deducc.</th>
+                        <th>Bonif.</th>
+                        <th>Bruto</th>
+                        <th>Neto</th>
+                        <th>Estado</th>
+                        <th>Fecha cierre</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var n in Model.Historial)
+                    {
+                        <tr>
+                            <td>@(n.Empleado != null ? n.Empleado.Nombre + " " + n.Empleado.Apellidos : "")</td>
+                            <td>@meses[n.Mes - 1] @n.Anio</td>
+                            <td>@n.HorasTrabajadas.ToString("N2")</td>
+                            <td>@n.HorasExtra.ToString("N2")</td>
+                            <td>@n.VacacionesPagadas.ToString("N0")</td>
+                            <td>@n.DiasTrabajados</td>
+                            <td>@n.DiasAusentes</td>
+                            <td>₡@n.SalarioBase.ToString("N2")</td>
+                            <td>₡@n.MontoHorasExtra.ToString("N2")</td>
+                            <td>₡@n.Deducciones.ToString("N2")</td>
+                            <td>₡@n.Bonificaciones.ToString("N2")</td>
+                            <td>₡@n.SalarioBruto.ToString("N2")</td>
+                            <td><strong>₡@n.SalarioNeto.ToString("N2")</strong></td>
+                            <td><span class="status success">Cerrada</span></td>
+                            <td>@(n.FechaCierre != null ? n.FechaCierre.Value.ToString("dd/MM/yyyy HH:mm") : "—")</td>
+                            <td>@(string.IsNullOrEmpty(n.Observaciones) ? "—" : n.Observaciones)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<style>
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    .table-card {
+        margin-bottom: 16px;
+    }
+    .section-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .table-card table th, .table-card table td {
+        white-space: nowrap;
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+    .table-card table th {
+        background: var(--surface-dark, #f8f9fa);
+        font-weight: 600;
+    }
+</style>

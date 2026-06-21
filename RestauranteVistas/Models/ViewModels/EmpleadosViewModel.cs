@@ -8,6 +8,7 @@ namespace RestauranteVistas.Models.ViewModels
         public List<Empleado> Empleados { get; set; }
         public List<TurnoTrabajo> Turnos { get; set; }
         public List<Vacacion> Vacaciones { get; set; }
+        public List<Vacacion> VacacionesAprobadas { get; set; }
         public List<HoraExtra> HorasExtra { get; set; }
         public List<BitacoraRRHH> Bitacora { get; set; }
         public List<Rol> Roles { get; set; }

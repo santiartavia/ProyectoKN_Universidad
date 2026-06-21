@@ -1,8 +1,23 @@
 ﻿@model RestauranteVistas.Models.ViewModels.EmpleadosViewModel
+@using Newtonsoft.Json.Linq
 
 @{
     ViewBag.Title = "Bitácora de Empleados";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    string FormatearValor(string raw)
+    {
+        if (string.IsNullOrEmpty(raw)) return "—";
+        try
+        {
+            var tok = JToken.Parse(raw);
+            if (tok is JObject obj)
+                return string.Join(", ", obj.Properties().Select(p => $"{p.Name}={p.Value}"));
+            if (tok is JArray arr)
+                return string.Join(" | ", arr.Select(item => item.ToString()));
+            return tok.ToString();
+        }
+        catch { return raw; }
+    }
 }
 
 <div class="hero-card">
@@ -88,8 +103,8 @@
                         <td>@b.TablaAfectada</td>
                         <td>@b.IdRegistroAfectado</td>
                         <td><span class="status info">@b.Accion</span></td>
-                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorAnterior">@b.ValorAnterior</td>
-                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorNuevo">@b.ValorNuevo</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorAnterior">@FormatearValor(b.ValorAnterior)</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorNuevo">@FormatearValor(b.ValorNuevo)</td>
                         <td>@b.Detalle</td>
                         <td>@b.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")</td>
                     </tr>

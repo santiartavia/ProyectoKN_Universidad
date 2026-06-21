@@ -240,6 +240,15 @@ namespace LogicaDeNegocios.Services
             }
         }
 
+        public Empleado ObtenerPorUsuarioId(int idUsuario)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                return ctx.Empleados.Include(e => e.Usuario).Include(e => e.Usuario.Rol)
+                    .FirstOrDefault(e => e.IdUsuario == idUsuario && e.Estado);
+            }
+        }
+
         public List<Empleado> Buscar(string termino)
         {
             using (var ctx = new ColibriDbContext())

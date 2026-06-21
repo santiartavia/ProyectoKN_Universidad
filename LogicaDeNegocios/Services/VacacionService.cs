@@ -34,9 +34,11 @@ namespace LogicaDeNegocios.Services
                 if (empleado == null)
                     throw new KeyNotFoundException("Empleado no encontrado o inactivo");
 
-                if (diasSolicitados > empleado.DiasVacacionesDisponibles)
+                var detalle = CalcularDetalleVacacionalDesdeContext(ctx, idEmpleado);
+                if (diasSolicitados > detalle.Available)
                     throw new InvalidOperationException(
-                        $"Saldo insuficiente. Disponible: {empleado.DiasVacacionesDisponibles}, Solicitado: {diasSolicitados}");
+                        $"Saldo insuficiente. Disponible: {detalle.Available:N2}, Solicitado: {diasSolicitados:N0}. " +
+                        $"Acumulado: {detalle.Earned:N2}, Usado: {detalle.Used:N2}");
 
                 bool tieneTurnos = ctx.TurnosTrabajo.Any(t =>
                     t.IdEmpleado == idEmpleado &&
@@ -47,6 +49,27 @@ namespace LogicaDeNegocios.Services
                     throw new InvalidOperationException(
                         "El empleado tiene turnos laborales activos en el rango de fechas solicitado. " +
                         "Debe cancelar o modificar los turnos antes de solicitar la vacación.");
+
+                bool tieneSolicitudPendiente = ctx.Vacaciones.Any(v =>
+                    v.IdEmpleado == idEmpleado &&
+                    v.Estado &&
+                    v.EstadoSolicitud == "pendiente" &&
+                    v.FechaInicio <= fechaFin &&
+                    v.FechaFin >= fechaInicio);
+                if (tieneSolicitudPendiente)
+                    throw new InvalidOperationException(
+                        "Ya tiene una solicitud de vacaciones pendiente que se superpone con las fechas seleccionadas. " +
+                        "Espere a que sea procesada antes de realizar una nueva solicitud.");
+
+                bool tieneVacacionAprobada = ctx.Vacaciones.Any(v =>
+                    v.IdEmpleado == idEmpleado &&
+                    v.Estado &&
+                    v.EstadoSolicitud == "aprobada" &&
+                    v.FechaInicio <= fechaFin &&
+                    v.FechaFin >= fechaInicio);
+                if (tieneVacacionAprobada)
+                    throw new InvalidOperationException(
+                        "Ya tiene unas vacaciones aprobadas en el rango de fechas seleccionado.");
 
                 var vacacion = new Vacacion
                 {
@@ -61,7 +84,7 @@ namespace LogicaDeNegocios.Services
                 ctx.Vacaciones.Add(vacacion);
                 ctx.SaveChanges();
 
-                _auditoria.Registrar("Vacaciones", vacacion.IdVacacion, "SOLICITUD",
+                _auditoria.Registrar("Vacaciones", vacacion.IdVacacion, "INSERT",
                     null,
                     Newtonsoft.Json.JsonConvert.SerializeObject(new { vacacion.IdEmpleado, vacacion.FechaInicio, vacacion.FechaFin, vacacion.DiasSolicitados }),
                     $"Solicitud de vacaciones para empleado #{idEmpleado} ({fechaInicio:yyyy-MM-dd} a {fechaFin:yyyy-MM-dd})",
@@ -84,6 +107,11 @@ namespace LogicaDeNegocios.Services
                 if (!vacacion.Empleado.Estado)
                     throw new InvalidOperationException("No se puede aprobar una solicitud de un empleado inactivo");
 
+                var detalle = CalcularDetalleVacacionalDesdeContext(ctx, vacacion.IdEmpleado);
+                if (vacacion.DiasSolicitados > detalle.Available)
+                    throw new InvalidOperationException(
+                        $"Saldo insuficiente. Disponible: {detalle.Available:N2}, Solicitado: {vacacion.DiasSolicitados:N0}");
+
                 bool tieneTurnos = ctx.TurnosTrabajo.Any(t =>
                     t.IdEmpleado == vacacion.IdEmpleado &&
                     t.Estado &&
@@ -100,7 +128,8 @@ namespace LogicaDeNegocios.Services
                 var empleado = ctx.Empleados.Find(vacacion.IdEmpleado);
                 if (empleado != null)
                 {
-                    empleado.DiasVacacionesDisponibles -= vacacion.DiasSolicitados;
+                    empleado.DiasVacacionesDisponibles = detalle.Earned - (detalle.Used + vacacion.DiasSolicitados);
+                    if (empleado.DiasVacacionesDisponibles < 0) empleado.DiasVacacionesDisponibles = 0;
                 }
 
                 ctx.SaveChanges();
@@ -171,8 +200,8 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                var empleado = ctx.Empleados.Find(idEmpleado);
-                return empleado?.DiasVacacionesDisponibles ?? 0;
+                var detalle = CalcularDetalleVacacionalDesdeContext(ctx, idEmpleado);
+                return detalle.Available;
             }
         }
 
@@ -205,6 +234,55 @@ namespace LogicaDeNegocios.Services
 
                 return query.OrderByDescending(v => v.FechaSolicitud).ToList();
             }
+        }
+
+        public (decimal Earned, decimal Used, decimal Available) CalcularDetalleVacacional(int idEmpleado)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                return CalcularDetalleVacacionalDesdeContext(ctx, idEmpleado);
+            }
+        }
+
+        public void ActualizarVacacionesAcumuladas(int idUsuario)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var empleados = ctx.Empleados.Where(e => e.Estado).ToList();
+                foreach (var emp in empleados)
+                {
+                    var detalle = CalcularDetalleVacacionalDesdeContext(ctx, emp.IdEmpleado);
+                    emp.DiasVacacionesDisponibles = detalle.Available;
+                }
+                ctx.SaveChanges();
+                _auditoria.Registrar("Vacaciones", 0, "UPDATE",
+                    null,
+                    $"Recálculo masivo de saldos vacacionales para {empleados.Count} empleados",
+                    $"Actualización de saldos vacacionales por recálculo ({empleados.Count} empleados afectados)",
+                    idUsuario);
+            }
+        }
+
+        private (decimal Earned, decimal Used, decimal Available) CalcularDetalleVacacionalDesdeContext(ColibriDbContext ctx, int idEmpleado)
+        {
+            var empleado = ctx.Empleados.Find(idEmpleado);
+            if (empleado == null)
+                return (0, 0, 0);
+
+            var hoy = _fechas.ObtenerFechaActual();
+            var totalDiasTrabajados = (decimal)(hoy - empleado.FechaIngreso).TotalDays;
+            var semanasTrabajadas = totalDiasTrabajados / 7m;
+            var periodosCincuentaSemanas = Math.Floor(semanasTrabajadas / 50);
+            var earned = periodosCincuentaSemanas * 14;
+
+            var used = ctx.Vacaciones
+                .Where(v => v.IdEmpleado == idEmpleado && v.EstadoSolicitud == "aprobada" && v.Estado)
+                .Sum(v => (decimal?)v.DiasSolicitados) ?? 0m;
+
+            var available = earned - used;
+            if (available < 0) available = 0;
+
+            return (earned, used, available);
         }
     }
 }
