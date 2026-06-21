@@ -1,4 +1,6 @@
 ﻿using AccesoADatos;
+using Abstracciones.Models;
+using System;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -37,6 +39,8 @@ namespace RestauranteVistas.Controllers
 
             if (pedido != null)
             {
+                string estadoAnterior = pedido.EstadoPedido;
+
                 pedido.EstadoPedido = "en_proceso";
 
                 var detalles = db.DetallePedidos
@@ -47,6 +51,14 @@ namespace RestauranteVistas.Controllers
                 {
                     item.EstadoItem = "preparando";
                 }
+
+                RegistrarHistorial(
+                    pedido.IdPedido,
+                    estadoAnterior,
+                    "en_proceso",
+                    "Cocinero",
+                    "Cocina inició la preparación del pedido"
+                );
 
                 db.SaveChanges();
 
@@ -63,12 +75,33 @@ namespace RestauranteVistas.Controllers
 
             if (detalle != null)
             {
+                string estadoItemAnterior = detalle.EstadoItem;
                 detalle.EstadoItem = "preparando";
 
                 var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == detalle.IdPedido);
+
                 if (pedido != null && pedido.EstadoPedido == "abierto")
                 {
+                    string estadoPedidoAnterior = pedido.EstadoPedido;
                     pedido.EstadoPedido = "en_proceso";
+
+                    RegistrarHistorial(
+                        pedido.IdPedido,
+                        estadoPedidoAnterior,
+                        "en_proceso",
+                        "Cocinero",
+                        "Producto marcado en preparación y pedido pasó a en proceso"
+                    );
+                }
+                else if (pedido != null)
+                {
+                    RegistrarHistorial(
+                        pedido.IdPedido,
+                        estadoItemAnterior,
+                        "preparando",
+                        "Cocinero",
+                        "Producto marcado en preparación"
+                    );
                 }
 
                 db.SaveChanges();
@@ -86,7 +119,16 @@ namespace RestauranteVistas.Controllers
 
             if (detalle != null)
             {
+                string estadoItemAnterior = detalle.EstadoItem;
                 detalle.EstadoItem = "listo";
+
+                RegistrarHistorial(
+                    detalle.IdPedido,
+                    estadoItemAnterior,
+                    "listo",
+                    "Cocinero",
+                    "Producto marcado como listo"
+                );
 
                 var detallesPedido = db.DetallePedidos
                     .Where(d => d.IdPedido == detalle.IdPedido && d.Estado == true)
@@ -98,7 +140,16 @@ namespace RestauranteVistas.Controllers
 
                     if (pedido != null)
                     {
+                        string estadoPedidoAnterior = pedido.EstadoPedido;
                         pedido.EstadoPedido = "listo";
+
+                        RegistrarHistorial(
+                            pedido.IdPedido,
+                            estadoPedidoAnterior,
+                            "listo",
+                            "Cocinero",
+                            "Todos los productos del pedido están listos"
+                        );
                     }
                 }
 
@@ -108,6 +159,20 @@ namespace RestauranteVistas.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        private void RegistrarHistorial(int idPedido, string estadoAnterior, string estadoNuevo, string usuarioResponsable, string detalle)
+        {
+            db.HistorialEstadosPedido.Add(new HistorialEstadoPedido
+            {
+                IdPedido = idPedido,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = estadoNuevo,
+                UsuarioResponsable = usuarioResponsable,
+                FechaHoraCambio = DateTime.Now,
+                Detalle = detalle,
+                Estado = true
+            });
         }
 
         protected override void Dispose(bool disposing)

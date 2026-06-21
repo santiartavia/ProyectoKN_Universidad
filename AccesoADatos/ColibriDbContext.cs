@@ -26,6 +26,7 @@ namespace AccesoADatos
         public DbSet<BitacoraPedido> BitacoraPedidos { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
+        public DbSet<HistorialEstadoPedido> HistorialEstadosPedido { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -198,6 +199,16 @@ namespace AccesoADatos
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdPedido).HasColumnName("id_pedido");
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.NombreSubcuenta).HasColumnName("nombre_subcuenta");
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<HistorialEstadoPedido>().ToTable("Historial_Estados_Pedido").HasKey(h => h.IdHistorial);
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.IdHistorial).HasColumnName("id_historial");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.IdPedido).HasColumnName("id_pedido");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.EstadoAnterior).HasColumnName("estado_anterior");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.EstadoNuevo).HasColumnName("estado_nuevo");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.UsuarioResponsable).HasColumnName("usuario_responsable");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.FechaHoraCambio).HasColumnName("fecha_hora_cambio");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.Estado).HasColumnName("estado");
         }
     }
 }

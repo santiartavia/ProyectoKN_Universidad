@@ -1,4 +1,5 @@
 ﻿using AccesoADatos;
+using Abstracciones.Models;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using System;
@@ -32,8 +33,24 @@ namespace RestauranteVistas.Controllers
                 .OrderByDescending(p => p.FechaHora)
                 .ToList();
 
+            ViewBag.PedidosSeguimiento = db.Pedidos
+                .Where(p => p.Estado == true &&
+                       (p.EstadoPedido == "abierto" ||
+                        p.EstadoPedido == "en_proceso" ||
+                        p.EstadoPedido == "listo" ||
+                        p.EstadoPedido == "entregado" ||
+                        p.EstadoPedido == "finalizado" ||
+                        p.EstadoPedido == "cancelado"))
+                .OrderByDescending(p => p.FechaHora)
+                .ToList();
+
             ViewBag.Detalles = db.DetallePedidos.Where(d => d.Estado == true).ToList();
             ViewBag.Productos = db.Productos.Where(p => p.Estado == true).ToList();
+
+            ViewBag.HistorialEstados = db.HistorialEstadosPedido
+                .Where(h => h.Estado == true)
+                .OrderByDescending(h => h.FechaHoraCambio)
+                .ToList();
 
             return View();
         }
@@ -75,13 +92,37 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            string estadoAnterior = pedido.EstadoPedido;
+
             pedido.EstadoPedido = "entregado";
             pedido.FechaHoraEntrega = DateTime.Now;
+
+            RegistrarHistorial(
+                pedido.IdPedido,
+                estadoAnterior,
+                "entregado",
+                "Mesero",
+                "Mesero entregó el pedido al cliente"
+            );
 
             db.SaveChanges();
 
             TempData["Mensaje"] = "Pedido entregado correctamente. Queda habilitado para pago.";
             return RedirectToAction("Index");
+        }
+
+        private void RegistrarHistorial(int idPedido, string estadoAnterior, string estadoNuevo, string usuarioResponsable, string detalle)
+        {
+            db.HistorialEstadosPedido.Add(new HistorialEstadoPedido
+            {
+                IdPedido = idPedido,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = estadoNuevo,
+                UsuarioResponsable = usuarioResponsable,
+                FechaHoraCambio = DateTime.Now,
+                Detalle = detalle,
+                Estado = true
+            });
         }
 
         protected override void Dispose(bool disposing)

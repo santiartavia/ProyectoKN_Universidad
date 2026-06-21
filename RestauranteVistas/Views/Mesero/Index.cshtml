@@ -6,8 +6,10 @@
 
     var pedidosListos = ViewBag.PedidosListos as List<Abstracciones.Models.Pedido>;
     var pedidosEntregados = ViewBag.PedidosEntregados as List<Abstracciones.Models.Pedido>;
+    var pedidosSeguimiento = ViewBag.PedidosSeguimiento as List<Abstracciones.Models.Pedido>;
     var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
     var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
+    var historialEstados = ViewBag.HistorialEstados as List<Abstracciones.Models.HistorialEstadoPedido>;
 }
 
 <div class="hero-card">
@@ -30,7 +32,7 @@
 
 <div class="grid-4">
     <div class="metric-card"><h3>Mesas asignadas</h3><div class="value">6</div></div>
-    <div class="metric-card alt-blue"><h3>Pedidos activos</h3><div class="value">9</div></div>
+    <div class="metric-card alt-blue"><h3>Pedidos activos</h3><div class="value">@(pedidosSeguimiento != null ? pedidosSeguimiento.Count : 0)</div></div>
     <div class="metric-card alt-orange"><h3>Listos para servir</h3><div class="value">@(pedidosListos != null ? pedidosListos.Count : 0)</div></div>
     <div class="metric-card alt-teal"><h3>Clientes atendidos</h3><div class="value">@(pedidosEntregados != null ? pedidosEntregados.Count : 0)</div></div>
 </div>
@@ -77,8 +79,8 @@
 <div class="table-card">
     <div class="section-title">
         <div>
-            <h3>Pedidos de mis mesas</h3>
-            <p>Seguimiento visual</p>
+            <h3>Seguimiento actual de pedidos</h3>
+            <p>Estado actualizado de cada orden para informar al cliente</p>
         </div>
     </div>
 
@@ -87,29 +89,90 @@
             <tr>
                 <th>Mesa</th>
                 <th>Pedido</th>
-                <th>Estado</th>
-                <th>Acción</th>
+                <th>Productos</th>
+                <th>Estado actual</th>
+                <th>Último cambio</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>Casado + refresco</td>
-                <td><span class="status info">En cocina</span></td>
-                <td><button class="btn btn-soft" onclick="mostrarToast('Detalle de pedido abierto')">Ver</button></td>
-            </tr>
-            <tr>
-                <td>4</td>
-                <td>Pasta + café</td>
-                <td><span class="status warning">Pendiente</span></td>
-                <td><button class="btn btn-soft" onclick="mostrarToast('Detalle de pedido abierto')">Ver</button></td>
-            </tr>
-            <tr>
-                <td>6</td>
-                <td>Hamburguesa + papas</td>
-                <td><span class="status success">Lista</span></td>
-                <td><button class="btn btn-soft" onclick="mostrarToast('Pedido marcado para servir')">Servir</button></td>
-            </tr>
+            @if (pedidosSeguimiento != null && pedidosSeguimiento.Any())
+            {
+                foreach (var pedido in pedidosSeguimiento)
+                {
+                    var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+                    var ultimoCambio = historialEstados != null ? historialEstados.FirstOrDefault(h => h.IdPedido == pedido.IdPedido) : null;
+
+                    <tr>
+                        <td>Mesa @pedido.IdMesa</td>
+                        <td>Pedido #@pedido.IdPedido</td>
+                        <td>
+                            @if (detallesPedido != null && detallesPedido.Any())
+                            {
+                                foreach (var item in detallesPedido)
+                                {
+                                    var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+                                    <div>
+                                        @(prod != null ? prod.NombreProducto : "Producto")
+                                        x @item.Cantidad
+                                        - Estado item: @item.EstadoItem
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span>Sin productos</span>
+                            }
+                        </td>
+                        <td>
+                            @if (pedido.EstadoPedido == "abierto")
+                            {
+                                <span class="status warning">Solicitada</span>
+                            }
+                            else if (pedido.EstadoPedido == "en_proceso")
+                            {
+                                <span class="status info">En preparación</span>
+                            }
+                            else if (pedido.EstadoPedido == "listo")
+                            {
+                                <span class="status success">Lista</span>
+                            }
+                            else if (pedido.EstadoPedido == "entregado")
+                            {
+                                <span class="status info">Entregada</span>
+                            }
+                            else if (pedido.EstadoPedido == "finalizado")
+                            {
+                                <span class="status success">Finalizada</span>
+                            }
+                            else if (pedido.EstadoPedido == "cancelado")
+                            {
+                                <span class="status danger">Cancelada</span>
+                            }
+                            else
+                            {
+                                <span class="status">@pedido.EstadoPedido</span>
+                            }
+                        </td>
+                        <td>
+                            @if (ultimoCambio != null)
+                            {
+                                <div>@ultimoCambio.FechaHoraCambio.ToString("dd/MM/yyyy HH:mm")</div>
+                                <div>@ultimoCambio.Detalle</div>
+                            }
+                            else
+                            {
+                                <span>Sin historial registrado</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">No hay pedidos para seguimiento.</td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>
@@ -175,6 +238,50 @@
             {
                 <tr>
                     <td colspan="5">No hay pedidos listos para entregar.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Historial de cambios de estado</h3>
+            <p>Trazabilidad completa para auditoría y seguimiento</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Pedido</th>
+                <th>Estado anterior</th>
+                <th>Estado nuevo</th>
+                <th>Responsable</th>
+                <th>Fecha cambio</th>
+                <th>Detalle</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (historialEstados != null && historialEstados.Any())
+            {
+                foreach (var h in historialEstados.Take(30))
+                {
+                    <tr>
+                        <td>Pedido #@h.IdPedido</td>
+                        <td>@h.EstadoAnterior</td>
+                        <td>@h.EstadoNuevo</td>
+                        <td>@h.UsuarioResponsable</td>
+                        <td>@h.FechaHoraCambio.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@h.Detalle</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6">No hay historial registrado todavía.</td>
                 </tr>
             }
         </tbody>
