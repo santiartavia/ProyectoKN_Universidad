@@ -19,64 +19,61 @@ namespace LogicaDeNegocios.Services
             _fechas = fechas;
         }
 
-        public Vacacion Solicitar(int idEmpleado, DateTime fechaInicio, DateTime fechaFin, int idUsuarioSolicitante)
+        // Adapted to match your IVacacionService interface and previous controller
+        public int Solicitar(Vacacion solicitud, int idUsuarioResponsable, bool ignorarAdvertenciaTurnos = false)
         {
-            if (fechaFin < fechaInicio)
+            if (solicitud.FechaFin < solicitud.FechaInicio)
                 throw new ArgumentException("La fecha de fin debe ser posterior o igual a la fecha de inicio");
 
-            var diasSolicitados = (decimal)(fechaFin - fechaInicio).Days + 1;
-            if (diasSolicitados <= 0)
+            solicitud.DiasSolicitados = (decimal)(solicitud.FechaFin - solicitud.FechaInicio).Days + 1;
+            if (solicitud.DiasSolicitados <= 0)
                 throw new ArgumentException("El período de vacaciones debe ser de al menos un día");
 
             using (var ctx = new ColibriDbContext())
             {
-                var empleado = ctx.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado && e.Estado);
+                var empleado = ctx.Empleados.FirstOrDefault(e => e.IdEmpleado == solicitud.IdEmpleado && e.Estado);
                 if (empleado == null)
                     throw new KeyNotFoundException("Empleado no encontrado o inactivo");
 
-                if (diasSolicitados > empleado.DiasVacacionesDisponibles)
+                if (solicitud.DiasSolicitados > empleado.DiasVacacionesDisponibles)
                     throw new InvalidOperationException(
-                        $"Saldo insuficiente. Disponible: {empleado.DiasVacacionesDisponibles}, Solicitado: {diasSolicitados}");
+                        $"Saldo insuficiente. Disponible: {empleado.DiasVacacionesDisponibles}, Solicitado: {solicitud.DiasSolicitados}");
 
                 bool tieneTurnos = ctx.TurnosTrabajo.Any(t =>
-                    t.IdEmpleado == idEmpleado &&
+                    t.IdEmpleado == solicitud.IdEmpleado &&
                     t.Estado &&
-                    t.FechaTurno >= fechaInicio &&
-                    t.FechaTurno <= fechaFin);
-                if (tieneTurnos)
-                    throw new InvalidOperationException(
-                        "El empleado tiene turnos laborales activos en el rango de fechas solicitado. " +
-                        "Debe cancelar o modificar los turnos antes de solicitar la vacación.");
+                    t.FechaTurno >= solicitud.FechaInicio &&
+                    t.FechaTurno <= solicitud.FechaFin);
 
-                var vacacion = new Vacacion
-                {
-                    IdEmpleado = idEmpleado,
-                    FechaInicio = fechaInicio,
-                    FechaFin = fechaFin,
-                    DiasSolicitados = diasSolicitados,
-                    EstadoSolicitud = "pendiente",
-                    FechaSolicitud = _fechas.ObtenerFechaActual(),
-                    Estado = true
-                };
-                ctx.Vacaciones.Add(vacacion);
+                if (tieneTurnos && !ignorarAdvertenciaTurnos)
+                    throw new InvalidOperationException(
+                        "ADVERTENCIA_TURNOS: El empleado tiene turnos laborales activos en el rango de fechas solicitado. " +
+                        "Confirme si desea continuar.");
+
+                solicitud.EstadoSolicitud = "pendiente";
+                solicitud.FechaSolicitud = _fechas.ObtenerFechaActual();
+                solicitud.Estado = true;
+
+                ctx.Vacaciones.Add(solicitud);
                 ctx.SaveChanges();
 
-                _auditoria.Registrar("Vacaciones", vacacion.IdVacacion, "SOLICITUD",
+                _auditoria.Registrar("Vacaciones", solicitud.IdVacacion, "SOLICITUD",
                     null,
-                    Newtonsoft.Json.JsonConvert.SerializeObject(new { vacacion.IdEmpleado, vacacion.FechaInicio, vacacion.FechaFin, vacacion.DiasSolicitados }),
-                    $"Solicitud de vacaciones para empleado #{idEmpleado} ({fechaInicio:yyyy-MM-dd} a {fechaFin:yyyy-MM-dd})",
-                    idUsuarioSolicitante);
+                    Newtonsoft.Json.JsonConvert.SerializeObject(new { solicitud.IdEmpleado, solicitud.FechaInicio, solicitud.FechaFin, solicitud.DiasSolicitados }),
+                    $"Solicitud de vacaciones para empleado #{solicitud.IdEmpleado} ({solicitud.FechaInicio:yyyy-MM-dd} a {solicitud.FechaFin:yyyy-MM-dd})",
+                    idUsuarioResponsable);
 
-                return vacacion;
+                return solicitud.IdVacacion;
             }
         }
 
-        public Vacacion Aprobar(int idVacacion, int idAprobador)
+        public void Aprobar(int idVacacion, int idAprobador, int idUsuarioResponsable)
         {
             using (var ctx = new ColibriDbContext())
             {
                 var vacacion = ctx.Vacaciones.Include(v => v.Empleado)
                     .FirstOrDefault(v => v.IdVacacion == idVacacion && v.Estado);
+
                 if (vacacion == null)
                     throw new KeyNotFoundException("Solicitud de vacaciones no encontrada");
                 if (vacacion.EstadoSolicitud != "pendiente")
@@ -89,6 +86,7 @@ namespace LogicaDeNegocios.Services
                     t.Estado &&
                     t.FechaTurno >= vacacion.FechaInicio &&
                     t.FechaTurno <= vacacion.FechaFin);
+
                 if (tieneTurnos)
                     throw new InvalidOperationException(
                         "El empleado cuenta con turnos laborales activos en el rango de fechas solicitado. " +
@@ -108,14 +106,13 @@ namespace LogicaDeNegocios.Services
                 _auditoria.Registrar("Vacaciones", vacacion.IdVacacion, "UPDATE",
                     "Estado: pendiente", "Estado: aprobada",
                     $"Vacaciones aprobadas para empleado #{vacacion.IdEmpleado} " +
-                    $"({vacacion.FechaInicio:yyyy-MM-dd} a {vacacion.FechaFin:yyyy-MM-dd})",
-                    idAprobador);
-
-                return vacacion;
+                    $"({vacacion.FechaInicio:yyyy-MM-dd} a {vacacion.FechaFin:yyyy-MM-dd}). " +
+                    $"Saldo restante: {empleado?.DiasVacacionesDisponibles}",
+                    idUsuarioResponsable);
             }
         }
 
-        public Vacacion Rechazar(int idVacacion, int idAprobador, string motivoRechazo)
+        public void Rechazar(int idVacacion, string motivoRechazo, int idUsuarioResponsable)
         {
             if (string.IsNullOrWhiteSpace(motivoRechazo))
                 throw new ArgumentException("El motivo de rechazo es obligatorio");
@@ -132,19 +129,39 @@ namespace LogicaDeNegocios.Services
                     throw new InvalidOperationException("No se puede rechazar una solicitud de un empleado inactivo");
 
                 vacacion.EstadoSolicitud = "rechazada";
-                vacacion.IdAprobador = idAprobador;
+                vacacion.IdAprobador = idUsuarioResponsable; // Using the responsible user as approver/rejector
                 vacacion.MotivoRechazo = motivoRechazo;
                 ctx.SaveChanges();
 
                 _auditoria.Registrar("Vacaciones", vacacion.IdVacacion, "UPDATE",
                     "Estado: pendiente", $"Estado: rechazada. Motivo: {motivoRechazo}",
                     $"Vacaciones rechazadas para empleado #{vacacion.IdEmpleado}",
-                    idAprobador);
-
-                return vacacion;
+                    idUsuarioResponsable);
             }
         }
 
+        public void CalcularSaldoAutomaticamente(CalculoVacacionesDto calculo, int idUsuarioResponsable)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var empleado = ctx.Empleados.Find(calculo.IdEmpleado);
+                if (empleado == null) throw new Exception("Empleado no encontrado.");
+
+                decimal diasGenerados = calculo.DiasLaborados * calculo.FactorAcumulacion;
+                string saldoAnterior = empleado.DiasVacacionesDisponibles.ToString();
+
+                empleado.DiasVacacionesDisponibles += diasGenerados;
+
+                ctx.SaveChanges();
+
+                _auditoria.Registrar("Empleados", calculo.IdEmpleado, "UPDATE",
+                    saldoAnterior, empleado.DiasVacacionesDisponibles.ToString(),
+                    "Actualización automática de saldo de vacaciones.",
+                    idUsuarioResponsable);
+            }
+        }
+
+        // Kept existing methods for listing/querying
         public List<Vacacion> ListarPorEmpleado(int idEmpleado)
         {
             using (var ctx = new ColibriDbContext())
