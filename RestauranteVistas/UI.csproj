@@ -151,6 +151,9 @@
     <Compile Include="Models\ViewModels\MisVacacionesViewModel.cs" />
     <Compile Include="Models\ViewModels\NominaMensualViewModel.cs" />
     <Compile Include="Models\ViewModels\UsuariosViewModel.cs" />
+    <Compile Include="Models\ViewModels\EditarUsuarioViewModel.cs" />
+    <Compile Include="Models\ViewModels\AsignarRolViewModel.cs" />
+    <Compile Include="Models\ViewModels\EliminarUsuarioViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

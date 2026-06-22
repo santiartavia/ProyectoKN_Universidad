@@ -1,0 +1,77 @@
+@model RestauranteVistas.Models.ViewModels.EditarUsuarioViewModel
+
+@{
+    ViewBag.Title = "Editar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="max-width:600px;margin:0 auto;">
+    <h2>Editar informacion del usuario</h2>
+    <p>Mantener datos actualizados del usuario.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin:16px 0;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin:16px 0;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="table-card" style="max-width:600px;margin:0 auto;">
+    <div class="section-title">
+        <h3>Datos del usuario #@Model.IdUsuario</h3>
+    </div>
+
+    <div style="padding:12px 0;">
+        <p><strong>Usuario:</strong> @Model.NombreUsuario</p>
+        <p><strong>Nombre completo:</strong> @Model.NombreEmpleado</p>
+        <p><strong>Cedula:</strong> @Model.Cedula <span style="color:#c62828;font-size:12px;">(dato no editable)</span></p>
+        <p><strong>Rol actual:</strong> @Model.RolActual</p>
+        <p><strong>Correo actual:</strong> @Model.CorreoActual</p>
+        @if (!string.IsNullOrEmpty(Model.TelefonoActual))
+        {
+            <p><strong>Telefono actual:</strong> @Model.TelefonoActual</p>
+        }
+    </div>
+
+    @using (Html.BeginForm("Editar", "Usuarios", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.IdUsuario)
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nuevo correo electronico</label>
+                <input type="email" name="NuevoCorreo" value="@Model.CorreoActual" />
+                <small style="color:#666;">Formato: usuario@dominio.com</small>
+            </div>
+            <div class="form-group">
+                <label>Nuevo telefono</label>
+                <input type="text" name="NuevoTelefono" value="@Model.TelefonoActual" placeholder="Ej: 8888-8888" />
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+                <label>Nueva direccion</label>
+                <textarea name="NuevaDireccion" rows="3" placeholder="Debe incluir provincia y canton. Ej: San Jose, Canton Central, Barrio Aman"></textarea>
+                <small style="color:#666;">Debe incluir al menos provincia y canton</small>
+            </div>
+        </div>
+
+        <div class="section-card" style="border-left:4px solid #ff9800;padding:12px;margin:16px 0;background:#fff8e1;">
+            <p style="margin:0;font-size:13px;color:#664;">
+                <strong>Nota:</strong> Datos como <strong>cedula</strong>, <strong>fecha de nacimiento</strong> y <strong>nombre</strong> no pueden ser modificados porque son datos permanentes de la persona.
+            </p>
+        </div>
+
+        <div class="form-actions" style="justify-content:space-between;">
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-outlined">save</span> Actualizar informacion
+            </button>
+        </div>
+    }
+</div>

@@ -10,7 +10,6 @@ namespace AccesoADatos
         public ColibriDbContext() : base("name=ColibriDbContext") { }
         private static readonly Type _ = typeof(SqlProviderServices);
 
-
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Empleado> Empleados { get; set; }
@@ -28,6 +27,9 @@ namespace AccesoADatos
         public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
         public DbSet<HistorialEstadoPedido> HistorialEstadosPedido { get; set; }
         public DbSet<NominaMensual> NominasMensuales { get; set; }
+        public DbSet<PasswordHistorial> PasswordHistorial { get; set; }
+        public DbSet<Sesion> Sesiones { get; set; }
+        public DbSet<BitacoraAcceso> BitacoraAcceso { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -52,6 +54,9 @@ namespace AccesoADatos
             modelBuilder.Entity<Usuario>().Property(u => u.Estado).HasColumnName("estado");
             modelBuilder.Entity<Usuario>().Property(u => u.FechaCreacion).HasColumnName("fecha_creacion");
             modelBuilder.Entity<Usuario>().Property(u => u.FechaPassword).HasColumnName("fecha_password");
+            modelBuilder.Entity<Usuario>().Property(u => u.FechaAvisoPassword).HasColumnName("fecha_aviso_password");
+            modelBuilder.Entity<Usuario>().Property(u => u.UltimoCambioPasswordIp).HasColumnName("ultimo_cambio_password_ip");
+            modelBuilder.Entity<Usuario>().Property(u => u.UltimoCambioPasswordDispositivo).HasColumnName("ultimo_cambio_password_dispositivo");
             modelBuilder.Entity<Usuario>().HasRequired(u => u.Rol).WithMany(r => r.Usuarios).HasForeignKey(u => u.IdRol);
 
             modelBuilder.Entity<Empleado>().ToTable("Empleados").HasKey(e => e.IdEmpleado);
@@ -235,6 +240,41 @@ namespace AccesoADatos
             modelBuilder.Entity<NominaMensual>().Property(n => n.CreatedAt).HasColumnName("created_at");
             modelBuilder.Entity<NominaMensual>().Property(n => n.UpdatedAt).HasColumnName("updated_at");
             modelBuilder.Entity<NominaMensual>().HasRequired(n => n.Empleado).WithMany().HasForeignKey(n => n.IdEmpleado);
+
+            // New entities
+            modelBuilder.Entity<PasswordHistorial>().ToTable("PasswordHistorial").HasKey(p => p.IdHistorial);
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.IdHistorial).HasColumnName("id_historial");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.PasswordHash).HasColumnName("password_hash");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.FechaCambio).HasColumnName("fecha_cambio");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.MetodoCambio).HasColumnName("metodo_cambio");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.Dispositivo).HasColumnName("dispositivo");
+            modelBuilder.Entity<PasswordHistorial>().Property(p => p.DireccionIp).HasColumnName("direccion_ip");
+            modelBuilder.Entity<PasswordHistorial>().HasRequired(p => p.Usuario).WithMany().HasForeignKey(p => p.IdUsuario);
+
+            modelBuilder.Entity<Sesion>().ToTable("Sesiones").HasKey(s => s.IdSesion);
+            modelBuilder.Entity<Sesion>().Property(s => s.IdSesion).HasColumnName("id_sesion");
+            modelBuilder.Entity<Sesion>().Property(s => s.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<Sesion>().Property(s => s.EstadoSesion).HasColumnName("estado_sesion");
+            modelBuilder.Entity<Sesion>().Property(s => s.FechaHoraInicio).HasColumnName("fecha_hora_inicio");
+            modelBuilder.Entity<Sesion>().Property(s => s.FechaHoraUltimaAct).HasColumnName("fecha_hora_ultima_act");
+            modelBuilder.Entity<Sesion>().Property(s => s.FechaHoraCierre).HasColumnName("fecha_hora_cierre");
+            modelBuilder.Entity<Sesion>().Property(s => s.DispositivoAcceso).HasColumnName("dispositivo_acceso");
+            modelBuilder.Entity<Sesion>().Property(s => s.DireccionIp).HasColumnName("direccion_ip");
+            modelBuilder.Entity<Sesion>().Property(s => s.MotivoCierre).HasColumnName("motivo_cierre");
+            modelBuilder.Entity<Sesion>().HasRequired(s => s.Usuario).WithMany().HasForeignKey(s => s.IdUsuario);
+
+            modelBuilder.Entity<BitacoraAcceso>().ToTable("Bitacora_Acceso").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.Accion).HasColumnName("accion");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.ValorAnterior).HasColumnName("valor_anterior");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.ValorNuevo).HasColumnName("valor_nuevo");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.IpOrigen).HasColumnName("ip_origen");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.Dispositivo).HasColumnName("dispositivo");
+            modelBuilder.Entity<BitacoraAcceso>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<BitacoraAcceso>().HasRequired(b => b.Usuario).WithMany().HasForeignKey(b => b.IdUsuario);
         }
     }
 }

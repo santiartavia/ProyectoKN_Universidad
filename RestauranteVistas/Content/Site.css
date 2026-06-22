@@ -45,6 +45,21 @@ a {
     position: sticky;
     top: 0;
     height: 100vh;
+    overflow-y: auto;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.25);
+    border-radius: 4px;
 }
 
 .menu {
@@ -777,6 +792,8 @@ a {
         height: auto;
         position: relative;
     }
+
+
 
     .topbar {
         flex-direction: column;

@@ -1,4 +1,6 @@
-﻿@{
+﻿@model RestauranteVistas.Models.ViewModels.LoginViewModel
+
+@{
     Layout = null;
     ViewBag.Title = "Login";
 }
@@ -8,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Restaurante El Colibrí</title>
+    <title>Login - Restaurante El Colibri</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link href="~/Content/Site.css" rel="stylesheet" />
@@ -21,12 +23,12 @@
                     <span class="material-symbols-outlined">restaurant_menu</span>
                 </div>
                 <div>
-                    <h1>Restaurante El Colibrí</h1>
-                    <p>Sistema de gestión restaurantera</p>
+                    <h1>Restaurante El Colibri</h1>
+                    <p>Sistema de gestion restaurantera</p>
                 </div>
             </div>
             <div class="login-message">
-                <h2>Inicio de sesión</h2>
+                <h2>Inicio de sesion</h2>
                 <p>Ingrese sus credenciales para acceder al sistema.</p>
                 <div class="login-tags">
                     <span class="chip"><i class="fa-solid fa-user-shield"></i> Administrador</span>
@@ -38,14 +40,22 @@
         </div>
         <div class="login-panel right">
             <div class="login-card">
-                <h2>Iniciar sesión</h2>
+                <h2>Iniciar sesion</h2>
                 <p>Acceso al sistema</p>
-                @if (TempData["ErrorLogin"] != null)
+
+                @if (!string.IsNullOrEmpty(Model.Error))
                 {
                     <div class="banner" style="margin-bottom:18px;">
-                        <strong>Error:</strong> @TempData["ErrorLogin"]
+                        <strong>Error:</strong> @Model.Error
                     </div>
                 }
+                @if (!string.IsNullOrEmpty(Model.Mensaje))
+                {
+                    <div class="banner" style="margin-bottom:18px;background:#e8f5e9;border-left-color:#2e7d32;color:#2e7d32;">
+                        <strong>Info:</strong> @Model.Mensaje
+                    </div>
+                }
+
                 @using (Html.BeginForm("Entrar", "Login", FormMethod.Post))
                 {
                     <div class="form-group">
@@ -53,8 +63,8 @@
                         <input type="text" name="usuario" placeholder="Nombre de usuario" required />
                     </div>
                     <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" name="password" placeholder="Contraseña" required />
+                        <label>Contrasena</label>
+                        <input type="password" name="password" placeholder="Contrasena" required />
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-full">
@@ -62,6 +72,8 @@
                         </button>
                     </div>
                 }
+
+
             </div>
         </div>
     </div>

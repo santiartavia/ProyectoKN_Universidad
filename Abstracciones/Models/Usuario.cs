@@ -16,6 +16,9 @@ namespace Abstracciones.Models
         public bool Estado { get; set; }
         public DateTime FechaCreacion { get; set; }
         public DateTime? FechaPassword { get; set; }
+        public DateTime? FechaAvisoPassword { get; set; }
+        public string UltimoCambioPasswordIp { get; set; }
+        public string UltimoCambioPasswordDispositivo { get; set; }
 
         public Rol Rol { get; set; }
     }

@@ -1,0 +1,83 @@
+@model RestauranteVistas.Models.ViewModels.AsignarRolViewModel
+
+@{
+    ViewBag.Title = "Asignar Rol";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="max-width:500px;margin:0 auto;">
+    <h2>Asignar rol a usuario</h2>
+    <p>Controlar el acceso a los modulos del sistema.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin:16px 0;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin:16px 0;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="table-card" style="max-width:500px;margin:0 auto;">
+    <div style="padding:12px 0;">
+        <p><strong>Usuario:</strong> @Model.NombreUsuario</p>
+        <p><strong>Nombre:</strong> @Model.NombreEmpleado</p>
+        <p><strong>Rol actual:</strong> <span class="status success">@Model.RolActual</span></p>
+    </div>
+
+    @if (Model.MostrarConfirmacion)
+    {
+        <!-- Confirmacion (GUS 005 criterio 6) -->
+        <div class="section-card" style="border-left:4px solid #ff9800;padding:16px;margin:16px 0;background:#fff8e1;">
+            <h3 style="color:#e65100;margin:0 0 8px 0;">Confirmar cambio de rol?</h3>
+            <p style="margin:0;">@Model.Mensaje</p>
+        </div>
+
+        using (Html.BeginForm("AsignarRol", "Usuarios", FormMethod.Post))
+        {
+            @Html.Hidden("IdUsuario", Model.IdUsuario)
+            @Html.Hidden("IdRolConfirmado", Model.IdRolConfirmado)
+            @Html.Hidden("MostrarConfirmacion", true)
+
+            <div class="form-actions" style="justify-content:space-between;">
+                <a href="@Url.Action("AsignarRol", new { id = Model.IdUsuario })" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">check_circle</span> Confirmar asignacion
+                </button>
+            </div>
+        }
+    }
+    else
+    {
+        using (Html.BeginForm("AsignarRol", "Usuarios", FormMethod.Post))
+        {
+            @Html.Hidden("IdUsuario", Model.IdUsuario)
+
+            <div class="form-group">
+                <label>Nuevo rol *</label>
+                <select name="IdRolNuevo" required>
+                    <option value="">Seleccione un rol...</option>
+                    @if (Model.RolesDisponibles != null)
+                    {
+                        foreach (var r in Model.RolesDisponibles)
+                        {
+                            <option value="@r.IdRol">@r.NombreRol</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-actions" style="justify-content:space-between;margin-top:16px;">
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">admin_panel_settings</span> Asignar rol
+                </button>
+            </div>
+        }
+    }
+</div>

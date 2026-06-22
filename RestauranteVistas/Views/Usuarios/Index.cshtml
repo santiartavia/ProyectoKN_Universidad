@@ -1,13 +1,13 @@
 ﻿@model RestauranteVistas.Models.ViewModels.UsuariosViewModel
 
 @{
-    ViewBag.Title = "Gestión de Usuarios";
+    ViewBag.Title = "Gestion de Usuarios";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="hero-card">
-    <h2>Administración de usuarios del sistema</h2>
-    <p>Gestión de accesos y roles del personal.</p>
+    <h2>Administracion de usuarios del sistema</h2>
+    <p>Gestion de accesos y roles del personal.</p>
 </div>
 
 @if (!string.IsNullOrEmpty(Model.Mensaje))
@@ -34,6 +34,11 @@
         <div>
             <h3>Usuarios registrados</h3>
             <p>Control de accesos</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" onclick="abrirModal('modalCrearUsuario')">
+                <span class="material-symbols-outlined">person_add</span> Nuevo usuario
+            </button>
         </div>
     </div>
 
@@ -69,11 +74,28 @@
                             }
                         </td>
                         <td>
+                            <a href="@Url.Action("Editar", "Usuarios", new { id = u.IdUsuario })" class="btn btn-sm btn-primary" title="Editar">
+                                <span class="material-symbols-outlined" style="font-size:16px;">edit</span>
+                            </a>
+                            <a href="@Url.Action("AsignarRol", "Usuarios", new { id = u.IdUsuario })" class="btn btn-sm btn-info" title="Asignar rol">
+                                <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
+                            </a>
+                            <a href="@Url.Action("Eliminar", "Usuarios", new { id = u.IdUsuario })" class="btn btn-sm btn-danger" title="Eliminar">
+                                <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
+                            </a>
+                            @using (Html.BeginForm("ResetearPassword", "Usuarios", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                <input type="hidden" name="id" value="@u.IdUsuario" />
+                                <button type="submit" class="btn btn-sm btn-info" title="Resetear contrasena"
+                                        onclick="return confirm('¿Resetear contrasena de @(Model.NombresEmpleados.ContainsKey(u.IdUsuario) ? Model.NombresEmpleados[u.IdUsuario] : u.NombreUsuario)? El usuario debera crear una nueva al iniciar sesion.');">
+                                    <span class="material-symbols-outlined" style="font-size:16px;">lock_reset</span>
+                                </button>
+                            }
                             @using (Html.BeginForm("BloquearUsuario", "Usuarios", FormMethod.Post, new { style = "display:inline;" }))
                             {
                                 <input type="hidden" name="id" value="@u.IdUsuario" />
-                                <button type="submit" class="btn btn-sm @(u.Bloqueado ? "btn-success" : "btn-warning")">
-                                    @(u.Bloqueado ? "Desbloquear" : "Bloquear")
+                                <button type="submit" class="btn btn-sm @(u.Bloqueado ? "btn-success" : "btn-warning")" title="@(u.Bloqueado ? "Desbloquear" : "Bloquear")">
+                                    <span class="material-symbols-outlined" style="font-size:16px;">@(u.Bloqueado ? "lock_open" : "lock")</span>
                                 </button>
                             }
                         </td>
@@ -87,3 +109,97 @@
         </tbody>
     </table>
 </div>
+
+<!-- Modal para crear usuario (GUS 001) -->
+<div id="modalCrearUsuario" class="custom-modal">
+    <div class="custom-modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <h3>Agregar nuevo usuario</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalCrearUsuario')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        @using (Html.BeginForm("CrearUsuario", "Usuarios", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre de usuario *</label>
+                    <input type="text" name="NuevoNombreUsuario" required placeholder="Ej: jperez" />
+                </div>
+                <div class="form-group">
+                    <label>Correo electronico *</label>
+                    <input type="email" name="NuevoCorreo" required placeholder="Ej: correo@dominio.com" />
+                </div>
+                <div class="form-group">
+                    <label>Contrasena *</label>
+                    <input type="password" name="NuevoPassword" required minlength="12"
+                           placeholder="Min. 12 caracteres, mayuscula, numero y especial" />
+                    <small style="color:#666;">Debe tener: minimo 12 caracteres, 1 mayuscula, 1 numero, 1 caracter especial</small>
+                </div>
+                <div class="form-group">
+                    <label>Rol *</label>
+                    <select name="NuevoIdRol" required>
+                        <option value="">Seleccione...</option>
+                        @if (Model.Roles != null)
+                        {
+                            foreach (var r in Model.Roles)
+                            {
+                                <option value="@r.IdRol">@r.NombreRol</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalCrearUsuario')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Agregar usuario</button>
+            </div>
+        }
+    </div>
+</div>
+
+@if (Model.Usuarios != null && Model.Usuarios.Any(u => !u.Estado))
+{
+    <div class="table-card" style="margin-top:16px;">
+        <div class="section-title">
+            <h3>Usuarios inactivos / Depuracion</h3>
+        </div>
+        @using (Html.BeginForm("DepurarUsuarios", "Usuarios", FormMethod.Post))
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllDepurar" /></th>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Correo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Usuarios.Where(u => !u.Estado))
+                    {
+                        <tr>
+                            <td><input type="checkbox" name="idsDepurar" value="@u.IdUsuario" /></td>
+                            <td>@u.IdUsuario</td>
+                            <td>@(Model.NombresEmpleados.ContainsKey(u.IdUsuario) ? Model.NombresEmpleados[u.IdUsuario] : u.NombreUsuario)</td>
+                            <td>@(u.Rol?.NombreRol ?? "")</td>
+                            <td>@u.Correo</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <div class="modal-actions" style="margin-top:12px;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Esta seguro de eliminar permanentemente los usuarios seleccionados?')">
+                    <span class="material-symbols-outlined">delete_forever</span> Depurar seleccionados
+                </button>
+            </div>
+        }
+    </div>
+}
+
+<script>
+    document.getElementById('selectAllDepurar')?.addEventListener('change', function() {
+        document.querySelectorAll('input[name="idsDepurar"]').forEach(cb => cb.checked = this.checked);
+    });
+</script>

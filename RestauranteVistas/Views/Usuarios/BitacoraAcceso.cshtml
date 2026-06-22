@@ -1,35 +1,15 @@
-﻿@model RestauranteVistas.Models.ViewModels.EmpleadosViewModel
-@using Newtonsoft.Json.Linq
+@model RestauranteVistas.Models.ViewModels.UsuariosViewModel
 
 @{
-    ViewBag.Title = "Bitácora de Empleados";
+    ViewBag.Title = "Bitacora de Acceso";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    string FormatearValor(string raw)
-    {
-        if (string.IsNullOrEmpty(raw)) return "—";
-        var trimmed = raw.TrimStart();
-        if (trimmed.StartsWith("{") || trimmed.StartsWith("["))
-        {
-            try
-            {
-                var tok = JToken.Parse(raw);
-                if (tok is JObject obj)
-                    return string.Join(", ", obj.Properties().Select(p => $"{p.Name}={p.Value}"));
-                if (tok is JArray arr)
-                    return string.Join(" | ", arr.Select(item => item.ToString()));
-                return tok.ToString();
-            }
-            catch { return raw; }
-        }
-        return raw;
-    }
 }
 
 <div class="hero-card">
     <div>
-        <span class="mini-badge">GES-007</span>
-        <h2>Bitácora de Empleados</h2>
-        <p>Auditoría de operaciones de recursos humanos.</p>
+        <span class="mini-badge">GUS-008</span>
+        <h2>Bitacora de Acceso</h2>
+        <p>Auditoria de inicios y cierres de sesion, bloqueos y accesos al sistema.</p>
     </div>
 </div>
 
@@ -39,12 +19,12 @@
             <h3>Filtros de consulta</h3>
         </div>
     </div>
-    @using (Html.BeginForm("Bitacora", "Empleados", FormMethod.Get))
+    @using (Html.BeginForm("BitacoraAcceso", "Usuarios", FormMethod.Get))
     {
         <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr auto;">
             <div class="form-group">
-                <label>ID Empleado</label>
-                <input type="number" name="idEmpleado" value="@Model.FiltroIdEmpleado" />
+                <label>Usuario</label>
+                <input type="text" name="nombreUsuario" value="@Model.FiltroNombreUsuario" placeholder="Buscar por nombre de usuario..." />
             </div>
             <div class="form-group">
                 <label>Fecha inicio</label>
@@ -55,12 +35,12 @@
                 <input type="date" name="fechaFin" value="@Model.FiltroFechaFin" />
             </div>
             <div class="form-group">
-                <label>Acción</label>
+                <label>Accion</label>
                 <select name="accion">
                     <option value="">Todas</option>
-                    @if (Model.AccionesBitacora != null)
+                    @if (Model.AccionesBitacoraAcceso != null)
                     {
-                        foreach (var a in Model.AccionesBitacora)
+                        foreach (var a in Model.AccionesBitacoraAcceso)
                         {
                             <option value="@a" @(Model.FiltroAccion == a ? "selected" : "")>@a</option>
                         }
@@ -79,8 +59,8 @@
 <div class="table-card">
     <div class="section-title">
         <div>
-            <h3>Registros de auditoría</h3>
-            <p>Resultados: @(Model.Bitacora?.Count ?? 0) registros.</p>
+            <h3>Registros de acceso</h3>
+            <p>Resultados: @(Model.BitacoraAcceso?.Count ?? 0) registros.</p>
         </div>
     </div>
     <table>
@@ -88,47 +68,45 @@
             <tr>
                 <th>ID</th>
                 <th>Usuario</th>
-                <th>Tabla</th>
-                <th>ID Registro</th>
-                <th>Acción</th>
-                <th>Valor Anterior</th>
-                <th>Valor Nuevo</th>
+                <th>ID Usuario</th>
+                <th>Accion</th>
                 <th>Detalle</th>
+                <th>IP Origen</th>
+                <th>Dispositivo</th>
                 <th>Fecha/Hora</th>
             </tr>
         </thead>
         <tbody>
-            @if (Model.Bitacora != null && Model.Bitacora.Any())
+            @if (Model.BitacoraAcceso != null && Model.BitacoraAcceso.Any())
             {
-                foreach (var b in Model.Bitacora)
+                foreach (var b in Model.BitacoraAcceso)
                 {
                     <tr>
                         <td>@b.IdRegistro</td>
                         <td>@(b.Usuario != null ? b.Usuario.NombreUsuario : "")</td>
-                        <td>@b.TablaAfectada</td>
-                        <td>@b.IdRegistroAfectado</td>
+                        <td>@b.IdUsuario</td>
                         <td><span class="status info">@b.Accion</span></td>
-                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorAnterior">@FormatearValor(b.ValorAnterior)</td>
-                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.ValorNuevo">@FormatearValor(b.ValorNuevo)</td>
                         <td>@b.Detalle</td>
+                        <td>@b.IpOrigen</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="@b.Dispositivo">@b.Dispositivo</td>
                         <td>@b.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")</td>
                     </tr>
                 }
             }
             else
             {
-                <tr><td colspan="9">No se encontraron registros con los filtros especificados.</td></tr>
+                <tr><td colspan="8">No se encontraron registros con los filtros especificados.</td></tr>
             }
         </tbody>
     </table>
 </div>
 
 <div class="form-actions" style="gap:12px;">
-    <a href="@Url.Action("ExportarBitacoraExcel", "Empleados", new { idEmpleado = Model.FiltroIdEmpleado, fechaInicio = Model.FiltroFechaInicio, fechaFin = Model.FiltroFechaFin, accion = Model.FiltroAccion })" class="btn btn-success">
+    <a href="@Url.Action("ExportarBitacoraAccesoExcel", "Usuarios", new { nombreUsuario = Model.FiltroNombreUsuario, fechaInicio = Model.FiltroFechaInicio, fechaFin = Model.FiltroFechaFin, accion = Model.FiltroAccion })" class="btn btn-success">
         <span class="material-symbols-outlined">download</span> Exportar a Excel (CSV)
     </a>
-    <a href="@Url.Action("Index", "Empleados")" class="btn btn-soft">
-        <span class="material-symbols-outlined">arrow_back</span> Volver a Gestión de Empleados
+    <a href="@Url.Action("Index", "Usuarios")" class="btn btn-soft">
+        <span class="material-symbols-outlined">arrow_back</span> Volver a Usuarios
     </a>
 </div>
 

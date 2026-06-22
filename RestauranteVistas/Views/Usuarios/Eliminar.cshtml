@@ -1,0 +1,78 @@
+@model RestauranteVistas.Models.ViewModels.EliminarUsuarioViewModel
+
+@{
+    ViewBag.Title = "Eliminar Usuario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card" style="max-width:500px;margin:0 auto;">
+    <h2>Eliminar usuario</h2>
+    <p>Eliminar usuarios que ya no trabajan en la empresa.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="section-card" style="border-left:4px solid #2e7d32;padding:12px 18px;margin:16px 0;background:#e8f5e9;">
+        <h3 style="color:#2e7d32;margin:0;">@Model.Mensaje</h3>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="section-card" style="border-left:4px solid #c62828;padding:12px 18px;margin:16px 0;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0;">@Model.Error</h3>
+    </div>
+}
+
+<div class="table-card" style="max-width:500px;margin:0 auto;">
+    <div style="padding:12px 0;">
+        <p><strong>ID:</strong> @Model.IdUsuario</p>
+        <p><strong>Usuario:</strong> @Model.NombreUsuario</p>
+        <p><strong>Nombre:</strong> @Model.NombreEmpleado</p>
+        <p><strong>Rol:</strong> @Model.Rol</p>
+        <p><strong>Correo:</strong> @Model.Correo</p>
+    </div>
+
+    <div class="section-card" style="border-left:4px solid #c62828;padding:16px;margin:16px 0;background:#ffebee;">
+        <h3 style="color:#c62828;margin:0 0 8px 0;">Confirmar eliminacion?</h3>
+        <p style="margin:0;">Esta accion desactivara al usuario y su empleado asociado. Los datos no se perderan permanentemente.</p>
+    </div>
+
+    <div class="form-actions" style="justify-content:space-between;">
+        @using (Html.BeginForm("CancelarEliminacion", "Usuarios", FormMethod.Post))
+        {
+            <input type="hidden" name="id" value="@Model.IdUsuario" />
+            <button type="submit" class="btn btn-secondary">
+                Cancelar
+            </button>
+        }
+        @using (Html.BeginForm("Eliminar", "Usuarios", FormMethod.Post))
+        {
+            @Html.Hidden("IdUsuario", Model.IdUsuario)
+            @Html.Hidden("MostrarConfirmacion", true)
+            <button type="submit" class="btn btn-danger">
+                <span class="material-symbols-outlined">delete</span> Eliminar usuario
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Seccion de usuarios inactivos para depuracion -->
+@if (Model.UsuariosInactivos != null && Model.UsuariosInactivos.Any())
+{
+    <div class="table-card" style="margin-top:24px;max-width:500px;margin-left:auto;margin-right:auto;">
+        <div class="section-title">
+            <h3>Usuarios inactivos (eliminados)</h3>
+        </div>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Usuario</th><th>Rol</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model.UsuariosInactivos)
+                {
+                    <tr><td>@u.IdUsuario</td><td>@u.NombreUsuario</td><td>@(u.Rol?.NombreRol ?? "")</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
