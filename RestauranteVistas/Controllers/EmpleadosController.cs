@@ -1,4 +1,6 @@
 ﻿using Abstracciones.Interfaces;
+using Abstracciones.Models;
+using AccesoADatos.Clases;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using RestauranteVistas.Models.ViewModels;
@@ -22,7 +24,11 @@ namespace RestauranteVistas.Controllers
         public EmpleadosController()
         {
             var fechas = new FechasLN();
-            var auditoria = new AuditoriaService(fechas);
+
+            // CORRECCIÓN: Instanciamos el AD y se lo pasamos al Service de Auditoría
+            var auditoriaAD = new AuditoriaAD();
+            var auditoria = new AuditoriaService(auditoriaAD, fechas);
+
             _empleadoService = new EmpleadoService(auditoria, fechas);
             _turnoService = new TurnoService(auditoria, fechas);
             _asistenciaService = new AsistenciaService(auditoria, fechas);
@@ -42,7 +48,7 @@ namespace RestauranteVistas.Controllers
             {
                 Empleados = _empleadoService.ListarTodos(),
                 Turnos = _turnoService.ObtenerPorFecha(DateTime.Today),
-                Vacaciones = _vacacionService.ListarPendientes(),
+                Vacaciones = _vacacionService.ListarPendientes(), // Ya no dará error con la interfaz actualizada
                 Roles = _turnoService.ObtenerRoles(),
                 EmpleadosActivos = _empleadoService.ListarActivos().Count,
                 TurnosProgramados = _turnoService.ObtenerPorFecha(DateTime.Today).Count,
@@ -388,7 +394,17 @@ namespace RestauranteVistas.Controllers
             {
                 var inicio = DateTime.Parse(fechaInicio);
                 var fin = DateTime.Parse(fechaFin);
-                _vacacionService.Solicitar(idEmpleado, inicio, fin, idAdmin.Value);
+
+                // CORRECCIÓN 1: Crear el objeto Vacacion para cumplir con la nueva firma
+                var solicitud = new Vacacion
+                {
+                    IdEmpleado = idEmpleado,
+                    FechaInicio = inicio,
+                    FechaFin = fin
+                };
+
+                // Pasamos la solicitud y el ID del responsable
+                _vacacionService.Solicitar(solicitud, idAdmin.Value);
 
                 string msj = "GES-005: Vacaciones solicitadas correctamente.";
                 if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
@@ -413,7 +429,9 @@ namespace RestauranteVistas.Controllers
 
             try
             {
-                _vacacionService.Aprobar(idVacacion, idAdmin.Value);
+                // CORRECCIÓN 2: La firma exige idVacacion, idAprobador, idUsuarioResponsable
+                _vacacionService.Aprobar(idVacacion, idAdmin.Value, idAdmin.Value);
+
                 string msj = "GES-005: Vacación aprobada.";
 
                 if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
@@ -438,7 +456,9 @@ namespace RestauranteVistas.Controllers
 
             try
             {
-                _vacacionService.Rechazar(idVacacion, idAdmin.Value, motivoRechazo);
+                // CORRECCIÓN 3: El orden correcto es idVacacion, motivoRechazo, idUsuarioResponsable
+                _vacacionService.Rechazar(idVacacion, motivoRechazo, idAdmin.Value);
+
                 string msj = "GES-005: Vacación rechazada.";
 
                 if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });

@@ -1,14 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\duckx\\Documents\\GitHub\\ProyectoKN_Universidad\\RestauranteVistas\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{CEEC174B-E8E0-4673-9335-09CA8F3B616F}|..\\Abstracciones\\Abstracciones.csproj|c:\\users\\duckx\\documents\\github\\proyectokn_universidad\\abstracciones\\interfaces\\ivacacionservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{CEEC174B-E8E0-4673-9335-09CA8F3B616F}|..\\Abstracciones\\Abstracciones.csproj|c:\\users\\duckx\\documents\\github\\proyectokn_universidad\\abstracciones\\models\\vacacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -16,37 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "IVacacionService.cs",
-              "DocumentMoniker": "C:\\Users\\duckx\\Documents\\GitHub\\ProyectoKN_Universidad\\Abstracciones\\Interfaces\\IVacacionService.cs",
-              "RelativeDocumentMoniker": "..\\Abstracciones\\Interfaces\\IVacacionService.cs",
-              "ToolTip": "C:\\Users\\duckx\\Documents\\GitHub\\ProyectoKN_Universidad\\Abstracciones\\Interfaces\\IVacacionService.cs",
-              "RelativeToolTip": "..\\Abstracciones\\Interfaces\\IVacacionService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-22T09:38:12.096Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Vacacion.cs",
-              "DocumentMoniker": "C:\\Users\\duckx\\Documents\\GitHub\\ProyectoKN_Universidad\\Abstracciones\\Models\\Vacacion.cs",
-              "RelativeDocumentMoniker": "..\\Abstracciones\\Models\\Vacacion.cs",
-              "ToolTip": "C:\\Users\\duckx\\Documents\\GitHub\\ProyectoKN_Universidad\\Abstracciones\\Models\\Vacacion.cs",
-              "RelativeToolTip": "..\\Abstracciones\\Models\\Vacacion.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAArAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-22T09:37:03.255Z",
-              "EditorCaption": ""
             }
           ]
         }

@@ -1,4 +1,5 @@
 ﻿using AccesoADatos;
+using AccesoADatos.Clases;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using System;
@@ -16,7 +17,11 @@ namespace RestauranteVistas.Controllers
         public MeseroController()
         {
             var fechas = new FechasLN();
-            var auditoria = new AuditoriaService(fechas);
+
+            // CORRECCIÓN: Instanciamos el AD y se lo pasamos al Service
+            var auditoriaAD = new AuditoriaAD();
+            var auditoria = new AuditoriaService(auditoriaAD, fechas);
+
             _mesaAtendidaService = new MesaAtendidaService(auditoria, fechas);
         }
 

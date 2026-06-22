@@ -1,4 +1,5 @@
-﻿using LogicaDeNegocios.General.Fechas;
+﻿using AccesoADatos.Clases;
+using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
 using System;
 using System.Linq;
@@ -14,7 +15,11 @@ namespace RestauranteVistas.Controllers
         public HomeController()
         {
             var fechas = new FechasLN();
-            _auditoria = new AuditoriaService(fechas);
+
+            // CORRECCIÓN: Instanciamos el AD y se lo pasamos al Service
+            var auditoriaAD = new AuditoriaAD();
+            _auditoria = new AuditoriaService(auditoriaAD, fechas);
+
             _empleadoService = new EmpleadoService(_auditoria, fechas);
         }
 

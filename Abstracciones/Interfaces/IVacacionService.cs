@@ -21,5 +21,12 @@ namespace Abstracciones.Interfaces
         int Solicitar(Vacacion solicitud, int idUsuarioResponsable, bool ignorarAdvertenciaTurnos = false);
         void Aprobar(int idVacacion, int idAprobador, int idUsuarioResponsable);
         void Rechazar(int idVacacion, string motivoRechazo, int idUsuarioResponsable);
+
+        // Faltaban estas firmas que tu servicio ya tiene implementadas:
+        List<Vacacion> ListarPorEmpleado(int idEmpleado);
+        List<Vacacion> ListarPendientes();
+        decimal CalcularSaldoVacacional(int idEmpleado);
+        List<Vacacion> ListarTodas();
+        List<Vacacion> ListarPorFiltros(int? idEmpleado, DateTime? fechaInicio, DateTime? fechaFin, string estado);
     }
 }
