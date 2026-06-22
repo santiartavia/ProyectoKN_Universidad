@@ -1,0 +1,131 @@
+@model RestauranteVistas.Models.ViewModels.BitacoraPedidosViewModel
+
+@{
+    ViewBag.Title = "Bitacora de Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <div>
+        <span class="mini-badge">SPS-001</span>
+        <h2>Bitacora de Pedidos</h2>
+        <p>Auditoria de acciones sobre pedidos: creacion, modificacion, cancelacion, entrega y pago.</p>
+    </div>
+</div>
+
+<div class="form-card">
+    <div class="section-title">
+        <div>
+            <h3>Filtros de consulta</h3>
+        </div>
+    </div>
+    @using (Html.BeginForm("Index", "BitacoraPedidos", FormMethod.Get))
+    {
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr auto;">
+            <div class="form-group">
+                <label>Pedido #</label>
+                <input type="number" name="idPedido" value="@Model.FiltroIdPedido" placeholder="ID del pedido..." min="1" />
+            </div>
+            <div class="form-group">
+                <label>Usuario ID</label>
+                <input type="number" name="idUsuario" value="@Model.FiltroIdUsuario" placeholder="ID del usuario..." min="1" />
+            </div>
+            <div class="form-group">
+                <label>Fecha inicio</label>
+                <input type="date" name="fechaInicio" value="@Model.FiltroFechaInicio" />
+            </div>
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="date" name="fechaFin" value="@Model.FiltroFechaFin" />
+            </div>
+            <div class="form-group">
+                <label>Accion</label>
+                <select name="accion" style="width:100%;">
+                    <option value="">Todas</option>
+                    @if (Model.AccionesDisponibles != null)
+                    {
+                        foreach (var a in Model.AccionesDisponibles)
+                        {
+                            <option value="@a" @(Model.FiltroAccion == a ? "selected" : "")>@a</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:15px;">
+            <button type="submit" class="btn btn-primary">Consultar</button>
+            <a href="@Url.Action("ExportarExcel", "BitacoraPedidos", new {
+                idPedido = Model.FiltroIdPedido,
+                fechaInicio = Model.FiltroFechaInicio,
+                fechaFin = Model.FiltroFechaFin,
+                accion = Model.FiltroAccion,
+                idUsuario = Model.FiltroIdUsuario
+            })" class="btn btn-success">Exportar CSV</a>
+        </div>
+    }
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Registros de auditoria de pedidos</h3>
+            <p>Resultados: @(Model.Registros?.Count ?? 0) registros.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pedido #</th>
+                <th>Usuario</th>
+                <th>Accion</th>
+                <th>Estado Anterior</th>
+                <th>Estado Nuevo</th>
+                <th>Detalle</th>
+                <th>Fecha/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Registros != null && Model.Registros.Any())
+            {
+                foreach (var r in Model.Registros)
+                {
+                    string nombreUsuario = Model.Usuarios != null && Model.Usuarios.ContainsKey(r.IdUsuario)
+                        ? Model.Usuarios[r.IdUsuario] : "ID " + r.IdUsuario.ToString();
+                    <tr>
+                        <td>@r.IdRegistro</td>
+                        <td><a href="@Url.Action("Index", "Pedidos")?id=@r.IdPedido">@r.IdPedido</a></td>
+                        <td>@nombreUsuario</td>
+                        <td><span class="status @ObtenerClaseAccion(r.Accion)">@r.Accion</span></td>
+                        <td>@r.EstadoAnterior</td>
+                        <td>@r.EstadoNuevo</td>
+                        <td>@r.Detalle</td>
+                        <td>@r.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8">No hay registros de bitacora de pedidos.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@functions {
+    private string ObtenerClaseAccion(string accion)
+    {
+        switch (accion)
+        {
+            case "CREACION": return "success";
+            case "ENTREGA": return "info";
+            case "PAGO": return "primary";
+            case "CANCELACION": return "danger";
+            default: return "warning";
+        }
+    }
+}

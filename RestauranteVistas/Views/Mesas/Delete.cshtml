@@ -1,0 +1,41 @@
+@model Abstracciones.Models.Mesa
+
+@{
+    ViewBag.Title = "Eliminar Mesa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <div>
+        <span class="mini-badge">SPS-001</span>
+        <h2>Eliminar Mesa</h2>
+        <p>Confirme la eliminacion de la mesa.</p>
+    </div>
+</div>
+
+<div class="form-card" style="margin-top:25px;">
+    <div class="alert alert-danger">
+        <strong>Advertencia:</strong> Esta accion desactivara la mesa <strong>@Model.NumeroMesa</strong>.
+        @if (ViewBag.TienePedidosActivos == true)
+        {
+            <br />No se puede eliminar porque tiene pedidos activos.
+        }
+    </div>
+
+    <table>
+        <tr><td><strong>ID</strong></td><td>@Model.IdMesa</td></tr>
+        <tr><td><strong>Numero</strong></td><td>@Model.NumeroMesa</td></tr>
+        <tr><td><strong>Capacidad</strong></td><td>@Model.Capacidad personas</td></tr>
+        <tr><td><strong>Estado</strong></td><td>@Model.EstadoMesa</td></tr>
+        <tr><td><strong>Activa</strong></td><td>@(Model.Estado ? "Si" : "No")</td></tr>
+    </table>
+
+    <div class="form-actions" style="margin-top:20px;">
+        @using (Html.BeginForm("DeleteConfirmed", "Mesas", new { id = Model.IdMesa }, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger" @(ViewBag.TienePedidosActivos == true ? "disabled" : "")>Eliminar mesa</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+        }
+    </div>
+</div>

@@ -105,6 +105,17 @@ namespace RestauranteVistas.Controllers
             };
 
             db.Ventas.Add(venta);
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = idPedido,
+                Accion = "PAGO",
+                Detalle = "Pago registrado: " + metodoPago + ", total " + total.ToString("N2"),
+                FechaHora = DateTime.Now
+            });
+
             db.SaveChanges();
 
             TempData["Mensaje"] = "Pago registrado correctamente.";
@@ -136,8 +147,20 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            string estadoAnterior = pedido.EstadoPedido;
             pedido.EstadoPedido = "finalizado";
             pedido.FechaHoraFinalizacion = DateTime.Now;
+
+            db.HistorialEstadosPedido.Add(new HistorialEstadoPedido
+            {
+                IdPedido = idPedido,
+                EstadoAnterior = estadoAnterior,
+                EstadoNuevo = "finalizado",
+                UsuarioResponsable = "Cajero",
+                FechaHoraCambio = DateTime.Now,
+                Detalle = "Cajero finalizo la orden y libero la mesa.",
+                Estado = true
+            });
 
             if (pedido.IdMesa.HasValue)
             {

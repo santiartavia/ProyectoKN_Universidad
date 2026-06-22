@@ -102,8 +102,20 @@ namespace RestauranteVistas.Controllers
                 estadoAnterior,
                 "entregado",
                 "Mesero",
-                "Mesero entregó el pedido al cliente"
+                "Mesero entrego el pedido al cliente"
             );
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = idPedido,
+                Accion = "ENTREGA",
+                EstadoAnterior = "listo",
+                EstadoNuevo = "entregado",
+                Detalle = "Pedido entregado por mesero.",
+                FechaHora = DateTime.Now
+            });
 
             db.SaveChanges();
 

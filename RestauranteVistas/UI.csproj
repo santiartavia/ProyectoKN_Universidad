@@ -135,6 +135,8 @@
     <Compile Include="Controllers\EmpleadosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventarioController.cs" />
+    <Compile Include="Controllers\MesasController.cs" />
+    <Compile Include="Controllers\BitacoraPedidosController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\MeseroController.cs" />
     <Compile Include="Controllers\MiAsistenciaController.cs" />
@@ -154,6 +156,7 @@
     <Compile Include="Models\ViewModels\EditarUsuarioViewModel.cs" />
     <Compile Include="Models\ViewModels\AsignarRolViewModel.cs" />
     <Compile Include="Models\ViewModels\EliminarUsuarioViewModel.cs" />
+    <Compile Include="Models\ViewModels\BitacoraPedidosViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -229,6 +232,11 @@
     <Content Include="Views\Empleados\ResumenHorasExtra.cshtml" />
     <Content Include="Views\Empleados\Asistencia.cshtml" />
     <Content Include="Views\NominaMensual\Index.cshtml" />
+    <Content Include="Views\Mesas\Index.cshtml" />
+    <Content Include="Views\Mesas\Create.cshtml" />
+    <Content Include="Views\Mesas\Edit.cshtml" />
+    <Content Include="Views\Mesas\Delete.cshtml" />
+    <Content Include="Views\BitacoraPedidos\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,35 @@
+@{
+    ViewBag.Title = "Nueva Mesa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <div>
+        <span class="mini-badge">SPS-001</span>
+        <h2>Nueva Mesa</h2>
+        <p>Registre una nueva mesa en el sistema.</p>
+    </div>
+</div>
+
+<div class="form-card" style="margin-top:25px;">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Numero de Mesa *</label>
+                <input type="text" name="numeroMesa" placeholder="Ej: Mesa 13" required />
+            </div>
+            <div class="form-group">
+                <label>Capacidad (personas) *</label>
+                <input type="number" name="capacidad" min="1" max="20" value="4" required />
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:15px;">
+            <button type="submit" class="btn btn-primary">Guardar</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+        </div>
+    }
+</div>

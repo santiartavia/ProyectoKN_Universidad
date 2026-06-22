@@ -25,7 +25,12 @@ namespace RestauranteVistas.Controllers
                 .Where(d => d.Estado == true)
                 .ToList();
 
-            ViewBag.Mesas = db.Mesas.ToList();
+            ViewBag.Mesas = db.Mesas.Where(m => m.Estado && (m.EstadoMesa == "disponible" || m.EstadoMesa == "reservada")).ToList();
+
+            var uid = Session["UsuarioId"] as int? ?? 0;
+            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid);
+            ViewBag.MeseroId = empleado?.IdEmpleado ?? 0;
+            ViewBag.MeseroNombre = empleado != null ? empleado.Nombre + " " + empleado.Apellidos : "";
 
             return View();
         }
@@ -36,6 +41,13 @@ namespace RestauranteVistas.Controllers
             if (idMesa <= 0 || idMesero <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0)
             {
                 TempData["Error"] = "Debe completar todos los campos obligatorios.";
+                return RedirectToAction("Index");
+            }
+
+            var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == idMesa);
+            if (mesa == null || !mesa.Estado || (mesa.EstadoMesa != "disponible" && mesa.EstadoMesa != "reservada"))
+            {
+                TempData["Error"] = "La mesa seleccionada no está disponible.";
                 return RedirectToAction("Index");
             }
 
@@ -89,6 +101,21 @@ namespace RestauranteVistas.Controllers
             };
 
             db.DetallePedidos.Add(detalle);
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = pedido.IdPedido,
+                Accion = "CREACION",
+                EstadoNuevo = "abierto",
+                Detalle = "Pedido creado. Mesa " + idMesa + ", " + cantidad + "x " + producto.NombreProducto,
+                FechaHora = DateTime.Now
+            });
+
+            db.SaveChanges();
+
+            mesa.EstadoMesa = "ocupada";
             db.SaveChanges();
 
             TempData["Mensaje"] = "Orden creada correctamente. Ya aparece en cocina.";
@@ -128,6 +155,16 @@ namespace RestauranteVistas.Controllers
                 ObservacionesItem = observacionesItem,
                 EstadoItem = "pendiente",
                 Estado = true
+            });
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = idPedido,
+                Accion = "MODIFICACION",
+                Detalle = "Producto agregado: " + cantidad + "x " + producto.NombreProducto,
+                FechaHora = DateTime.Now
             });
 
             db.SaveChanges();
@@ -170,6 +207,16 @@ namespace RestauranteVistas.Controllers
             detalle.Cantidad = cantidad;
             detalle.ObservacionesItem = observacionesItem;
 
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = detalle.IdPedido,
+                Accion = "MODIFICACION",
+                Detalle = "Producto modificado: ID detalle " + idDetalle + ", cantidad " + cantidad,
+                FechaHora = DateTime.Now
+            });
+
             db.SaveChanges();
 
             TempData["Mensaje"] = "Producto actualizado correctamente.";
@@ -202,6 +249,17 @@ namespace RestauranteVistas.Controllers
             }
 
             detalle.Estado = false;
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = detalle.IdPedido,
+                Accion = "MODIFICACION",
+                Detalle = "Producto eliminado: ID detalle " + idDetalle,
+                FechaHora = DateTime.Now
+            });
+
             db.SaveChanges();
 
             var quedanProductos = db.DetallePedidos.Any(d => d.IdPedido == pedido.IdPedido && d.Estado == true);
@@ -219,9 +277,20 @@ namespace RestauranteVistas.Controllers
                     }
                 }
 
+                db.BitacoraPedidos.Add(new BitacoraPedido
+                {
+                    IdUsuario = uid,
+                    IdPedido = pedido.IdPedido,
+                    Accion = "CANCELACION",
+                    EstadoAnterior = "abierto",
+                    EstadoNuevo = "cancelado",
+                    Detalle = "Cancelacion automatica: no quedan productos.",
+                    FechaHora = DateTime.Now
+                });
+
                 db.SaveChanges();
 
-                TempData["Mensaje"] = "Producto eliminado. La orden quedó cancelada porque no tiene productos.";
+                TempData["Mensaje"] = "Producto eliminado. La orden quedo cancelada porque no tiene productos.";
                 return RedirectToAction("Index");
             }
 
@@ -266,6 +335,18 @@ namespace RestauranteVistas.Controllers
                     mesa.EstadoMesa = "disponible";
                 }
             }
+
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = idPedido,
+                Accion = "CANCELACION",
+                EstadoAnterior = "abierto",
+                EstadoNuevo = "cancelado",
+                Detalle = "Cancelacion: " + (motivoCancelacion ?? "Sin motivo"),
+                FechaHora = DateTime.Now
+            });
 
             db.SaveChanges();
 

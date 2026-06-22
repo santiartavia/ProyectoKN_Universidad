@@ -1,0 +1,65 @@
+@model IEnumerable<Abstracciones.Models.Mesa>
+
+@{
+    ViewBag.Title = "Gestion de Mesas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <div>
+        <span class="mini-badge">SPS-001</span>
+        <h2>Gestion de Mesas</h2>
+        <p>Administre las mesas del restaurante: cree, edite o elimine mesas.</p>
+    </div>
+    <a href="@Url.Action("Create")" class="btn btn-primary">
+        <span class="material-symbols-outlined">add</span> Nueva Mesa
+    </a>
+</div>
+
+<div class="table-card" style="margin-top:25px;">
+    <div class="section-title">
+        <div>
+            <h3>Listado de Mesas</h3>
+            <p>Total: @(Model != null ? Model.Count() : 0) mesas.</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Numero</th>
+                <th>Capacidad</th>
+                <th>Estado</th>
+                <th>Activa</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var m in Model)
+                {
+                    <tr>
+                        <td>@m.IdMesa</td>
+                        <td><strong>@m.NumeroMesa</strong></td>
+                        <td>@m.Capacidad personas</td>
+                        <td><span class="status @(m.EstadoMesa == "disponible" ? "success" : m.EstadoMesa == "ocupada" ? "warning" : "info")">@m.EstadoMesa</span></td>
+                        <td>@(m.Estado ? "Si" : "No")</td>
+                        <td>
+                            <a href="@Url.Action("Edit", new { id = m.IdMesa })" class="btn btn-soft btn-sm">Editar</a>
+                            @if (m.Estado)
+                            {
+                                <a href="@Url.Action("Delete", new { id = m.IdMesa })" class="btn btn-danger btn-sm">Eliminar</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6">No hay mesas registradas.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

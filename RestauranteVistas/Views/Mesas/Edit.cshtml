@@ -1,0 +1,47 @@
+@model Abstracciones.Models.Mesa
+
+@{
+    ViewBag.Title = "Editar Mesa";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <div>
+        <span class="mini-badge">SPS-001</span>
+        <h2>Editar Mesa</h2>
+        <p>Modifique los datos de la mesa.</p>
+    </div>
+</div>
+
+<div class="form-card" style="margin-top:25px;">
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Numero de Mesa *</label>
+                <input type="text" name="numeroMesa" value="@Model.NumeroMesa" required />
+            </div>
+            <div class="form-group">
+                <label>Capacidad (personas) *</label>
+                <input type="number" name="capacidad" min="1" max="20" value="@Model.Capacidad" required />
+            </div>
+            <div class="form-group">
+                <label>Estado</label>
+                <select name="estadoMesa">
+                    <option value="disponible" @(Model.EstadoMesa == "disponible" ? "selected" : "")>Disponible</option>
+                    <option value="ocupada" @(Model.EstadoMesa == "ocupada" ? "selected" : "")>Ocupada</option>
+                    <option value="reservada" @(Model.EstadoMesa == "reservada" ? "selected" : "")>Reservada</option>
+                    <option value="sucia" @(Model.EstadoMesa == "sucia" ? "selected" : "")>Sucia</option>
+                    <option value="inactiva" @(Model.EstadoMesa == "inactiva" ? "selected" : "")>Inactiva</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top:15px;">
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
+        </div>
+    }
+</div>

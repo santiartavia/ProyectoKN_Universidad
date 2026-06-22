@@ -45,10 +45,24 @@
         @using (Html.BeginForm("CrearOrden", "Pedidos", FormMethod.Post))
         {
             <div class="form-grid">
-                <div class="form-group"><label>ID Mesa</label><input type="number" name="idMesa" placeholder="12" required /></div>
-                <div class="form-group"><label>Número de mesa</label><input type="text" placeholder="Mesa 12" /></div>
-                <div class="form-group"><label>ID Mesero</label><input type="number" name="idMesero" placeholder="301" required /></div>
-                <div class="form-group"><label>Nombre mesero</label><input type="text" placeholder="Daniel Rojas" /></div>
+                <div class="form-group">
+                    <label>Mesa</label>
+                    <select name="idMesa" required>
+                        <option value="">Seleccione mesa</option>
+                        @if (ViewBag.Mesas != null)
+                        {
+                            foreach (var mesa in ViewBag.Mesas)
+                            {
+                                <option value="@mesa.IdMesa">@mesa.NumeroMesa (@mesa.EstadoMesa)</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Mesero</label>
+                    <input type="hidden" name="idMesero" value="@(ViewBag.MeseroId ?? 0)" />
+                    <input type="text" class="readonly-field" value="@(ViewBag.MeseroNombre ?? "")" readonly />
+                </div>
                 <div class="form-group"><label>Comensales</label><input type="number" name="comensales" placeholder="4" required /></div>
 
                 <div class="form-group">
