@@ -1,3 +1,5 @@
+USE COLIBRI;
+
 INSERT INTO Categorias_Producto (nombre_categoria, estado)
 VALUES ('Menú Principal', 1);
 

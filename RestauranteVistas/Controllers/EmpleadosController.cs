@@ -54,31 +54,54 @@ namespace RestauranteVistas.Controllers
             if (TempData["Error"] != null)
                 modelo.Error = TempData["Error"].ToString();
 
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_Index", modelo);
+            }
+
             return View(modelo);
         }
 
         // ========== GES-001: REGISTRAR EMPLEADOS ==========
         [HttpPost]
         public ActionResult RegistrarEmpleado(string cedula, string nombre, string apellidos,
-                                                string telefono, string correo, string rol,
-                                                string fechaIngreso, decimal salarioHora)
+                                              string telefono, string correo, string rol,
+                                              string fechaIngreso, decimal salarioHora)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 DateTime fi = string.IsNullOrWhiteSpace(fechaIngreso)
                     ? DateTime.Today
                     : DateTime.Parse(fechaIngreso);
+
                 _empleadoService.Registrar(cedula, nombre, apellidos, telefono, correo,
                                            rol, salarioHora, fi, idAdmin.Value);
-                TempData["Mensaje"] = "GES-001: Empleado registrado correctamente.";
+
+                string msj = "GES-001: Empleado registrado correctamente.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+                }
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                }
+
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         // ========== GES-002: ADMINISTRAR EMPLEADOS ==========
@@ -87,7 +110,17 @@ namespace RestauranteVistas.Controllers
         {
             var empleado = _empleadoService.ListarTodos().FirstOrDefault(e => e.IdEmpleado == id);
             if (empleado == null)
+            {
+                if (Request.IsAjaxRequest())
+                    return Json(new { success = false, mensaje = "No se encontró el empleado solicitado." }, JsonRequestBehavior.AllowGet);
+
                 return HttpNotFound("No se encontró el empleado solicitado.");
+            }
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_AdministrarEmpleado", empleado);
+            }
 
             return View(empleado);
         }
@@ -96,51 +129,89 @@ namespace RestauranteVistas.Controllers
         public ActionResult AdministrarEmpleado(int id, string telefono, string correo, string rol, decimal salarioHora)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _empleadoService.Actualizar(id, telefono, correo, rol, salarioHora, idAdmin.Value);
-                TempData["Mensaje"] = "GES-002: Empleado actualizado correctamente.";
+                string msj = "GES-002: Empleado actualizado correctamente.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+                }
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                }
+
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult InactivarEmpleado(int id, string motivoInactivacion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _empleadoService.Inactivar(id, motivoInactivacion, idAdmin.Value);
-                TempData["Mensaje"] = "GES-002: Empleado inactivado correctamente.";
+                string msj = "GES-002: Empleado inactivado correctamente.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+                }
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult ReactivarEmpleado(int id)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _empleadoService.Reactivar(id, idAdmin.Value);
-                TempData["Mensaje"] = "GES-002: Empleado reactivado correctamente.";
+                string msj = "GES-002: Empleado reactivado correctamente.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+                }
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         // ========== GES-003: TURNOS ==========
@@ -148,32 +219,51 @@ namespace RestauranteVistas.Controllers
         public ActionResult CrearTurno(int idEmpleado, string fechaTurno, string horaInicio, string horaFin, string descripcion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 var fecha = DateTime.Parse(fechaTurno);
                 var inicio = TimeSpan.Parse(horaInicio);
                 var fin = TimeSpan.Parse(horaFin);
                 _turnoService.Crear(idEmpleado, fecha, inicio, fin, descripcion, idAdmin.Value);
-                TempData["Mensaje"] = "GES-003: Turno programado correctamente.";
+
+                string msj = "GES-003: Turno programado correctamente.";
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+                }
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         // ========== GES-003: ASISTENCIA (PONCHADOR) ==========
         [HttpGet]
         public ActionResult Asistencia()
         {
-            return View(new EmpleadosViewModel
+            var modelo = new EmpleadosViewModel
             {
                 AsistenciasPendientes = _asistenciaService.ListarPendientes(),
                 Asistencias = _asistenciaService.ListarPorFecha(DateTime.Today),
                 UltimoMovimiento = "Control de asistencia"
-            });
+            };
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_Asistencia", modelo);
+            }
+
+            return View(modelo);
         }
 
         [HttpPost]
@@ -182,13 +272,20 @@ namespace RestauranteVistas.Controllers
             try
             {
                 _asistenciaService.RegistrarEntrada(idEmpleado);
-                TempData["Mensaje"] = "Entrada registrada correctamente.";
+                string msj = "Entrada registrada correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Asistencia") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Asistencia");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Asistencia");
             }
-            return RedirectToAction("Asistencia");
         }
 
         [HttpPost]
@@ -197,13 +294,20 @@ namespace RestauranteVistas.Controllers
             try
             {
                 _asistenciaService.RegistrarSalida(idAsistencia);
-                TempData["Mensaje"] = "Salida registrada correctamente.";
+                string msj = "Salida registrada correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Asistencia") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Asistencia");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Asistencia");
             }
-            return RedirectToAction("Asistencia");
         }
 
         [HttpPost]
@@ -212,13 +316,20 @@ namespace RestauranteVistas.Controllers
             try
             {
                 _asistenciaService.RegistrarSalidaPorEmpleado(idEmpleado);
-                TempData["Mensaje"] = "Salida registrada correctamente.";
+                string msj = "Salida registrada correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Asistencia") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Asistencia");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Asistencia");
             }
-            return RedirectToAction("Asistencia");
         }
 
         // ========== GES-004: MESAS ATENDIDAS ==========
@@ -226,17 +337,25 @@ namespace RestauranteVistas.Controllers
         public ActionResult AsignarMesa(int idMesa, int idEmpleado, int idPedido, string origenMesa)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _mesaAtendidaService.Registrar(idMesa, idEmpleado, idPedido, origenMesa);
-                TempData["Mensaje"] = "GES-004: Mesa asignada correctamente.";
+                string msj = "GES-004: Mesa asignada correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -253,6 +372,8 @@ namespace RestauranteVistas.Controllers
                     DateTime.Today.AddDays(6 - (int)DateTime.Today.DayOfWeek)),
                 UltimoMovimiento = "Productividad - Mesas atendidas"
             };
+
+            if (Request.IsAjaxRequest()) return PartialView("_MetricasMesas", modelo);
             return View(modelo);
         }
 
@@ -261,53 +382,77 @@ namespace RestauranteVistas.Controllers
         public ActionResult SolicitarVacacion(int idEmpleado, string fechaInicio, string fechaFin)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 var inicio = DateTime.Parse(fechaInicio);
                 var fin = DateTime.Parse(fechaFin);
                 _vacacionService.Solicitar(idEmpleado, inicio, fin, idAdmin.Value);
-                TempData["Mensaje"] = "GES-005: Vacaciones solicitadas correctamente.";
+
+                string msj = "GES-005: Vacaciones solicitadas correctamente.";
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult AprobarVacacion(int idVacacion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _vacacionService.Aprobar(idVacacion, idAdmin.Value);
-                TempData["Mensaje"] = "GES-005: Vacación aprobada.";
+                string msj = "GES-005: Vacación aprobada.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult RechazarVacacion(int idVacacion, string motivoRechazo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _vacacionService.Rechazar(idVacacion, idAdmin.Value, motivoRechazo);
-                TempData["Mensaje"] = "GES-005: Vacación rechazada.";
+                string msj = "GES-005: Vacación rechazada.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         // ========== GES-006: HORAS EXTRA ==========
@@ -315,34 +460,50 @@ namespace RestauranteVistas.Controllers
         public ActionResult RegistrarHorasExtra(int idAsistencia, decimal cantidadHoras)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _horaExtraService.Registrar(idAsistencia, cantidadHoras, 1.5m, idAdmin.Value);
-                TempData["Mensaje"] = "GES-006: Horas extra registradas correctamente.";
+                string msj = "GES-006: Horas extra registradas correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public ActionResult AjustarHorasExtra(int idHoraExtra, decimal cantidadHoras, string motivoAjuste)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
+            if (idAdmin == null) return JsonUrlO_Redirect("Index", "Login");
+
             try
             {
                 _horaExtraService.Ajustar(idHoraExtra, cantidadHoras, motivoAjuste, idAdmin.Value);
-                TempData["Mensaje"] = "GES-006: Horas extra ajustadas correctamente.";
+                string msj = "GES-006: Horas extra ajustadas correctamente.";
+
+                if (Request.IsAjaxRequest()) return Json(new { success = true, mensaje = msj, url = Url.Action("Index") });
+
+                TempData["Mensaje"] = msj;
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Error: {ex.Message}";
+                string errorMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                if (Request.IsAjaxRequest()) return Json(new { success = false, mensaje = errorMsg }, JsonRequestBehavior.AllowGet);
+                TempData["Error"] = $"Error: {errorMsg}";
+                return RedirectToAction("Index");
             }
-            return RedirectToAction("Index");
         }
 
         // ========== GES-007: BITACORA ==========
@@ -366,6 +527,8 @@ namespace RestauranteVistas.Controllers
                 AccionesBitacora = _auditoriaService.ObtenerAccionesDistinct(),
                 UltimoMovimiento = "Bitácora del sistema"
             };
+
+            if (Request.IsAjaxRequest()) return PartialView("_Bitacora", modelo);
             return View(modelo);
         }
 
@@ -421,14 +584,31 @@ namespace RestauranteVistas.Controllers
                 ? _empleadoService.ListarActivos()
                 : _empleadoService.Buscar(termino);
 
-            return View("BuscarEmpleados", new EmpleadosViewModel
+            var modelo = new EmpleadosViewModel
             {
                 Empleados = resultados,
                 UltimoMovimiento = string.IsNullOrWhiteSpace(termino)
                     ? "Todos los empleados activos"
                     : $"Resultados para: {termino}",
                 TerminoBusqueda = termino
-            });
+            };
+
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_BuscarEmpleados", modelo);
+            }
+
+            return View("BuscarEmpleados", modelo);
+        }
+
+        // Helper para manejar redirecciones cuando la sesión expira en peticiones AJAX
+        private ActionResult JsonUrlO_Redirect(string action, string controller)
+        {
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new { success = false, redirect = true, url = Url.Action(action, controller) }, JsonRequestBehavior.AllowGet);
+            }
+            return RedirectToAction(action, controller);
         }
 
         private int? ObtenerIdUsuarioSesion()
