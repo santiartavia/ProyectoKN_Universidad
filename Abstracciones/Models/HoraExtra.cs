@@ -15,4 +15,15 @@ namespace Abstracciones.Models
 
         public Asistencia Asistencia { get; set; }
     }
+
+    // DTO para cumplir con el Escenario 4: Resumen Semanal
+    public class ResumenHorasExtraDto
+    {
+        public int IdEmpleado { get; set; }
+        public string NombreEmpleado { get; set; }
+        public decimal TotalHorasExtra { get; set; }
+        public decimal MontoTotalExtra { get; set; }
+        public DateTime FechaInicioSemana { get; set; }
+        public DateTime FechaFinSemana { get; set; }
+    }
 }

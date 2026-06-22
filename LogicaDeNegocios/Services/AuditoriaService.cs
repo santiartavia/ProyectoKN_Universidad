@@ -10,10 +10,13 @@ namespace LogicaDeNegocios.Services
 {
     public class AuditoriaService : IAuditoriaService
     {
+        private readonly IAuditoriaAD _auditoriaAD;
         private readonly IFechasLN _fechas;
 
-        public AuditoriaService(IFechasLN fechas)
+        // Inyección de la capa de Acceso a Datos
+        public AuditoriaService(IAuditoriaAD auditoriaAD, IFechasLN fechas)
         {
+            _auditoriaAD = auditoriaAD;
             _fechas = fechas;
         }
 
@@ -21,59 +24,35 @@ namespace LogicaDeNegocios.Services
                                string valorAnterior, string valorNuevo, string detalle,
                                int idUsuario, string ipOrigen = null, string dispositivo = null)
         {
-            using (var ctx = new ColibriDbContext())
+            var registro = new BitacoraRRHH
             {
-                var registro = new BitacoraRRHH
-                {
-                    IdUsuario = idUsuario,
-                    TablaAfectada = tablaAfectada,
-                    IdRegistroAfectado = idRegistroAfectado,
-                    Accion = accion,
-                    ValorAnterior = valorAnterior,
-                    ValorNuevo = valorNuevo,
-                    Detalle = detalle,
-                    IpOrigen = ipOrigen,
-                    Dispositivo = dispositivo,
-                    FechaHora = _fechas.ObtenerFechaActual()
-                };
-                ctx.BitacoraRRHH.Add(registro);
-                ctx.SaveChanges();
-            }
+                IdUsuario = idUsuario,
+                TablaAfectada = tablaAfectada,
+                IdRegistroAfectado = idRegistroAfectado,
+                Accion = accion,
+                ValorAnterior = valorAnterior,
+                ValorNuevo = valorNuevo,
+                Detalle = detalle,
+                IpOrigen = ipOrigen,
+                Dispositivo = dispositivo,
+                FechaHora = _fechas.ObtenerFechaActual()
+            };
+
+            // Mandamos a guardar a la capa AD
+            _auditoriaAD.Registrar(registro);
         }
 
         public List<BitacoraRRHH> Consultar(int? idRegistroAfectado = null, int? idUsuario = null,
                                               DateTime? fechaInicio = null, DateTime? fechaFin = null,
                                               string accion = null)
         {
-            using (var ctx = new ColibriDbContext())
-            {
-                var query = ctx.BitacoraRRHH.Include(b => b.Usuario).AsQueryable();
-
-                if (idRegistroAfectado.HasValue)
-                    query = query.Where(b => b.IdRegistroAfectado == idRegistroAfectado.Value);
-                if (idUsuario.HasValue)
-                    query = query.Where(b => b.IdUsuario == idUsuario.Value);
-                if (fechaInicio.HasValue)
-                    query = query.Where(b => b.FechaHora >= fechaInicio.Value);
-                if (fechaFin.HasValue)
-                    query = query.Where(b => b.FechaHora <= fechaFin.Value);
-                if (!string.IsNullOrWhiteSpace(accion))
-                    query = query.Where(b => b.Accion == accion);
-
-                return query.OrderByDescending(b => b.FechaHora).ToList();
-            }
+            // Pasa los parámetros de búsqueda a la capa AD
+            return _auditoriaAD.Consultar(idRegistroAfectado, idUsuario, fechaInicio, fechaFin, accion);
         }
 
         public List<string> ObtenerAccionesDistinct()
         {
-            using (var ctx = new ColibriDbContext())
-            {
-                return ctx.BitacoraRRHH
-                    .Select(b => b.Accion)
-                    .Distinct()
-                    .OrderBy(a => a)
-                    .ToList();
-            }
+            return _auditoriaAD.ObtenerAccionesDistinct();
         }
     }
 }

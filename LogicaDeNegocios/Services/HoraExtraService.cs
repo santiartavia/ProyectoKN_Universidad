@@ -28,10 +28,13 @@ namespace LogicaDeNegocios.Services
             {
                 var asistencia = ctx.Asistencias.Include(a => a.Empleado)
                     .FirstOrDefault(a => a.IdAsistencia == idAsistencia && a.Estado);
+
                 if (asistencia == null)
                     throw new KeyNotFoundException("Registro de asistencia no encontrado");
+
                 if (asistencia.FechaHoraSalida == null)
                     throw new InvalidOperationException("El empleado no tiene un registro de salida válido para esta asistencia");
+
                 if (!asistencia.Empleado.Estado)
                     throw new InvalidOperationException("No se pueden registrar horas extra para un empleado inactivo");
 
@@ -47,6 +50,7 @@ namespace LogicaDeNegocios.Services
                     FechaRegistro = _fechas.ObtenerFechaActual(),
                     Estado = true
                 };
+
                 ctx.HorasExtra.Add(horaExtra);
                 ctx.SaveChanges();
 
@@ -71,6 +75,7 @@ namespace LogicaDeNegocios.Services
             {
                 var horaExtra = ctx.HorasExtra.Include(h => h.Asistencia.Empleado)
                     .FirstOrDefault(h => h.IdHoraExtra == idHoraExtra && h.Estado);
+
                 if (horaExtra == null)
                     throw new KeyNotFoundException("Registro de horas extra no encontrado");
                 if (!horaExtra.Asistencia.Empleado.Estado)
@@ -82,6 +87,7 @@ namespace LogicaDeNegocios.Services
                 horaExtra.CantidadHoras = cantidadHoras;
                 horaExtra.MontoCalculado = cantidadHoras * horaExtra.FactorPago * horaExtra.Asistencia.Empleado.SalarioHora;
                 horaExtra.MotivoAjuste = motivoAjuste;
+
                 ctx.SaveChanges();
 
                 _auditoria.Registrar("Horas_Extra", idHoraExtra, "UPDATE",
@@ -91,6 +97,33 @@ namespace LogicaDeNegocios.Services
                     idUsuarioAdmin);
 
                 return horaExtra;
+            }
+        }
+
+        public ResumenHorasExtraDto ObtenerResumenSemanal(int idEmpleado, DateTime fechaInicioSemana, DateTime fechaFinSemana)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var empleado = ctx.Empleados.Find(idEmpleado);
+                if (empleado == null) throw new KeyNotFoundException("Empleado no encontrado");
+
+                var registrosSemana = ctx.HorasExtra
+                    .Include(h => h.Asistencia)
+                    .Where(h => h.Asistencia.IdEmpleado == idEmpleado
+                             && h.Estado
+                             && h.FechaRegistro >= fechaInicioSemana
+                             && h.FechaRegistro <= fechaFinSemana)
+                    .ToList();
+
+                return new ResumenHorasExtraDto
+                {
+                    IdEmpleado = idEmpleado,
+                    NombreEmpleado = $"{empleado.Nombre} {empleado.Apellidos}",
+                    TotalHorasExtra = registrosSemana.Sum(h => h.CantidadHoras),
+                    MontoTotalExtra = registrosSemana.Sum(h => h.MontoCalculado ?? 0),
+                    FechaInicioSemana = fechaInicioSemana,
+                    FechaFinSemana = fechaFinSemana
+                };
             }
         }
 
