@@ -219,14 +219,15 @@ namespace AccesoADatos
             modelBuilder.Entity<NominaMensual>().Property(n => n.HorasTrabajadas).HasColumnName("horas_trabajadas");
             modelBuilder.Entity<NominaMensual>().Property(n => n.HorasExtra).HasColumnName("horas_extra");
             modelBuilder.Entity<NominaMensual>().Property(n => n.VacacionesPagadas).HasColumnName("vacaciones_pagadas");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.HorasPorDiaVacacion).HasColumnName("horas_por_dia_vacacion");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.MontoVacaciones).HasColumnName("monto_vacaciones");
             modelBuilder.Entity<NominaMensual>().Property(n => n.DiasTrabajados).HasColumnName("dias_trabajados");
             modelBuilder.Entity<NominaMensual>().Property(n => n.DiasAusentes).HasColumnName("dias_ausentes");
+            modelBuilder.Entity<NominaMensual>().Property(n => n.ValorHora).HasColumnName("valor_hora");
             modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioBase).HasColumnName("salario_base");
             modelBuilder.Entity<NominaMensual>().Property(n => n.MontoHorasExtra).HasColumnName("monto_horas_extra");
             modelBuilder.Entity<NominaMensual>().Property(n => n.Bonificaciones).HasColumnName("bonificaciones");
-            modelBuilder.Entity<NominaMensual>().Property(n => n.Deducciones).HasColumnName("deducciones");
             modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioBruto).HasColumnName("salario_bruto");
-            modelBuilder.Entity<NominaMensual>().Property(n => n.SalarioNeto).HasColumnName("salario_neto");
             modelBuilder.Entity<NominaMensual>().Property(n => n.Estado).HasColumnName("estado");
             modelBuilder.Entity<NominaMensual>().Property(n => n.FechaCierre).HasColumnName("fecha_cierre");
             modelBuilder.Entity<NominaMensual>().Property(n => n.Observaciones).HasColumnName("observaciones");

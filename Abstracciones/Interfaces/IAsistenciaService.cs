@@ -14,5 +14,6 @@ namespace Abstracciones.Interfaces
         bool TieneAsistenciaEnFecha(int idEmpleado, System.DateTime fecha);
         List<Asistencia> ListarPendientes();
         List<Asistencia> ListarPorFecha(System.DateTime fecha);
+        List<Asistencia> ListarPorMes(int mes, int anio, int? idEmpleado = null);
     }
 }

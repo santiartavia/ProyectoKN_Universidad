@@ -169,16 +169,27 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpGet]
-        public ActionResult Asistencia(DateTime? fecha = null)
+        public ActionResult Asistencia(DateTime? fecha = null, int? mes = null, int? anio = null, int? idEmpleado = null)
         {
             DateTime fechaFiltro = fecha ?? DateTime.Today;
             ViewBag.FechaAsistencia = fechaFiltro.ToString("yyyy-MM-dd");
-            return View(new EmpleadosViewModel
+
+            var modelo = new EmpleadosViewModel
             {
                 AsistenciasPendientes = _asistenciaService.ListarPendientes(),
                 Asistencias = _asistenciaService.ListarPorFecha(fechaFiltro),
                 UltimoMovimiento = "Control de asistencia"
-            });
+            };
+
+            int mesHist = mes ?? DateTime.Today.Month;
+            int anioHist = anio ?? DateTime.Today.Year;
+            ViewBag.MesHistorial = mesHist;
+            ViewBag.AnioHistorial = anioHist;
+            ViewBag.IdEmpleadoHistorial = idEmpleado;
+            modelo.AsistenciasHistorial = _asistenciaService.ListarPorMes(mesHist, anioHist, idEmpleado);
+            modelo.Empleados = _empleadoService.ListarTodos();
+
+            return View(modelo);
         }
 
         [HttpPost]

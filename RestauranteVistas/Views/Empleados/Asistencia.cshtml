@@ -3,6 +3,10 @@
 @{
     ViewBag.Title = "Control de Asistencia";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var meses = new[] {
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Setiembre", "Octubre", "Noviembre", "Diciembre"
+    };
 }
 
 <div class="hero-card" style="justify-content:space-between;align-items:center;display:flex;">
@@ -190,3 +194,106 @@
         </tbody>
     </table>
 </div>
+
+<div class="form-card" style="border-top:6px solid #1565c0;margin-top:16px;">
+    <div class="section-title">
+        <div><h3>Historial de asistencias por período</h3></div>
+    </div>
+    <form method="get" action="@Url.Action("Asistencia", "Empleados")">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr auto;align-items:end;">
+            <div class="form-group">
+                <label>Mes</label>
+                <select name="mes" class="form-control">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i" @(ViewBag.MesHistorial == i ? "selected" : "")>@meses[i - 1]</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Año</label>
+                <input type="number" name="anio" value="@ViewBag.AnioHistorial" min="2020" max="2035" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>Empleado</label>
+                <select name="idEmpleado" class="form-control">
+                    <option value="">Todos</option>
+                    @if (Model.Empleados != null)
+                    {
+                        foreach (var emp in Model.Empleados)
+                        {
+                            <option value="@emp.IdEmpleado" @(ViewBag.IdEmpleadoHistorial == emp.IdEmpleado ? "selected" : "")>@emp.Nombre @emp.Apellidos</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">search</span> Consultar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (Model.AsistenciasHistorial != null && Model.AsistenciasHistorial.Any())
+{
+    <div class="table-card" style="margin-top:16px;">
+        <div class="section-title">
+            <div><h3>Registros de @meses[ViewBag.MesHistorial - 1] @ViewBag.AnioHistorial</h3></div>
+            <span>Total: @Model.AsistenciasHistorial.Count</span>
+        </div>
+        <div style="overflow-x:auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Empleado</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Horas</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.AsistenciasHistorial)
+                    {
+                        <tr>
+                            <td>@a.IdAsistencia</td>
+                            <td>@(a.Empleado != null ? a.Empleado.Nombre + " " + a.Empleado.Apellidos : "") (#@a.IdEmpleado)</td>
+                            <td>@a.FechaHoraEntrada.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                            <td>@(a.FechaHoraSalida != null ? a.FechaHoraSalida.Value.ToString("yyyy-MM-dd HH:mm:ss") : "—")</td>
+                            <td>
+                                @if (a.FechaHoraSalida != null)
+                                {
+                                    var horas = (a.FechaHoraSalida.Value - a.FechaHoraEntrada).TotalHours;
+                                    <text>@horas.ToString("N2")</text>
+                                }
+                                else
+                                {
+                                    <text>—</text>
+                                }
+                            </td>
+                            <td>
+                                @if (a.FechaHoraSalida == null)
+                                {
+                                    <span class="status warning">Pendiente</span>
+                                }
+                                else
+                                {
+                                    <span class="status success">Completado</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else if (ViewBag.MesHistorial != null)
+{
+    <div class="section-card" style="border-left:4px solid #ff9800;padding:12px 18px;margin:16px 0;background:#fff3e0;">
+        <h3 style="color:#e65100;margin:0;">No hay registros de asistencia para @meses[ViewBag.MesHistorial - 1] @ViewBag.AnioHistorial</h3>
+    </div>
+}

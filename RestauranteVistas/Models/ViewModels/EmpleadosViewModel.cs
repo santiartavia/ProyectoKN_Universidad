@@ -27,6 +27,7 @@ namespace RestauranteVistas.Models.ViewModels
 
         public List<Asistencia> Asistencias { get; set; }
         public List<Asistencia> AsistenciasPendientes { get; set; }
+        public List<Asistencia> AsistenciasHistorial { get; set; }
 
         public List<MesaAtendida> MetricasMesas { get; set; }
         public List<MesaAtendida> MetricasMesasSemana { get; set; }

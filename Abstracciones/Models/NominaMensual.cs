@@ -11,14 +11,15 @@ namespace Abstracciones.Models
         public decimal HorasTrabajadas { get; set; }
         public decimal HorasExtra { get; set; }
         public decimal VacacionesPagadas { get; set; }
+        public decimal HorasPorDiaVacacion { get; set; }
+        public decimal MontoVacaciones { get; set; }
         public int DiasTrabajados { get; set; }
         public int DiasAusentes { get; set; }
+        public decimal ValorHora { get; set; }
         public decimal SalarioBase { get; set; }
         public decimal MontoHorasExtra { get; set; }
         public decimal Bonificaciones { get; set; }
-        public decimal Deducciones { get; set; }
         public decimal SalarioBruto { get; set; }
-        public decimal SalarioNeto { get; set; }
         public string Estado { get; set; }
         public DateTime? FechaCierre { get; set; }
         public string Observaciones { get; set; }

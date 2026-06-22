@@ -64,7 +64,7 @@
 
 @if (Model.NominasPreview != null && Model.NominasPreview.Any())
 {
-    var totalSalarios = Model.NominasPreview.Sum(n => n.SalarioNeto);
+    var totalSalarios = Model.NominasPreview.Sum(n => n.SalarioBruto);
     var totalHoras = Model.NominasPreview.Sum(n => n.HorasTrabajadas);
     var totalHE = Model.NominasPreview.Sum(n => n.MontoHorasExtra);
 
@@ -103,17 +103,17 @@
                 <thead>
                     <tr>
                         <th>Empleado</th>
+                        <th>Valor hora</th>
                         <th>Horas trab.</th>
                         <th>Horas extra</th>
                         <th>Vac. pagadas</th>
                         <th>Días trab.</th>
                         <th>Ausencias</th>
+                        <th>Pago vac.</th>
                         <th>Salario base</th>
                         <th>Pago HE</th>
                         <th>Bonif.</th>
-                        <th>Deducc.</th>
                         <th>Bruto</th>
-                        <th>Neto</th>
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
@@ -123,17 +123,17 @@
                     {
                         <tr>
                             <td>@(n.Empleado != null ? n.Empleado.Nombre + " " + n.Empleado.Apellidos : "")</td>
+                            <td>₡@n.ValorHora.ToString("N2")</td>
                             <td>@n.HorasTrabajadas.ToString("N2")</td>
                             <td>@n.HorasExtra.ToString("N2")</td>
                             <td>@n.VacacionesPagadas.ToString("N0")</td>
                             <td>@n.DiasTrabajados</td>
                             <td>@n.DiasAusentes</td>
+                            <td>₡@n.MontoVacaciones.ToString("N2")</td>
                             <td>₡@n.SalarioBase.ToString("N2")</td>
                             <td>₡@n.MontoHorasExtra.ToString("N2")</td>
                             <td>₡@n.Bonificaciones.ToString("N2")</td>
-                            <td>₡@n.Deducciones.ToString("N2")</td>
                             <td><strong>₡@n.SalarioBruto.ToString("N2")</strong></td>
-                            <td><strong>₡@n.SalarioNeto.ToString("N2")</strong></td>
                             <td><span class="status warning">Pendiente</span></td>
                             <td>
                                 <details style="cursor:pointer;">
@@ -144,15 +144,29 @@
                                             <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
                                             <input type="hidden" name="mes" value="@Model.Mes" />
                                             <input type="hidden" name="anio" value="@Model.Anio" />
+                                            <h4 style="margin:6px 0 4px;font-size:13px;">Horas extra</h4>
                                             <div class="form-group" style="margin-bottom:6px;">
-                                                <label style="font-size:12px;">Horas extra</label>
+                                                <label style="font-size:12px;">Cantidad de horas</label>
                                                 <input type="number" name="cantidadHoras" value="@n.HorasExtra.ToString("N2")" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
                                             </div>
                                             <div class="form-group" style="margin-bottom:6px;">
                                                 <label style="font-size:12px;">Motivo</label>
                                                 <input type="text" name="motivoAjuste" class="form-control" style="width:100%;" placeholder="Ej. Ajuste manual" />
                                             </div>
-                                            <button type="submit" class="btn btn-sm btn-primary">Guardar ajuste</button>
+                                            <button type="submit" class="btn btn-sm btn-primary">Guardar horas extra</button>
+                                        }
+                                        <hr style="margin:8px 0;" />
+                                        @using (Html.BeginForm("AjustarHorasVacacion", "NominaMensual", FormMethod.Post))
+                                        {
+                                            <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
+                                            <input type="hidden" name="mes" value="@Model.Mes" />
+                                            <input type="hidden" name="anio" value="@Model.Anio" />
+                                            <h4 style="margin:6px 0 4px;font-size:13px;">Vacaciones pagadas (@n.VacacionesPagadas.ToString("N0") días)</h4>
+                                            <div class="form-group" style="margin-bottom:6px;">
+                                                <label style="font-size:12px;">Horas por día</label>
+                                                <input type="number" name="horasPorDia" value="@n.HorasPorDiaVacacion.ToString("N1")" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
+                                            </div>
+                                            <button type="submit" class="btn btn-sm btn-primary">Guardar horas/día</button>
                                         }
                                         <hr style="margin:8px 0;" />
                                         @using (Html.BeginForm("Cerrar", "NominaMensual", FormMethod.Post))
@@ -198,18 +212,18 @@ else
                 <thead>
                     <tr>
                         <th>Empleado</th>
+                        <th>Valor hora</th>
                         <th>Mes / Año</th>
                         <th>Horas trab.</th>
                         <th>Horas extra</th>
                         <th>Vac. pag.</th>
                         <th>Días trab.</th>
                         <th>Ausencias</th>
+                        <th>Pago vac.</th>
                         <th>Salario base</th>
                         <th>Pago HE</th>
-                        <th>Deducc.</th>
                         <th>Bonif.</th>
                         <th>Bruto</th>
-                        <th>Neto</th>
                         <th>Estado</th>
                         <th>Fecha cierre</th>
                         <th>Observaciones</th>
@@ -220,18 +234,18 @@ else
                     {
                         <tr>
                             <td>@(n.Empleado != null ? n.Empleado.Nombre + " " + n.Empleado.Apellidos : "")</td>
+                            <td>₡@n.ValorHora.ToString("N2")</td>
                             <td>@meses[n.Mes - 1] @n.Anio</td>
                             <td>@n.HorasTrabajadas.ToString("N2")</td>
                             <td>@n.HorasExtra.ToString("N2")</td>
                             <td>@n.VacacionesPagadas.ToString("N0")</td>
                             <td>@n.DiasTrabajados</td>
                             <td>@n.DiasAusentes</td>
+                            <td>₡@n.MontoVacaciones.ToString("N2")</td>
                             <td>₡@n.SalarioBase.ToString("N2")</td>
                             <td>₡@n.MontoHorasExtra.ToString("N2")</td>
-                            <td>₡@n.Deducciones.ToString("N2")</td>
                             <td>₡@n.Bonificaciones.ToString("N2")</td>
                             <td>₡@n.SalarioBruto.ToString("N2")</td>
-                            <td><strong>₡@n.SalarioNeto.ToString("N2")</strong></td>
                             <td><span class="status success">Cerrada</span></td>
                             <td>@(n.FechaCierre != null ? n.FechaCierre.Value.ToString("dd/MM/yyyy HH:mm") : "—")</td>
                             <td>@(string.IsNullOrEmpty(n.Observaciones) ? "—" : n.Observaciones)</td>
@@ -265,7 +279,8 @@ else
         font-size: 13px;
     }
     .table-card table th {
-        background: var(--surface-dark, #f8f9fa);
+        background: #1565c0;
+        color: #fff;
         font-weight: 600;
     }
 </style>

@@ -159,5 +159,20 @@ namespace LogicaDeNegocios.Services
                     .ToList();
             }
         }
+        public List<Asistencia> ListarPorMes(int mes, int anio, int? idEmpleado = null)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var query = ctx.Asistencias.Include(a => a.Empleado)
+                    .Where(a => a.Estado &&
+                        a.FechaHoraEntrada.Year == anio &&
+                        a.FechaHoraEntrada.Month == mes);
+
+                if (idEmpleado.HasValue)
+                    query = query.Where(a => a.IdEmpleado == idEmpleado.Value);
+
+                return query.OrderByDescending(a => a.FechaHoraEntrada).ToList();
+            }
+        }
     }
 }

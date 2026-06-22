@@ -63,14 +63,21 @@ namespace LogicaDeNegocios.Services
                             && v.FechaFin >= primerDia)
                         .ToList();
 
-                    var vacacionesPagadas = vacaciones.Sum(v => v.DiasSolicitados);
+                    var vacacionesPagadas = vacaciones.Sum(v =>
+                    {
+                        var inicio = v.FechaInicio < primerDia ? primerDia : v.FechaInicio;
+                        var fin = v.FechaFin > ultimoDia ? ultimoDia : v.FechaFin;
+                        return (decimal)(fin - inicio).Days + 1;
+                    });
+
+                    var horasPorDiaVacacion = 8m;
+                    var montoVacaciones = vacacionesPagadas * horasPorDiaVacacion * emp.SalarioHora;
 
                     var salarioBase = emp.SalarioHora * horasTrabajadas;
-                    var salarioBruto = salarioBase + montoHorasExtra;
-                    var salarioNeto = salarioBruto;
+                    var salarioBruto = salarioBase + montoHorasExtra + montoVacaciones;
 
                     var totalDiasMes = ultimoDia.Day;
-                    var diasAusentes = totalDiasMes - diasTrabajados - (int)vacacionesPagadas;
+                    var diasAusentes = totalDiasMes - diasTrabajados - (int)Math.Round(vacacionesPagadas);
                     if (diasAusentes < 0) diasAusentes = 0;
 
                     resultado.Add(new NominaMensual
@@ -82,14 +89,15 @@ namespace LogicaDeNegocios.Services
                         HorasTrabajadas = Math.Round(horasTrabajadas, 2),
                         HorasExtra = totalHorasExtra,
                         VacacionesPagadas = vacacionesPagadas,
+                        HorasPorDiaVacacion = 8m,
+                        MontoVacaciones = Math.Round(montoVacaciones, 2),
                         DiasTrabajados = diasTrabajados,
                         DiasAusentes = diasAusentes,
+                        ValorHora = emp.SalarioHora,
                         SalarioBase = Math.Round(salarioBase, 2),
                         MontoHorasExtra = Math.Round(montoHorasExtra, 2),
                         Bonificaciones = 0,
-                        Deducciones = 0,
                         SalarioBruto = Math.Round(salarioBruto, 2),
-                        SalarioNeto = Math.Round(salarioNeto, 2),
                         Estado = "pendiente"
                     });
                 }
@@ -122,12 +130,13 @@ namespace LogicaDeNegocios.Services
                     VacacionesPagadas = data.VacacionesPagadas,
                     DiasTrabajados = data.DiasTrabajados,
                     DiasAusentes = data.DiasAusentes,
+                    ValorHora = data.ValorHora,
                     SalarioBase = data.SalarioBase,
                     MontoHorasExtra = data.MontoHorasExtra,
+                    HorasPorDiaVacacion = data.HorasPorDiaVacacion,
+                    MontoVacaciones = data.MontoVacaciones,
                     Bonificaciones = data.Bonificaciones,
-                    Deducciones = data.Deducciones,
                     SalarioBruto = data.SalarioBruto,
-                    SalarioNeto = data.SalarioNeto,
                     Estado = "cerrada",
                     FechaCierre = _fechas.ObtenerFechaActual(),
                     Observaciones = observaciones,

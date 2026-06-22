@@ -34,9 +34,26 @@ namespace RestauranteVistas.Controllers
             int mesActual = mes ?? DateTime.Today.Month;
             int anioActual = anio ?? DateTime.Today.Year;
 
+            var preview = _nominaService.CalcularPreview(mesActual, anioActual);
+
+            var ajustes = Session["AjustesVacaciones"] as System.Collections.Generic.Dictionary<string, decimal>;
+            if (ajustes != null)
+            {
+                foreach (var n in preview)
+                {
+                    var key = $"{n.IdEmpleado}_{mesActual}_{anioActual}";
+                    if (ajustes.TryGetValue(key, out var horasPorDia))
+                    {
+                        n.HorasPorDiaVacacion = horasPorDia;
+                        n.MontoVacaciones = Math.Round(n.VacacionesPagadas * horasPorDia * n.ValorHora, 2);
+                        n.SalarioBruto = n.SalarioBase + n.MontoHorasExtra + n.MontoVacaciones;
+                    }
+                }
+            }
+
             var modelo = new NominaMensualViewModel
             {
-                NominasPreview = _nominaService.CalcularPreview(mesActual, anioActual),
+                NominasPreview = preview,
                 Historial = _nominaService.ListarHistorial(mes, anio),
                 Mes = mesActual,
                 Anio = anioActual
@@ -59,6 +76,7 @@ namespace RestauranteVistas.Controllers
             try
             {
                 _nominaService.Cerrar(idEmpleado, mes, anio, observaciones, idAdmin.Value);
+                LimpiarAjustes(idEmpleado, mes, anio);
                 TempData["Mensaje"] = $"Nómina cerrada correctamente para empleado #{idEmpleado}.";
             }
             catch (Exception ex)
@@ -153,6 +171,41 @@ namespace RestauranteVistas.Controllers
             }
 
             return RedirectToAction("Index", new { mes, anio });
+        }
+
+        [HttpPost]
+        public ActionResult AjustarHorasVacacion(int idEmpleado, int mes, int anio, decimal horasPorDia)
+        {
+            try
+            {
+                var ajustes = Session["AjustesVacaciones"] as System.Collections.Generic.Dictionary<string, decimal>;
+                if (ajustes == null)
+                {
+                    ajustes = new System.Collections.Generic.Dictionary<string, decimal>();
+                    Session["AjustesVacaciones"] = ajustes;
+                }
+
+                var key = $"{idEmpleado}_{mes}_{anio}";
+                ajustes[key] = horasPorDia;
+
+                TempData["Mensaje"] = $"Horas por día de vacaciones ajustadas a {horasPorDia:N1}h para empleado #{idEmpleado}.";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error: {ex.Message}";
+            }
+
+            return RedirectToAction("Index", new { mes, anio });
+        }
+
+        private void LimpiarAjustes(int idEmpleado, int mes, int anio)
+        {
+            var ajustes = Session["AjustesVacaciones"] as System.Collections.Generic.Dictionary<string, decimal>;
+            if (ajustes != null)
+            {
+                var key = $"{idEmpleado}_{mes}_{anio}";
+                ajustes.Remove(key);
+            }
         }
 
         private int? ObtenerIdUsuarioSesion()
