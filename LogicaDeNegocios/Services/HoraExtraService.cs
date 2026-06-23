@@ -23,6 +23,8 @@ namespace LogicaDeNegocios.Services
         {
             if (cantidadHoras <= 0)
                 throw new ArgumentException("La cantidad de horas extra debe ser mayor a cero");
+            if (cantidadHoras > 12)
+                throw new ArgumentException("La cantidad de horas extra no puede exceder 12 por día");
 
             using (var ctx = new ColibriDbContext())
             {
@@ -64,6 +66,8 @@ namespace LogicaDeNegocios.Services
         {
             if (cantidadHoras <= 0)
                 throw new ArgumentException("La cantidad de horas extra debe ser mayor a cero");
+            if (cantidadHoras > 12)
+                throw new ArgumentException("La cantidad de horas extra no puede exceder 12 por día");
             if (string.IsNullOrWhiteSpace(motivoAjuste))
                 throw new ArgumentException("El motivo de ajuste es obligatorio");
 

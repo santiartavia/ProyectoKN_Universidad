@@ -36,9 +36,20 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        public ActionResult CrearOrden(int idMesa, int idMesero, byte comensales, int idProducto, decimal cantidad, string tipoServicio, string observaciones)
+        public ActionResult CrearOrden(int idMesa, byte comensales, int idProducto, decimal cantidad, string tipoServicio, string observaciones)
         {
-            if (idMesa <= 0 || idMesero <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0)
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            if (uid == 0)
+                return RedirectToAction("Index", "Login");
+
+            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid);
+            if (empleado == null || !empleado.Estado)
+            {
+                TempData["Error"] = "No tiene un perfil de empleado activo para crear ordenes.";
+                return RedirectToAction("Index");
+            }
+
+            if (idMesa <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0)
             {
                 TempData["Error"] = "Debe completar todos los campos obligatorios.";
                 return RedirectToAction("Index");
@@ -59,6 +70,13 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            var pedidoMismaMesa = db.Pedidos.FirstOrDefault(p => p.IdMesa == idMesa && p.Estado && p.EstadoPedido != "cancelado");
+            if (pedidoMismaMesa != null)
+            {
+                TempData["Error"] = "La mesa ya está asignada a otra orden activa.";
+                return RedirectToAction("Index");
+            }
+
             if (tipoServicio == "Salón" || tipoServicio == "Salon")
             {
                 tipoServicio = "mesa";
@@ -74,10 +92,12 @@ namespace RestauranteVistas.Controllers
                 tipoServicio = "delivery";
             }
 
+            string origenMesa = tipoServicio;
+
             var pedido = new Pedido
             {
                 IdMesa = idMesa,
-                IdEmpleado = idMesero,
+                IdEmpleado = empleado.IdEmpleado,
                 TipoServicio = tipoServicio,
                 CantidadComensales = comensales,
                 EstadoPedido = "abierto",
@@ -102,7 +122,6 @@ namespace RestauranteVistas.Controllers
 
             db.DetallePedidos.Add(detalle);
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
@@ -113,9 +132,24 @@ namespace RestauranteVistas.Controllers
                 FechaHora = DateTime.Now
             });
 
-            db.SaveChanges();
-
             mesa.EstadoMesa = "ocupada";
+
+            db.BitacoraRRHH.Add(new BitacoraRRHH
+            {
+                IdUsuario = uid,
+                TablaAfectada = "Pedidos",
+                IdRegistroAfectado = pedido.IdPedido,
+                Accion = "ASIGNACION_MESA",
+                ValorNuevo = Newtonsoft.Json.JsonConvert.SerializeObject(new
+                {
+                    idMesa,
+                    idEmpleado = empleado.IdEmpleado,
+                    origenMesa
+                }),
+                Detalle = $"Mesa #{idMesa} asignada al pedido #{pedido.IdPedido} (mesero: {empleado.Nombre} {empleado.Apellidos})",
+                FechaHora = DateTime.Now
+            });
+
             db.SaveChanges();
 
             TempData["Mensaje"] = "Orden creada correctamente. Ya aparece en cocina.";

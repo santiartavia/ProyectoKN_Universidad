@@ -237,23 +237,6 @@ namespace RestauranteVistas.Controllers
             return RedirectToAction("Asistencia");
         }
 
-        [HttpPost]
-        public ActionResult AsignarMesa(int idMesa, int idEmpleado, int idPedido, string origenMesa)
-        {
-            var idAdmin = ObtenerIdUsuarioSesion();
-            if (idAdmin == null) return RedirectToAction("Index", "Login");
-            try
-            {
-                _mesaAtendidaService.Registrar(idMesa, idEmpleado, idPedido, origenMesa);
-                TempData["Mensaje"] = "GES-004: Mesa asignada correctamente.";
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"Error: {ex.Message}";
-            }
-            return RedirectToAction("Index");
-        }
-
         [HttpGet]
         public ActionResult MetricasMesas()
         {

@@ -60,8 +60,7 @@
                 </div>
                 <div class="form-group">
                     <label>Mesero</label>
-                    <input type="hidden" name="idMesero" value="@(ViewBag.MeseroId ?? 0)" />
-                    <input type="text" class="readonly-field" value="@(ViewBag.MeseroNombre ?? "")" readonly />
+                    <span class="readonly-display">@(ViewBag.MeseroNombre ?? "")</span>
                 </div>
                 <div class="form-group"><label>Comensales</label><input type="number" name="comensales" placeholder="4" required /></div>
 

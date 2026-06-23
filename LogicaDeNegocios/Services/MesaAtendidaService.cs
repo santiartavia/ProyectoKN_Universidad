@@ -104,21 +104,25 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                var query = from p in ctx.Pedidos
-                            join m in ctx.Mesas on p.IdMesa equals m.IdMesa
-                            join e in ctx.Empleados on p.IdEmpleado equals e.IdEmpleado
-                            where p.FechaHora.Year == fecha.Year
-                                  && p.FechaHora.Month == fecha.Month
-                                  && p.FechaHora.Day == fecha.Day
-                            group new { p, m, e } by new { p.IdEmpleado, Fecha = System.Data.Entity.DbFunctions.TruncateTime(p.FechaHora) } into g
-                            select new MesaAtendida
-                            {
-                                IdEmpleado = g.Key.IdEmpleado,
-                                FechaHora = g.Key.Fecha.Value,
-                                TotalMesas = g.Count(),
-                                NombreEmpleado = g.FirstOrDefault().e.Nombre + " " + g.FirstOrDefault().e.Apellidos
-                            };
-                return query.OrderByDescending(q => q.TotalMesas).ToList();
+                var pedidos = ctx.Pedidos
+                    .Where(p => p.IdMesa != null
+                        && p.FechaHora.Year == fecha.Year
+                        && p.FechaHora.Month == fecha.Month
+                        && p.FechaHora.Day == fecha.Day)
+                    .Join(ctx.Empleados, p => p.IdEmpleado, e => e.IdEmpleado, (p, e) => new { p, e })
+                    .ToList();
+
+                return pedidos
+                    .GroupBy(r => r.p.IdEmpleado)
+                    .Select(g => new MesaAtendida
+                    {
+                        IdEmpleado = g.Key,
+                        FechaHora = fecha,
+                        TotalMesas = g.Count(),
+                        NombreEmpleado = g.First().e.Nombre + " " + g.First().e.Apellidos
+                    })
+                    .OrderByDescending(q => q.TotalMesas)
+                    .ToList();
             }
         }
 
@@ -126,20 +130,24 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                var query = from p in ctx.Pedidos
-                            join m in ctx.Mesas on p.IdMesa equals m.IdMesa
-                            join e in ctx.Empleados on p.IdEmpleado equals e.IdEmpleado
-                            where p.FechaHora >= fechaInicio
-                                  && p.FechaHora <= fechaFin
-                            group new { p, m, e } by new { p.IdEmpleado, Fecha = System.Data.Entity.DbFunctions.TruncateTime(p.FechaHora) } into g
-                            select new MesaAtendida
-                            {
-                                IdEmpleado = g.Key.IdEmpleado,
-                                FechaHora = g.Key.Fecha.Value,
-                                TotalMesas = g.Count(),
-                                NombreEmpleado = g.FirstOrDefault().e.Nombre + " " + g.FirstOrDefault().e.Apellidos
-                            };
-                return query.OrderByDescending(q => q.TotalMesas).ToList();
+                var pedidos = ctx.Pedidos
+                    .Where(p => p.IdMesa != null
+                        && p.FechaHora >= fechaInicio
+                        && p.FechaHora <= fechaFin)
+                    .Join(ctx.Empleados, p => p.IdEmpleado, e => e.IdEmpleado, (p, e) => new { p, e })
+                    .ToList();
+
+                return pedidos
+                    .GroupBy(r => new { r.p.IdEmpleado, Fecha = r.p.FechaHora.Date })
+                    .Select(g => new MesaAtendida
+                    {
+                        IdEmpleado = g.Key.IdEmpleado,
+                        FechaHora = g.Key.Fecha,
+                        TotalMesas = g.Count(),
+                        NombreEmpleado = g.First().e.Nombre + " " + g.First().e.Apellidos
+                    })
+                    .OrderByDescending(q => q.TotalMesas)
+                    .ToList();
             }
         }
     }

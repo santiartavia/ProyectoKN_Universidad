@@ -73,7 +73,9 @@ namespace LogicaDeNegocios.Services
                     var horasPorDiaVacacion = 8m;
                     var montoVacaciones = vacacionesPagadas * horasPorDiaVacacion * emp.SalarioHora;
 
-                    var salarioBase = emp.SalarioHora * horasTrabajadas;
+                    var horasRegulares = horasTrabajadas - totalHorasExtra;
+                    if (horasRegulares < 0) horasRegulares = 0;
+                    var salarioBase = emp.SalarioHora * horasRegulares;
                     var salarioBruto = salarioBase + montoHorasExtra + montoVacaciones;
 
                     var totalDiasMes = ultimoDia.Day;

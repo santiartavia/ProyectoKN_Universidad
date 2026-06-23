@@ -44,9 +44,9 @@ namespace RestauranteVistas.Controllers
                     .ToList();
 
                 var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
-                var dicUsuarios = ctx.Usuarios
-                    .Where(u => idsUsuarios.Contains(u.IdUsuario))
-                    .ToDictionary(u => u.IdUsuario, u => u.NombreUsuario);
+                var dicUsuarios = ctx.Empleados
+                    .Where(e => idsUsuarios.Contains(e.IdUsuario))
+                    .ToDictionary(e => e.IdUsuario, e => e.Nombre + " " + e.Apellidos);
 
                 var modelo = new BitacoraPedidosViewModel
                 {
@@ -92,9 +92,9 @@ namespace RestauranteVistas.Controllers
                 var registros = query.OrderByDescending(b => b.FechaHora).ToList();
 
                 var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
-                var dicUsuarios = ctx.Usuarios
-                    .Where(u => idsUsuarios.Contains(u.IdUsuario))
-                    .ToDictionary(u => u.IdUsuario, u => u.NombreUsuario);
+                var dicUsuarios = ctx.Empleados
+                    .Where(e => idsUsuarios.Contains(e.IdUsuario))
+                    .ToDictionary(e => e.IdUsuario, e => e.Nombre + " " + e.Apellidos);
 
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("ID,Usuario,Pedido,Accion,Estado Anterior,Estado Nuevo,Detalle,Fecha/Hora");

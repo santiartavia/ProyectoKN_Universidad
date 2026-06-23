@@ -231,6 +231,7 @@
     <Content Include="Views\MisVacaciones\Index.cshtml" />
     <Content Include="Views\Empleados\ResumenHorasExtra.cshtml" />
     <Content Include="Views\Empleados\Asistencia.cshtml" />
+    <Content Include="Views\Empleados\MetricasMesas.cshtml" />
     <Content Include="Views\NominaMensual\Index.cshtml" />
     <Content Include="Views\Mesas\Index.cshtml" />
     <Content Include="Views\Mesas\Create.cshtml" />
