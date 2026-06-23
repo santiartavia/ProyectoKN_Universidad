@@ -416,5 +416,3 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
-/ProyectoFinal/ProyectoFinal.UI/Controllers/TokenAPIController.cs
-/ProyectoFinal/ProyectoFinal.UI/App_Start/WebApiConfig.cs
