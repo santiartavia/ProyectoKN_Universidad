@@ -148,8 +148,16 @@ namespace LogicaDeNegocios.Services
                     Rol = empleado.Usuario?.Rol?.NombreRol
                 });
 
-                empleado.Telefono = telefono ?? empleado.Telefono;
-                empleado.CorreoPersonal = correo ?? empleado.CorreoPersonal;
+                if (!string.IsNullOrWhiteSpace(telefono))
+                {
+                    empleado.Telefono = telefono;
+                }
+                if (!string.IsNullOrWhiteSpace(correo))
+                {
+                    empleado.CorreoPersonal = correo;
+                    if (empleado.Usuario != null)
+                        empleado.Usuario.Correo = correo;
+                }
                 empleado.SalarioHora = salarioHora;
                 empleado.FechaModificacion = _fechas.ObtenerFechaActual();
 

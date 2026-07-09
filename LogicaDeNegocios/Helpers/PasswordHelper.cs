@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -141,12 +142,12 @@ namespace LogicaDeNegocios.Helpers
             }
 
             string dir = direccion.ToLower().Trim();
-            bool tieneProvincia = dir.Contains("provincia") || Regex.IsMatch(dir, @"\b(san José|alajuela|cartago|heredia|guanacaste|puntarenas|Limón)\b");
-            bool tieneCanton = dir.Contains("cantón") || dir.Contains("canton") || Regex.IsMatch(dir, @"\b(central|occidental|oriental|norte|sur|este|oeste)\b", RegexOptions.IgnoreCase);
+            bool tieneProvincia = Regex.IsMatch(dir, @"\b(san[ -]?jos[eé]|alajuela|cartago|heredia|guanacaste|puntarenas|lim[oó]n)\b", RegexOptions.IgnoreCase);
+            bool tieneCanton = dir.Count(c => c == ',') >= 1;
 
             if (!tieneProvincia || !tieneCanton)
             {
-                mensaje = "La dirección debe incluir al menos provincia y cantón.";
+                mensaje = "Debe seleccionar una provincia y escribir un cantón.";
                 return false;
             }
 

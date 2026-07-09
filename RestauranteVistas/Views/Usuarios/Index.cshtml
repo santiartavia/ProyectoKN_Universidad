@@ -80,9 +80,10 @@
                             <a href="@Url.Action("AsignarRol", "Usuarios", new { id = u.IdUsuario })" class="btn btn-sm btn-info" title="Asignar rol">
                                 <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
                             </a>
-                            <a href="@Url.Action("Eliminar", "Usuarios", new { id = u.IdUsuario })" class="btn btn-sm btn-danger" title="Eliminar">
-                                <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
-                            </a>
+                            <button type="button" class="btn btn-sm btn-info" title="Ver informacion del empleado"
+                                        onclick="verEmpleado(@u.IdUsuario)">
+                                <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
+                            </button>
                             @using (Html.BeginForm("ResetearPassword", "Usuarios", FormMethod.Post, new { style = "display:inline;" }))
                             {
                                 <input type="hidden" name="id" value="@u.IdUsuario" />
@@ -198,8 +199,56 @@
     </div>
 }
 
+<div id="modalVerEmpleado" class="custom-modal">
+    <div class="custom-modal-content" style="max-width:500px;">
+        <div class="modal-header">
+            <h3>Información del empleado</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalVerEmpleado')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div id="empleadoDetalle" style="padding:16px 0;">
+            <p>Cargando...</p>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="cerrarModal('modalVerEmpleado')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    document.getElementById('selectAllDepurar')?.addEventListener('change', function() {
-        document.querySelectorAll('input[name="idsDepurar"]').forEach(cb => cb.checked = this.checked);
-    });
+    function verEmpleado(idUsuario) {
+        var detalle = document.getElementById('empleadoDetalle');
+        detalle.innerHTML = '<p>Cargando...</p>';
+        abrirModal('modalVerEmpleado');
+
+        fetch('@Url.Action("ObtenerEmpleado", "Usuarios")?idUsuario=' + idUsuario)
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.error) {
+                    detalle.innerHTML = '<p style="color:#c62828;">' + d.error + '</p>';
+                    return;
+                }
+                detalle.innerHTML =
+                    '<div class="form-grid">' +
+                        '<div class="form-group" style="grid-column:1/-1;"><hr style="margin:0 0 12px 0;"></div>' +
+                        '<div class="form-group"><strong>Nombre completo</strong><p style="margin:4px 0;">' + d.nombre + ' ' + d.apellidos + '</p></div>' +
+                        '<div class="form-group"><strong>Cédula</strong><p style="margin:4px 0;">' + d.cedula + '</p></div>' +
+                        '<div class="form-group"><strong>Usuario</strong><p style="margin:4px 0;">' + d.nombreUsuario + '</p></div>' +
+                        '<div class="form-group"><strong>Rol</strong><p style="margin:4px 0;">' + d.rol + '</p></div>' +
+                        '<div class="form-group"><strong>Teléfono</strong><p style="margin:4px 0;">' + (d.telefono || '—') + '</p></div>' +
+                        '<div class="form-group"><strong>Correo</strong><p style="margin:4px 0;">' + d.correo + '</p></div>' +
+                        '<div class="form-group" style="grid-column:1/-1;"><strong>Dirección</strong><p style="margin:4px 0;">' + (d.direccion || '—') + '</p></div>' +
+                        '<div class="form-group"><strong>Salario por hora</strong><p style="margin:4px 0;">¢' + d.salarioHora + '</p></div>' +
+                        '<div class="form-group"><strong>Fecha de ingreso</strong><p style="margin:4px 0;">' + d.fechaIngreso + '</p></div>' +
+                        '<div class="form-group"><strong>Última modificación</strong><p style="margin:4px 0;">' + d.fechaModificacion + '</p></div>' +
+                        '<div class="form-group"><strong>Vacaciones disponibles</strong><p style="margin:4px 0;">' + d.vacacionesDisponibles + ' días</p></div>' +
+                        '<div class="form-group"><strong>Estado</strong><p style="margin:4px 0;">' + d.estado + '</p></div>' +
+                        '<div class="form-group" style="grid-column:1/-1;"><hr style="margin:0 0 12px 0;"></div>' +
+                    '</div>';
+            })
+            .catch(function() {
+                detalle.innerHTML = '<p style="color:#c62828;">Error al cargar la información.</p>';
+            });
+    }
 </script>

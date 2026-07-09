@@ -19,6 +19,7 @@ namespace Abstracciones.Models
         public DateTime? FechaAvisoPassword { get; set; }
         public string UltimoCambioPasswordIp { get; set; }
         public string UltimoCambioPasswordDispositivo { get; set; }
+        public string Direccion { get; set; }
 
         public Rol Rol { get; set; }
     }

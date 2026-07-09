@@ -6,6 +6,7 @@
     [apellidos]                   NVARCHAR (120)  NOT NULL,
     [telefono]                    NVARCHAR (20)   NULL,
     [correo_personal]             NVARCHAR (150)  NULL,
+    [direccion]                   NVARCHAR (300)  NULL,
     [salario_hora]                DECIMAL (10, 2) NOT NULL,
     [dias_vacaciones_disponibles] DECIMAL (6, 2)  CONSTRAINT [DF_Emp_vac] DEFAULT ((0)) NOT NULL,
     [fecha_ingreso]               DATE            CONSTRAINT [DF_Emp_ingreso] DEFAULT (CONVERT([date],sysutcdatetime())) NOT NULL,

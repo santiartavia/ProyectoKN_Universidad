@@ -550,12 +550,9 @@ namespace RestauranteVistas.Controllers
                     var sesion = ctx.Sesiones.Find(idSesion);
                     if (sesion != null)
                     {
-                        // Actualizar actividad
-                        sesion.FechaHoraUltimaAct = _fechas.ObtenerFechaActual();
-
-                        // Verificar tiempo máximo de inactividad (30 min = 1800 seg)
+                        // Verificar tiempo máximo de inactividad (2 min)
                         var inactividad = (_fechas.ObtenerFechaActual() - sesion.FechaHoraUltimaAct).TotalMinutes;
-                        if (inactividad > 30)
+                        if (inactividad > 2)
                         {
                             sesion.EstadoSesion = "EXPIRADA";
                             sesion.FechaHoraCierre = _fechas.ObtenerFechaActual();
@@ -567,6 +564,7 @@ namespace RestauranteVistas.Controllers
                             return Json(new { activa = false, mensaje = "sesión expirada por inactividad. Debe iniciar sesión nuevamente." }, JsonRequestBehavior.AllowGet);
                         }
 
+                        sesion.FechaHoraUltimaAct = _fechas.ObtenerFechaActual();
                         ctx.SaveChanges();
                     }
                 }

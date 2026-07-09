@@ -137,6 +137,20 @@
     <div id="toast" class="toast"></div>
 
     <script src="~/Scripts/site.js"></script>
+    <script>
+        // Heartbeat: verificar sesión activa cada 30 segundos
+        setInterval(function () {
+            fetch('@Url.Action("VerificarSesion", "Login")')
+                .then(function (r) { return r.json(); })
+                .then(function (d) {
+                    if (!d.activa) {
+                        alert(d.mensaje || 'Sesión expirada por inactividad.');
+                        window.location.href = '@Url.Action("Index", "Login")';
+                    }
+                })
+                .catch(function () {});
+        }, 30000);
+    </script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

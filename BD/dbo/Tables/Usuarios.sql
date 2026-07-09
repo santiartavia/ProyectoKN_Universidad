@@ -11,6 +11,7 @@
     [fecha_password]            DATETIME2 (7)  NULL,
     [estado]                    BIT            CONSTRAINT [DF_Usuarios_estado] DEFAULT ((1)) NOT NULL,
     [fecha_creacion]            DATETIME2 (7)  CONSTRAINT [DF_Usuarios_fecha] DEFAULT (sysutcdatetime()) NOT NULL,
+    [direccion]                 NVARCHAR (300) NULL,
     CONSTRAINT [PK_Usuarios] PRIMARY KEY CLUSTERED ([id_usuario] ASC),
     CONSTRAINT [FK_Usuarios_Rol] FOREIGN KEY ([id_rol]) REFERENCES [dbo].[Roles] ([id_rol]),
     CONSTRAINT [UQ_Usuarios_correo] UNIQUE NONCLUSTERED ([correo] ASC),

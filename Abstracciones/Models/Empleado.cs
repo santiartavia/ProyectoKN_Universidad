@@ -11,6 +11,7 @@ namespace Abstracciones.Models
         public string Apellidos { get; set; }
         public string Telefono { get; set; }
         public string CorreoPersonal { get; set; }
+        public string Direccion { get; set; }
         public decimal SalarioHora { get; set; }
         public decimal DiasVacacionesDisponibles { get; set; }
         public DateTime FechaIngreso { get; set; }

@@ -17,6 +17,9 @@ namespace RestauranteVistas.Models.ViewModels
 
         public string NuevoCorreo { get; set; }
         public string NuevoTelefono { get; set; }
+        public string NuevaProvincia { get; set; }
+        public string NuevoCanton { get; set; }
+        public string NuevaDireccionDetalle { get; set; }
         public string NuevaDireccion { get; set; }
         public int? NuevoIdRol { get; set; }
         public List<Rol> RolesDisponibles { get; set; }

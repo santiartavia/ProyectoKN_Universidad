@@ -251,7 +251,9 @@ namespace RestauranteVistas.Controllers
 
                 try
                 {
-                    // Validar correo
+                    var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == model.IdUsuario && e.Estado);
+
+                    // Validar correo (se guarda en ambas tablas)
                     if (!string.IsNullOrWhiteSpace(model.NuevoCorreo) && model.NuevoCorreo != usuario.Correo)
                     {
                         if (!PasswordHelper.EsFormatoCorreoValido(model.NuevoCorreo))
@@ -276,12 +278,13 @@ namespace RestauranteVistas.Controllers
                         }
 
                         usuario.Correo = model.NuevoCorreo;
+                        if (empleado != null)
+                            empleado.CorreoPersonal = model.NuevoCorreo;
                     }
 
-                    // Actualizar teléfono en empleado
+                    // Actualizar teléfono en ambas tablas
                     if (!string.IsNullOrWhiteSpace(model.NuevoTelefono))
                     {
-                        var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == model.IdUsuario && e.Estado);
                         if (empleado != null)
                         {
                             empleado.Telefono = model.NuevoTelefono;
@@ -289,15 +292,27 @@ namespace RestauranteVistas.Controllers
                         }
                     }
 
-                    // Validar dirección
-                    if (!string.IsNullOrWhiteSpace(model.NuevaDireccion))
+                    // Combinar provincia + cantón + detalle en una sola dirección
+                    var provincia = model.NuevaProvincia?.Trim();
+                    var canton = model.NuevoCanton?.Trim();
+                    var detalle = model.NuevaDireccionDetalle?.Trim();
+
+if (!string.IsNullOrWhiteSpace(provincia) && !string.IsNullOrWhiteSpace(canton))
                     {
+                        model.NuevaDireccion = string.IsNullOrWhiteSpace(detalle)
+                            ? $"{provincia}, {canton}"
+                            : $"{provincia}, {canton}, {detalle}";
+
                         if (!PasswordHelper.EsDireccionValida(model.NuevaDireccion, out string msgDir))
                         {
-                            ModelState.AddModelError("", $"La dirección no cumple con los campos mínimos requeridos: {msgDir}");
-                            model.Error = $"La dirección no cumple con los campos mínimos requeridos (debe incluir provincia y cantón).";
+                            ModelState.AddModelError("", msgDir);
+                            model.Error = msgDir;
                             return CargarEditarViewModel(model);
                         }
+
+                        usuario.Direccion = model.NuevaDireccion;
+                        if (empleado != null)
+                            empleado.Direccion = model.NuevaDireccion;
                     }
 
                     ctx.SaveChanges();
@@ -832,6 +847,40 @@ namespace RestauranteVistas.Controllers
             if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
+        }
+
+        // Obtener datos completos del empleado asociado a un usuario (JSON)
+        [HttpGet]
+        public JsonResult ObtenerEmpleado(int idUsuario)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var usuario = ctx.Usuarios.Include("Rol").FirstOrDefault(u => u.IdUsuario == idUsuario && u.Estado);
+                if (usuario == null)
+                    return Json(new { error = "Usuario no encontrado." }, JsonRequestBehavior.AllowGet);
+
+                var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario);
+                if (empleado == null)
+                    return Json(new { error = "El usuario no tiene un empleado asociado." }, JsonRequestBehavior.AllowGet);
+
+                return Json(new
+                {
+                    idEmpleado = empleado.IdEmpleado,
+                    cedula = empleado.Cedula,
+                    nombre = empleado.Nombre,
+                    apellidos = empleado.Apellidos,
+                    telefono = empleado.Telefono,
+                    correo = usuario.Correo,
+                    direccion = usuario.Direccion ?? empleado.Direccion ?? "",
+                    nombreUsuario = usuario.NombreUsuario,
+                    rol = usuario.Rol?.NombreRol ?? "",
+                    salarioHora = empleado.SalarioHora.ToString("N2"),
+                    fechaIngreso = empleado.FechaIngreso.ToString("dd/MM/yyyy"),
+                    fechaModificacion = empleado.FechaModificacion?.ToString("dd/MM/yyyy HH:mm") ?? "—",
+                    vacacionesDisponibles = empleado.DiasVacacionesDisponibles.ToString("F1"),
+                    estado = empleado.Estado ? "Activo" : "Inactivo"
+                }, JsonRequestBehavior.AllowGet);
+            }
         }
 
         private int GetAdminId()

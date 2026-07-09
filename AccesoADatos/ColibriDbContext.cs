@@ -57,6 +57,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Usuario>().Property(u => u.FechaAvisoPassword).HasColumnName("fecha_aviso_password");
             modelBuilder.Entity<Usuario>().Property(u => u.UltimoCambioPasswordIp).HasColumnName("ultimo_cambio_password_ip");
             modelBuilder.Entity<Usuario>().Property(u => u.UltimoCambioPasswordDispositivo).HasColumnName("ultimo_cambio_password_dispositivo");
+            modelBuilder.Entity<Usuario>().Property(u => u.Direccion).HasColumnName("direccion");
             modelBuilder.Entity<Usuario>().HasRequired(u => u.Rol).WithMany(r => r.Usuarios).HasForeignKey(u => u.IdRol);
 
             modelBuilder.Entity<Empleado>().ToTable("Empleados").HasKey(e => e.IdEmpleado);
@@ -67,6 +68,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Empleado>().Property(e => e.Apellidos).HasColumnName("apellidos");
             modelBuilder.Entity<Empleado>().Property(e => e.Telefono).HasColumnName("telefono");
             modelBuilder.Entity<Empleado>().Property(e => e.CorreoPersonal).HasColumnName("correo_personal");
+            modelBuilder.Entity<Empleado>().Property(e => e.Direccion).HasColumnName("direccion");
             modelBuilder.Entity<Empleado>().Property(e => e.SalarioHora).HasColumnName("salario_hora");
             modelBuilder.Entity<Empleado>().Property(e => e.DiasVacacionesDisponibles).HasColumnName("dias_vacaciones_disponibles");
             modelBuilder.Entity<Empleado>().Property(e => e.FechaIngreso).HasColumnName("fecha_ingreso");
