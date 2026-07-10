@@ -741,3 +741,5 @@ GO
 INSERT INTO dbo.Cajas (nombre_caja, estado_caja) VALUES 
     ('Caja Principal Terminal 01', 'cerrada');
 GO
+
+

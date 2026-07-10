@@ -45,18 +45,21 @@
                     <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Empleados")"><span class="material-symbols-outlined">badge</span> Empleados</a>
                     <a href="@Url.Action("Asistencia", "Empleados")"><span class="material-symbols-outlined">admin_panel_settings</span> Control Asistencia</a>
-                    <a href="@Url.Action("Bitacora", "Empleados")"><span class="material-symbols-outlined">history</span> Bitácora</a>
                     <a href="@Url.Action("MetricasMesas", "Empleados")"><span class="material-symbols-outlined">leaderboard</span> Métricas Mesas</a>
                     <a href="@Url.Action("Index", "Usuarios")"><span class="material-symbols-outlined">group</span> Usuarios</a>
-                    <a href="@Url.Action("BitacoraAcceso", "Usuarios")"><span class="material-symbols-outlined">security</span> Accesos</a>
                     <a href="@Url.Action("Index", "Mesas")"><span class="material-symbols-outlined">table_restaurant</span> Mesas</a>
-                    <a href="@Url.Action("Index", "BitacoraPedidos")"><span class="material-symbols-outlined">receipt_long</span> Bit. Pedidos</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
+                    <a href="@Url.Action("Index", "Productos")"><span class="material-symbols-outlined">restaurant_menu</span> Productos</a>
                     <a href="@Url.Action("Index", "Inventario")"><span class="material-symbols-outlined">inventory_2</span> Inventario</a>
                     <a href="@Url.Action("Index", "NominaMensual")"><span class="material-symbols-outlined">payments</span> Nómina Mensual</a>
                     <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">point_of_sale</span> Contabilidad</a>
                     <a href="@Url.Action("Index", "Reporteria")"><span class="material-symbols-outlined">monitoring</span> Reportería</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
+                    <hr style="border-color:rgba(255,255,255,0.12);margin:8px 0;">
+                    <a href="@Url.Action("Bitacora", "Empleados")"><span class="material-symbols-outlined">history</span> Bitácora RRHH</a>
+                    <a href="@Url.Action("Index", "BitacoraPedidos")"><span class="material-symbols-outlined">receipt_long</span> Bit. Pedidos</a>
+                    <a href="@Url.Action("BitacoraAcceso", "Usuarios")"><span class="material-symbols-outlined">security</span> Accesos</a>
+                    <a href="@Url.Action("Bitacora", "Inventario")"><span class="material-symbols-outlined">inventory</span> Bit. Inventario</a>
                 }
                 else if (rol == "Cajero")
                 {
@@ -136,6 +139,23 @@
 
     <div id="toast" class="toast"></div>
 
+    <div id="modalSesionExpirada" class="custom-modal">
+        <div class="custom-modal-content" style="max-width:420px;text-align:center;">
+            <div class="modal-header" style="justify-content:center;">
+                <h3 style="display:flex;align-items:center;gap:8px;">
+                    <span class="material-symbols-outlined" style="color:var(--mandarin);">timer_off</span>
+                    Sesión expirada
+                </h3>
+            </div>
+            <p id="mensajeSesionExpirada" style="margin:20px 0 8px;font-size:15px;color:var(--charcoal);"></p>
+            <div class="modal-actions" style="justify-content:center;">
+                <button class="btn btn-primary" onclick="window.location.href='@Url.Action("Index", "Login")'">
+                    Ir al inicio de sesión
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="~/Scripts/site.js"></script>
     <script>
         // Heartbeat: verificar sesión activa cada 30 segundos
@@ -144,8 +164,9 @@
                 .then(function (r) { return r.json(); })
                 .then(function (d) {
                     if (!d.activa) {
-                        alert(d.mensaje || 'Sesión expirada por inactividad.');
-                        window.location.href = '@Url.Action("Index", "Login")';
+                        document.getElementById('mensajeSesionExpirada').textContent =
+                            d.mensaje || 'Sesión expirada por inactividad.';
+                        abrirModal('modalSesionExpirada');
                     }
                 })
                 .catch(function () {});

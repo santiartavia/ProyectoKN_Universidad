@@ -1,0 +1,107 @@
+@model RestauranteVistas.Models.ViewModels.InventarioViewModel
+@{
+    ViewBag.Title = "Insumos inactivos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Insumos inactivos</h2>
+    <p>Reactivación de insumos dados de baja. Aquí puede restaurar insumos previamente desactivados.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;">
+        <strong>@Model.Mensaje</strong>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;">
+        <strong>@Model.Error</strong>
+    </div>
+}
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Insumos desactivados</h3>
+            <p>@(Model.Insumos?.Count ?? 0) registros inactivos</p>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-soft">
+            <span class="material-symbols-outlined">arrow_back</span> Volver al catálogo
+        </a>
+    </div>
+
+    <form method="get" action="@Url.Action("Inactivos")" class="search-bar" style="margin-bottom:16px;">
+        <input type="text" name="busqueda" value="@Model.Busqueda" placeholder="Buscar insumo inactivo..." style="flex:1;" />
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Insumo</th>
+                <th>Categoría</th>
+                <th>Unidad</th>
+                <th>Estado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Insumos != null && Model.Insumos.Any())
+            {
+                foreach (var ins in Model.Insumos)
+                {
+                    <tr>
+                        <td>@ins.IdInsumo</td>
+                        <td>@ins.NombreInsumo</td>
+                        <td>@(ins.Categoria != null ? ins.Categoria.NombreCategoria : "")</td>
+                        <td>@ins.UnidadMedida</td>
+                        <td><span class="status danger">Inactivo</span></td>
+                        <td>
+                            <button type="button" class="btn btn-primary" onclick="abrirModalReactivar(@ins.IdInsumo, '@ins.NombreInsumo')">
+                                <span class="material-symbols-outlined">restart_alt</span> Reactivar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6" style="text-align:center;padding:30px;">No hay insumos inactivos</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div id="modalReactivar" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3>Reactivar insumo</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalReactivar')"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p style="margin:16px 0;font-size:15px;line-height:1.6;">
+            ¿Está seguro de reactivar el insumo <strong id="reactivarNombre"></strong>?
+        </p>
+        <p style="color:#666;font-size:14px;">Volverá a estar disponible en el catálogo activo.</p>
+        <form method="post" action="@Url.Action("ReactivarInsumo")">
+            <input type="hidden" name="idInsumo" id="reactivarIdInsumo" />
+            <div class="modal-actions" style="gap:10px;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">restart_alt</span> Reactivar
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalReactivar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModalReactivar(id, nombre) {
+        document.getElementById('reactivarIdInsumo').value = id;
+        document.getElementById('reactivarNombre').textContent = nombre;
+        abrirModal('modalReactivar');
+    }
+</script>

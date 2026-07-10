@@ -205,6 +205,13 @@ namespace LogicaDeNegocios.Services
                         throw new InvalidOperationException("El correo ya está siendo usado por otro usuario.");
 
                     usuario.Correo = correo;
+
+                    var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario && e.Estado);
+                    if (empleado != null)
+                    {
+                        empleado.CorreoPersonal = correo;
+                        empleado.FechaModificacion = _fechas.ObtenerFechaActual();
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(telefono))
@@ -224,6 +231,15 @@ namespace LogicaDeNegocios.Services
                 {
                     if (!PasswordHelper.EsDireccionValida(direccion, out string msgDir))
                         throw new ArgumentException($"La dirección no cumple con los campos mínimos requeridos: {msgDir}");
+
+                    usuario.Direccion = direccion;
+
+                    var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario && e.Estado);
+                    if (empleado != null)
+                    {
+                        empleado.Direccion = direccion;
+                        empleado.FechaModificacion = _fechas.ObtenerFechaActual();
+                    }
                 }
 
                 var valorNuevo = Newtonsoft.Json.JsonConvert.SerializeObject(new

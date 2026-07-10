@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\RestauranteVistas\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|c:\\proyecto dise\u00F1o\\proyectokn_universidad\\restaurantevistas\\controllers\\inventariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{38205A6D-80B9-414E-82C3-FFF663C8B3B7}|UI.csproj|solutionrelative:controllers\\inventariocontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{BD3C95ED-7B91-4E08-ADBA-F6777B5DE706}|..\\LogicaDeNegocios\\LogicaDeNegocios.csproj|c:\\proyecto dise\u00F1o\\proyectokn_universidad\\logicadenegocios\\services\\usuarioservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -32,6 +36,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "InventarioController.cs",
+              "DocumentMoniker": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
+              "RelativeDocumentMoniker": "Controllers\\InventarioController.cs",
+              "ToolTip": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\RestauranteVistas\\Controllers\\InventarioController.cs",
+              "RelativeToolTip": "Controllers\\InventarioController.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAgwAUAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-07-09T21:08:36.795Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "UsuarioService.cs",
               "DocumentMoniker": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\LogicaDeNegocios\\Services\\UsuarioService.cs",
               "RelativeDocumentMoniker": "..\\LogicaDeNegocios\\Services\\UsuarioService.cs",
@@ -44,7 +61,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "VacacionService.cs",
               "DocumentMoniker": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\LogicaDeNegocios\\Services\\VacacionService.cs",
               "RelativeDocumentMoniker": "..\\LogicaDeNegocios\\Services\\VacacionService.cs",
@@ -52,11 +69,12 @@
               "RelativeToolTip": "..\\LogicaDeNegocios\\Services\\VacacionService.cs",
               "ViewState": "AgIAAPsAAAAAAAAAAAAswBMBAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-22T09:45:11.252Z"
+              "WhenOpened": "2026-06-22T09:45:11.252Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "IVacacionService.cs",
               "DocumentMoniker": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\Abstracciones\\Interfaces\\IVacacionService.cs",
               "RelativeDocumentMoniker": "..\\Abstracciones\\Interfaces\\IVacacionService.cs",
@@ -64,11 +82,12 @@
               "RelativeToolTip": "..\\Abstracciones\\Interfaces\\IVacacionService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-22T09:44:52.952Z"
+              "WhenOpened": "2026-06-22T09:44:52.952Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Web.config",
               "DocumentMoniker": "C:\\Proyecto dise\u00F1o\\ProyectoKN_Universidad\\RestauranteVistas\\Web.config",
               "RelativeDocumentMoniker": "Web.config",

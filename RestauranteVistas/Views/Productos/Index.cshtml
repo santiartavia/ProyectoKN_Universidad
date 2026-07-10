@@ -1,0 +1,566 @@
+@model RestauranteVistas.Models.ViewModels.ProductosViewModel
+@{
+    ViewBag.Title = "Productos y Recetas";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Gestión de productos y recetas</h2>
+    <p>Administre el catálogo de productos del menú y las recetas asociadas a cada uno.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;">
+        <strong>@Model.Mensaje</strong>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;">
+        <strong>@Model.Error</strong>
+    </div>
+}
+
+<div class="grid-3">
+    <div class="metric-card"><h3>Total productos</h3><div class="value">@Model.TotalProductos</div></div>
+    <div class="metric-card alt-teal"><h3>Categorías</h3><div class="value">@Model.TotalCategorias</div></div>
+    <div class="metric-card alt-warning"><h3>Con receta</h3><div class="value">@(Model.Productos != null ? Model.Productos.Count(p => p.Estado) : 0)</div></div>
+</div>
+
+<div class="grid-2">
+
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>Registrar producto</h3>
+                <p>Nuevo producto al menú</p>
+            </div>
+        </div>
+
+        <form method="post" action="@Url.Action("RegistrarProducto")">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del producto *</label>
+                    <input type="text" name="nombreProducto" placeholder="Ej: Pizza Margherita" required />
+                </div>
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="idCategoriaProd" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var cat in Model.CategoriasProducto)
+                        {
+                            <option value="@cat.IdCategoriaProd">@cat.NombreCategoria</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Precio de venta *</label>
+                    <input type="number" name="precioVenta" step="0.01" min="0.01" placeholder="0.00" required />
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" placeholder="Descripción del producto..." rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Disponible</label>
+                    <select name="disponible">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">add_circle</span> Registrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Catálogo de productos</h3>
+                <p>Listado de productos del menú</p>
+            </div>
+        </div>
+
+        <form method="get" action="@Url.Action("Index")" class="search-bar" style="margin-bottom:16px;display:flex;gap:12px;">
+            <input type="text" name="busqueda" value="@Model.Busqueda" placeholder="Buscar producto por nombre..." style="flex:1;" />
+            <select name="idCategoria" style="min-width:160px;">
+                <option value="">Todas las categorías</option>
+                @foreach (var cat in Model.CategoriasProducto)
+                {
+                    <option value="@cat.IdCategoriaProd" @(Model.FiltroCategoria == cat.IdCategoriaProd ? "selected" : "")>@cat.NombreCategoria</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio</th>
+                    <th>Disponible</th>
+                    <th>Receta</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Productos != null && Model.Productos.Any())
+                {
+                    foreach (var prod in Model.Productos)
+                    {
+                        <tr>
+                            <td><strong>@prod.NombreProducto</strong></td>
+                            <td>@prod.IdCategoriaProd</td>
+                            <td>@prod.PrecioVenta.ToString("C", new System.Globalization.CultureInfo("es-CR"))</td>
+                            <td>
+                                @if (prod.Disponible)
+                                {
+                                    <span class="status success">Disponible</span>
+                                }
+                                else
+                                {
+                                    <span class="status warning">No disponible</span>
+                                }
+                            </td>
+                            <td>
+                                <a href="@Url.Action("Receta", new { idProducto = prod.IdProducto })" class="btn btn-soft">
+                                    <span class="material-symbols-outlined">restaurant_menu</span>
+                                </a>
+                            </td>
+                            <td>
+                                @if (prod.Estado)
+                                {
+                                    <span class="status success">Activo</span>
+                                }
+                                else
+                                {
+                                    <span class="status danger">Inactivo</span>
+                                }
+                            </td>
+                            <td class="card-actions-inline">
+                                <button class="btn btn-soft" onclick="abrirModalEditar(@prod.IdProducto, '@prod.NombreProducto', '@prod.Descripcion', @prod.PrecioVenta.ToString(System.Globalization.CultureInfo.InvariantCulture), @prod.IdCategoriaProd, @(prod.Disponible ? "true" : "false"))">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                @if (prod.Estado)
+                                {
+                                    <button class="btn btn-danger" onclick="abrirModalDesactivar(@prod.IdProducto, '@prod.NombreProducto')">
+                                        <span class="material-symbols-outlined">toggle_off</span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    using (Html.BeginForm("ReactivarProducto", "Productos", FormMethod.Post, new { style = "display:inline" }))
+                                    {
+                                        <input type="hidden" name="idProducto" value="@prod.IdProducto" />
+                                        <button type="submit" class="btn btn-success" title="Reactivar">
+                                            <span class="material-symbols-outlined">toggle_on</span>
+                                        </button>
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" style="text-align:center;padding:30px;">No se encontraron productos</td></tr>
+                }
+            </tbody>
+        </table>
+
+        @if (Model.TotalPaginas > 1)
+        {
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <a href="@Url.Action("Index", new { busqueda = Model.Busqueda, idCategoria = Model.FiltroCategoria, pagina = i })"
+                       class="btn @(i == Model.PaginaActual ? "btn-primary" : "btn-soft")">@i</a>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<div id="modalEditar" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3>Modificar producto</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalEditar')"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <form method="post" action="@Url.Action("ActualizarProducto")">
+            <input type="hidden" name="idProducto" id="editIdProducto" />
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del producto *</label>
+                    <input type="text" name="nombreProducto" id="editNombreProducto" required />
+                </div>
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="idCategoriaProd" id="editIdCategoriaProd" required>
+                        @foreach (var cat in Model.CategoriasProducto)
+                        {
+                            <option value="@cat.IdCategoriaProd">@cat.NombreCategoria</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Precio de venta *</label>
+                    <input type="number" name="precioVenta" id="editPrecioVenta" step="0.01" min="0.01" required />
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea name="descripcion" id="editDescripcion" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Disponible</label>
+                    <select name="disponible" id="editDisponible">
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span> Guardar cambios
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalDesactivar" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3>Desactivar producto</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalDesactivar')"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p style="margin:16px 0;font-size:15px;line-height:1.6;">
+            ¿Está seguro de desactivar el producto <strong id="desactivarNombre"></strong>?
+        </p>
+        <p style="color:#666;font-size:14px;">Se ocultará del catálogo activo y se desactivará su receta.</p>
+        <form method="post" action="@Url.Action("DesactivarProducto")">
+            <input type="hidden" name="idProducto" id="desactivarIdProducto" />
+            <div class="modal-actions" style="gap:10px;">
+                <button type="submit" class="btn btn-danger">
+                    <span class="material-symbols-outlined">toggle_off</span> Desactivar
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalDesactivar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.ProductoSeleccionado != null)
+{
+    bool tieneReceta = Model.RecetaActual != null;
+    string idRecetaStr = tieneReceta ? Model.RecetaActual.IdReceta.ToString() : "";
+
+<div id="modalReceta" class="custom-modal" style="display:flex;">
+    <div class="custom-modal-content" style="max-width:650px;">
+        <div class="modal-header">
+            <h3>Receta: @Model.ProductoSeleccionado.NombreProducto</h3>
+            <button class="icon-btn" onclick="window.location.href='@Url.Action("Index")'"><span class="material-symbols-outlined">close</span></button>
+        </div>
+
+        @if (tieneReceta)
+        {
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;">
+                <span>Estado de la receta:</span>
+                @if (Model.RecetaActual.Estado)
+                {
+                    <span class="status success">Activa</span>
+                }
+                else
+                {
+                    <span class="status danger">Inactiva</span>
+                }
+                <form method="post" action="@Url.Action("AlternarEstadoReceta")" style="display:inline;">
+                    <input type="hidden" name="idReceta" value="@idRecetaStr" />
+                    <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
+                    <button type="submit" class="btn btn-soft">
+                        <span class="material-symbols-outlined">@(Model.RecetaActual.Estado ? "toggle_off" : "toggle_on")</span>
+                        @(Model.RecetaActual.Estado ? "Desactivar receta" : "Activar receta")
+                    </button>
+                </form>
+            </div>
+
+            <table style="margin:12px 0;">
+                <thead>
+                    <tr>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="recetaInsumosBody">
+                    @if (Model.RecetaInsumos != null)
+                    {
+                        foreach (var ri in Model.RecetaInsumos)
+                        {
+                            <tr>
+                                <td>@(ri.Insumo != null ? ri.Insumo.NombreInsumo : "Insumo #" + ri.IdInsumo)</td>
+                                <td>@ri.CantidadUsar.ToString("F4") @(ri.Insumo != null ? ri.Insumo.UnidadMedida : "")</td>
+                                <td class="card-actions-inline">
+                                    <button type="button" class="btn btn-danger" title="Quitar" onclick="confirmarEliminarInsumo(@idRecetaStr, @Model.ProductoSeleccionado.IdProducto, @ri.IdInsumo, '@(ri.Insumo != null ? ri.Insumo.NombreInsumo : "Insumo #" + ri.IdInsumo)')">
+                                        <span class="material-symbols-outlined">remove_circle</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <hr style="margin:12px 0;border-color:#eee;" />
+            <h4 style="margin-bottom:8px;">Agregar insumo a la receta</h4>
+            <form method="post" action="@Url.Action("AgregarInsumoReceta")" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+                <input type="hidden" name="idReceta" value="@idRecetaStr" />
+                <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
+                <div class="form-group" style="flex:1;min-width:200px;">
+                    <label>Insumo</label>
+                    <select name="idInsumo" required>
+                        <option value="">Seleccione insumo...</option>
+                        @foreach (var ins in Model.Insumos)
+                        {
+                            <option value="@ins.IdInsumo">@ins.NombreInsumo (@ins.UnidadMedida)</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group" style="flex:0 0 120px;">
+                    <label>Cantidad</label>
+                    <input type="number" name="cantidadUsar" step="0.0001" min="0.0001" placeholder="0.0000" required />
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">add</span> Agregar
+                </button>
+            </form>
+
+            <div class="modal-actions" style="margin-top:16px;justify-content:space-between;">
+                <button type="button" class="btn btn-danger" onclick="confirmarEliminarReceta(@idRecetaStr, @Model.ProductoSeleccionado.IdProducto)">
+                    <span class="material-symbols-outlined">delete_forever</span> Eliminar receta
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-soft">
+                    <span class="material-symbols-outlined">close</span> Cerrar
+                </a>
+            </div>
+        }
+        else
+        {
+            <p style="margin:12px 0;color:#888;">Este producto no tiene receta. Cree una nueva receta con los insumos necesarios.</p>
+
+            <form id="formNuevaReceta" method="post" action="@Url.Action("CrearReceta")">
+                <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
+
+                <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+                    <div class="form-group" style="flex:1;min-width:200px;">
+                        <label>Insumo</label>
+                        <select id="nuevoInsumoSelect">
+                            <option value="">Seleccione insumo...</option>
+                            @foreach (var ins in Model.Insumos)
+                            {
+                                <option value="@ins.IdInsumo">@ins.NombreInsumo (@ins.UnidadMedida)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:0 0 120px;">
+                        <label>Cantidad</label>
+                        <input type="number" id="nuevaCantidad" step="0.0001" min="0.0001" placeholder="0.0000" />
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="agregarInsumoTabla()">
+                        <span class="material-symbols-outlined">add</span> Agregar
+                    </button>
+                </div>
+
+                <table style="margin:12px 0;">
+                    <thead>
+                        <tr>
+                            <th>Insumo</th>
+                            <th>Cantidad</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaNuevaReceta"></tbody>
+                </table>
+
+                <div class="modal-actions" style="margin-top:12px;">
+                    <button type="submit" class="btn btn-success" id="btnGuardarReceta" style="display:none;">
+                        <span class="material-symbols-outlined">save</span> Guardar receta
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-soft">
+                        <span class="material-symbols-outlined">close</span> Cancelar
+                    </a>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+}
+
+<div id="modalConfirmReceta" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3 id="confirmRecetaTitle">Confirmar acción</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalConfirmReceta')"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p style="margin:16px 0;font-size:15px;line-height:1.6;" id="confirmRecetaMsg"></p>
+        <form id="confirmRecetaForm" method="post" action="">
+            <div class="modal-actions" style="gap:10px;">
+                <button type="submit" class="btn btn-danger" id="confirmRecetaBtn">
+                    <span class="material-symbols-outlined">check</span> Confirmar
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalConfirmReceta')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModalEditar(id, nombre, descripcion, precio, idCat, disponible) {
+        document.getElementById('editIdProducto').value = id;
+        document.getElementById('editNombreProducto').value = nombre;
+        document.getElementById('editDescripcion').value = descripcion;
+        document.getElementById('editPrecioVenta').value = precio;
+        document.getElementById('editIdCategoriaProd').value = idCat;
+        document.getElementById('editDisponible').value = disponible ? 'true' : 'false';
+        abrirModal('modalEditar');
+    }
+
+    function abrirModalDesactivar(id, nombre) {
+        document.getElementById('desactivarIdProducto').value = id;
+        document.getElementById('desactivarNombre').textContent = nombre;
+        abrirModal('modalDesactivar');
+    }
+
+    var insumosAgregados = [];
+
+    function mostrarToast(msg) {
+        var t = document.getElementById('toast');
+        if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._timer);
+        t._timer = setTimeout(function () { t.classList.remove('show'); }, 3000);
+    }
+
+    function agregarInsumoTabla() {
+        var select = document.getElementById('nuevoInsumoSelect');
+        var cantidad = document.getElementById('nuevaCantidad');
+        var tbody = document.getElementById('tablaNuevaReceta');
+
+        if (!select.value || !cantidad.value || parseFloat(cantidad.value) <= 0) {
+            mostrarToast('Seleccione un insumo y especifique una cantidad v\u00e1lida.');
+            return;
+        }
+
+        var id = parseInt(select.value);
+        var nombre = select.options[select.selectedIndex].text;
+        var cant = parseFloat(cantidad.value);
+
+        for (var i = 0; i < insumosAgregados.length; i++) {
+            if (insumosAgregados[i].id === id) {
+                mostrarToast('Este insumo ya fue agregado a la lista.');
+                return;
+            }
+        }
+
+        insumosAgregados.push({ id: id, nombre: nombre, cantidad: cant });
+
+        var tr = document.createElement('tr');
+        tr.setAttribute('data-id', id);
+        tr.innerHTML = '<td>' + nombre + '</td><td>' + cant.toFixed(4) + '</td>' +
+            '<td class="card-actions-inline"><button type="button" class="btn btn-danger" onclick="quitarInsumo(' + id + ')">' +
+            '<span class="material-symbols-outlined">remove_circle</span></button></td>';
+        tbody.appendChild(tr);
+
+        select.value = '';
+        cantidad.value = '';
+
+        document.getElementById('btnGuardarReceta').style.display = 'inline-flex';
+    }
+
+    function quitarInsumo(id) {
+        for (var i = 0; i < insumosAgregados.length; i++) {
+            if (insumosAgregados[i].id === id) {
+                insumosAgregados.splice(i, 1);
+                break;
+            }
+        }
+        var rows = document.getElementById('tablaNuevaReceta').querySelectorAll('tr');
+        for (var i = 0; i < rows.length; i++) {
+            if (rows[i].getAttribute('data-id') == id) {
+                rows[i].remove();
+                break;
+            }
+        }
+        if (insumosAgregados.length === 0) {
+            document.getElementById('btnGuardarReceta').style.display = 'none';
+        }
+    }
+
+    function confirmarEliminarInsumo(idReceta, idProducto, idInsumo, nombre) {
+        document.getElementById('confirmRecetaTitle').textContent = 'Eliminar insumo';
+        document.getElementById('confirmRecetaMsg').innerHTML = '\u00bfEst\u00e1 seguro de eliminar <strong>' + nombre + '</strong> de la receta?';
+        document.getElementById('confirmRecetaForm').action = '@Url.Action("EliminarInsumoReceta")';
+        document.getElementById('confirmRecetaForm').innerHTML =
+            '<input type="hidden" name="idReceta" value="' + idReceta + '" />' +
+            '<input type="hidden" name="idProducto" value="' + idProducto + '" />' +
+            '<input type="hidden" name="idInsumo" value="' + idInsumo + '" />' +
+            '<div class="modal-actions" style="gap:10px;">' +
+            '<button type="submit" class="btn btn-danger"><span class="material-symbols-outlined">remove_circle</span> Eliminar</button>' +
+            '<button type="button" class="btn btn-soft" onclick="cerrarModal(\'modalConfirmReceta\')">Cancelar</button></div>';
+        abrirModal('modalConfirmReceta');
+    }
+
+    function confirmarEliminarReceta(idReceta, idProducto) {
+        document.getElementById('confirmRecetaTitle').textContent = 'Eliminar receta completa';
+        document.getElementById('confirmRecetaMsg').innerHTML = '\u00bfEst\u00e1 seguro de eliminar toda la receta?<br><span style="color:#c62828;font-size:14px;">Esta acci\u00f3n no se puede deshacer.</span>';
+        document.getElementById('confirmRecetaForm').action = '@Url.Action("EliminarReceta")';
+        document.getElementById('confirmRecetaForm').innerHTML =
+            '<input type="hidden" name="idReceta" value="' + idReceta + '" />' +
+            '<input type="hidden" name="idProducto" value="' + idProducto + '" />' +
+            '<div class="modal-actions" style="gap:10px;">' +
+            '<button type="submit" class="btn btn-danger"><span class="material-symbols-outlined">delete_forever</span> Eliminar todo</button>' +
+            '<button type="button" class="btn btn-soft" onclick="cerrarModal(\'modalConfirmReceta\')">Cancelar</button></div>';
+        abrirModal('modalConfirmReceta');
+    }
+
+    function arreglarDecimales(form) {
+        form.querySelectorAll('input[type="number"][step*="."]').forEach(function (el) {
+            if (el.value.indexOf('.') >= 0) el.value = el.value.replace('.', ',');
+        });
+    }
+
+    document.querySelectorAll('#modalReceta form[action*="AgregarInsumoReceta"], form[action*="RegistrarProducto"], form[action*="ActualizarProducto"]')
+        .forEach(function (f) {
+            f.addEventListener('submit', function () { arreglarDecimales(this); });
+        });
+
+    document.getElementById('formNuevaReceta')?.addEventListener('submit', function (e) {
+        if (insumosAgregados.length === 0) {
+            e.preventDefault();
+            mostrarToast('Debe agregar al menos un insumo a la receta.');
+            return;
+        }
+        for (var i = 0; i < insumosAgregados.length; i++) {
+            var inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'idInsumo';
+            inputId.value = insumosAgregados[i].id;
+            this.appendChild(inputId);
+
+            var inputCant = document.createElement('input');
+            inputCant.type = 'hidden';
+            inputCant.name = 'cantidadUsar';
+            inputCant.value = insumosAgregados[i].cantidad.toString().replace('.', ',');
+            this.appendChild(inputCant);
+        }
+    });
+</script>

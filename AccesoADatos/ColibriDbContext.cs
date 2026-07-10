@@ -30,6 +30,14 @@ namespace AccesoADatos
         public DbSet<PasswordHistorial> PasswordHistorial { get; set; }
         public DbSet<Sesion> Sesiones { get; set; }
         public DbSet<BitacoraAcceso> BitacoraAcceso { get; set; }
+        public DbSet<CategoriaInsumo> CategoriasInsumo { get; set; }
+        public DbSet<Insumo> Insumos { get; set; }
+        public DbSet<Proveedor> Proveedores { get; set; }
+        public DbSet<InsumoProveedor> InsumosProveedores { get; set; }
+        public DbSet<BitacoraInventario> BitacoraInventario { get; set; }
+        public DbSet<Receta> Recetas { get; set; }
+        public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
+        public DbSet<CategoriaProducto> CategoriasProducto { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -277,6 +285,68 @@ namespace AccesoADatos
             modelBuilder.Entity<BitacoraAcceso>().Property(b => b.Dispositivo).HasColumnName("dispositivo");
             modelBuilder.Entity<BitacoraAcceso>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
             modelBuilder.Entity<BitacoraAcceso>().HasRequired(b => b.Usuario).WithMany().HasForeignKey(b => b.IdUsuario);
+
+            modelBuilder.Entity<CategoriaInsumo>().ToTable("Categorias_Insumo").HasKey(c => c.IdCategoria);
+            modelBuilder.Entity<CategoriaInsumo>().Property(c => c.IdCategoria).HasColumnName("id_categoria");
+            modelBuilder.Entity<CategoriaInsumo>().Property(c => c.NombreCategoria).HasColumnName("nombre_categoria");
+            modelBuilder.Entity<CategoriaInsumo>().Property(c => c.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<Insumo>().ToTable("Insumos").HasKey(i => i.IdInsumo);
+            modelBuilder.Entity<Insumo>().Property(i => i.IdInsumo).HasColumnName("id_insumo");
+            modelBuilder.Entity<Insumo>().Property(i => i.IdCategoria).HasColumnName("id_categoria");
+            modelBuilder.Entity<Insumo>().Property(i => i.NombreInsumo).HasColumnName("nombre_insumo");
+            modelBuilder.Entity<Insumo>().Property(i => i.UnidadMedida).HasColumnName("unidad_medida");
+            modelBuilder.Entity<Insumo>().Property(i => i.StockMinimo).HasColumnName("stock_minimo");
+            modelBuilder.Entity<Insumo>().Property(i => i.StockActual).HasColumnName("stock_actual");
+            modelBuilder.Entity<Insumo>().Property(i => i.CostoUnitario).HasColumnName("costo_unitario");
+            modelBuilder.Entity<Insumo>().Property(i => i.Estado).HasColumnName("estado");
+            modelBuilder.Entity<Insumo>().HasRequired(i => i.Categoria).WithMany().HasForeignKey(i => i.IdCategoria);
+
+            modelBuilder.Entity<Proveedor>().ToTable("Proveedores").HasKey(p => p.IdProveedor);
+            modelBuilder.Entity<Proveedor>().Property(p => p.IdProveedor).HasColumnName("id_proveedor");
+            modelBuilder.Entity<Proveedor>().Property(p => p.CedulaJuridica).HasColumnName("cedula_juridica");
+            modelBuilder.Entity<Proveedor>().Property(p => p.NombreEmpresa).HasColumnName("nombre_empresa");
+            modelBuilder.Entity<Proveedor>().Property(p => p.ContactoNombre).HasColumnName("contacto_nombre");
+            modelBuilder.Entity<Proveedor>().Property(p => p.Telefono).HasColumnName("telefono");
+            modelBuilder.Entity<Proveedor>().Property(p => p.Correo).HasColumnName("correo");
+            modelBuilder.Entity<Proveedor>().Property(p => p.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<InsumoProveedor>().ToTable("Insumos_Proveedores").HasKey(ip => new { ip.IdInsumo, ip.IdProveedor });
+            modelBuilder.Entity<InsumoProveedor>().Property(ip => ip.IdInsumo).HasColumnName("id_insumo");
+            modelBuilder.Entity<InsumoProveedor>().Property(ip => ip.IdProveedor).HasColumnName("id_proveedor");
+            modelBuilder.Entity<InsumoProveedor>().Property(ip => ip.FechaAsoc).HasColumnName("fecha_asoc");
+            modelBuilder.Entity<InsumoProveedor>().HasRequired(ip => ip.Insumo).WithMany().HasForeignKey(ip => ip.IdInsumo);
+            modelBuilder.Entity<InsumoProveedor>().HasRequired(ip => ip.Proveedor).WithMany().HasForeignKey(ip => ip.IdProveedor);
+
+            modelBuilder.Entity<BitacoraInventario>().ToTable("Bitacora_Inventario").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.Accion).HasColumnName("accion");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.ValorAnterior).HasColumnName("valor_anterior");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.ValorNuevo).HasColumnName("valor_nuevo");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.IpOrigen).HasColumnName("ip_origen");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.Dispositivo).HasColumnName("dispositivo");
+            modelBuilder.Entity<BitacoraInventario>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<BitacoraInventario>().HasRequired(b => b.Usuario).WithMany().HasForeignKey(b => b.IdUsuario);
+
+            modelBuilder.Entity<CategoriaProducto>().ToTable("Categorias_Producto").HasKey(c => c.IdCategoriaProd);
+            modelBuilder.Entity<CategoriaProducto>().Property(c => c.IdCategoriaProd).HasColumnName("id_categoria_prod");
+            modelBuilder.Entity<CategoriaProducto>().Property(c => c.NombreCategoria).HasColumnName("nombre_categoria");
+            modelBuilder.Entity<CategoriaProducto>().Property(c => c.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<Receta>().ToTable("Receta").HasKey(r => r.IdReceta);
+            modelBuilder.Entity<Receta>().Property(r => r.IdReceta).HasColumnName("id_receta");
+            modelBuilder.Entity<Receta>().Property(r => r.IdProducto).HasColumnName("id_producto");
+            modelBuilder.Entity<Receta>().Property(r => r.Estado).HasColumnName("estado");
+            modelBuilder.Entity<Receta>().HasRequired(r => r.Producto).WithMany().HasForeignKey(r => r.IdProducto);
+
+            modelBuilder.Entity<RecetaInsumo>().ToTable("RecetaInsumo").HasKey(ri => new { ri.IdReceta, ri.IdInsumo });
+            modelBuilder.Entity<RecetaInsumo>().Property(ri => ri.IdReceta).HasColumnName("id_receta");
+            modelBuilder.Entity<RecetaInsumo>().Property(ri => ri.IdInsumo).HasColumnName("id_insumo");
+            modelBuilder.Entity<RecetaInsumo>().Property(ri => ri.CantidadUsar).HasColumnName("cantidad_usar");
+            modelBuilder.Entity<RecetaInsumo>().HasRequired(ri => ri.Receta).WithMany().HasForeignKey(ri => ri.IdReceta);
+            modelBuilder.Entity<RecetaInsumo>().HasRequired(ri => ri.Insumo).WithMany().HasForeignKey(ri => ri.IdInsumo);
         }
     }
 }

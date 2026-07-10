@@ -3,6 +3,7 @@ using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Helpers;
+using LogicaDeNegocios.Services;
 using RestauranteVistas.Filters;
 using RestauranteVistas.Models.ViewModels;
 using System;
@@ -17,6 +18,7 @@ namespace RestauranteVistas.Controllers
     public class UsuariosController : Controller
     {
         private readonly IFechasLN _fechas = new FechasLN();
+        private readonly IUsuarioService _usuarioService = new UsuarioService(new FechasLN());
 
         public ActionResult Index()
         {
@@ -230,124 +232,46 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            using (var ctx = new ColibriDbContext())
+            string ip = Request.UserHostAddress;
+            string dispositivo = Request.UserAgent;
+            var idAdmin = GetAdminId();
+
+            try
             {
-                var usuario = ctx.Usuarios.Include("Rol")
-                    .FirstOrDefault(u => u.IdUsuario == model.IdUsuario && u.Estado);
+                // Combinar provincia + cantón + detalle en una sola dirección
+                var provincia = model.NuevaProvincia?.Trim();
+                var canton = model.NuevoCanton?.Trim();
+                var detalle = model.NuevaDireccionDetalle?.Trim();
+                model.NuevaDireccion = (!string.IsNullOrWhiteSpace(provincia) && !string.IsNullOrWhiteSpace(canton))
+                    ? (string.IsNullOrWhiteSpace(detalle) ? $"{provincia}, {canton}" : $"{provincia}, {canton}, {detalle}")
+                    : null;
 
-                if (usuario == null)
-                {
-                    TempData["Error"] = "El usuario con ese número de ID no existe.";
-                    return RedirectToAction("Index");
-                }
+                _usuarioService.EditarUsuario(
+                    model.IdUsuario,
+                    model.NuevoCorreo,
+                    model.NuevoTelefono,
+                    model.NuevaDireccion,
+                    idAdmin,
+                    ip,
+                    dispositivo);
 
-                string ip = Request.UserHostAddress;
-                string dispositivo = Request.UserAgent;
-
-                var valorAnterior = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                {
-                    usuario.Correo
-                });
-
-                try
-                {
-                    var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == model.IdUsuario && e.Estado);
-
-                    // Validar correo (se guarda en ambas tablas)
-                    if (!string.IsNullOrWhiteSpace(model.NuevoCorreo) && model.NuevoCorreo != usuario.Correo)
-                    {
-                        if (!PasswordHelper.EsFormatoCorreoValido(model.NuevoCorreo))
-                        {
-                            ModelState.AddModelError("", "El correo es inválido. Formato correcto: usuario@dominio.com");
-                            model.Error = "El correo es inválido. Formato correcto: usuario@dominio.com";
-                            return CargarEditarViewModel(model);
-                        }
-
-                        if (PasswordHelper.ContieneCaracteresInvalidos(model.NuevoCorreo, out string msgC))
-                        {
-                            ModelState.AddModelError("", $"El correo contiene caracteres inválidos: {msgC}");
-                            model.Error = $"El correo contiene caracteres inválidos: {msgC}";
-                            return CargarEditarViewModel(model);
-                        }
-
-                        if (ctx.Usuarios.Any(u => u.Correo == model.NuevoCorreo && u.IdUsuario != model.IdUsuario && u.Estado))
-                        {
-                            ModelState.AddModelError("", "El correo ya está siendo usado por otro usuario.");
-                            model.Error = "El correo ya está siendo usado por otro usuario.";
-                            return CargarEditarViewModel(model);
-                        }
-
-                        usuario.Correo = model.NuevoCorreo;
-                        if (empleado != null)
-                            empleado.CorreoPersonal = model.NuevoCorreo;
-                    }
-
-                    // Actualizar teléfono en ambas tablas
-                    if (!string.IsNullOrWhiteSpace(model.NuevoTelefono))
-                    {
-                        if (empleado != null)
-                        {
-                            empleado.Telefono = model.NuevoTelefono;
-                            empleado.FechaModificacion = _fechas.ObtenerFechaActual();
-                        }
-                    }
-
-                    // Combinar provincia + cantón + detalle en una sola dirección
-                    var provincia = model.NuevaProvincia?.Trim();
-                    var canton = model.NuevoCanton?.Trim();
-                    var detalle = model.NuevaDireccionDetalle?.Trim();
-
-if (!string.IsNullOrWhiteSpace(provincia) && !string.IsNullOrWhiteSpace(canton))
-                    {
-                        model.NuevaDireccion = string.IsNullOrWhiteSpace(detalle)
-                            ? $"{provincia}, {canton}"
-                            : $"{provincia}, {canton}, {detalle}";
-
-                        if (!PasswordHelper.EsDireccionValida(model.NuevaDireccion, out string msgDir))
-                        {
-                            ModelState.AddModelError("", msgDir);
-                            model.Error = msgDir;
-                            return CargarEditarViewModel(model);
-                        }
-
-                        usuario.Direccion = model.NuevaDireccion;
-                        if (empleado != null)
-                            empleado.Direccion = model.NuevaDireccion;
-                    }
-
-                    ctx.SaveChanges();
-
-                    var valorNuevo = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                    {
-                        Correo = model.NuevoCorreo,
-                        Telefono = model.NuevoTelefono
-                    });
-
-                    // bitácora GUS 008
-                    ctx.BitacoraRRHH.Add(new BitacoraRRHH
-                    {
-                        IdUsuario = GetAdminId(),
-                        TablaAfectada = "Usuarios",
-                        IdRegistroAfectado = usuario.IdUsuario,
-                        Accion = "UPDATE",
-                        ValorAnterior = valorAnterior,
-                        ValorNuevo = valorNuevo,
-                        Detalle = $"Actualización de datos del usuario {usuario.NombreUsuario}",
-                        IpOrigen = ip,
-                        Dispositivo = dispositivo,
-                        FechaHora = _fechas.ObtenerFechaActual()
-                    });
-
-                    ctx.SaveChanges();
-
-                    TempData["Mensaje"] = "información actualizada exitosamente.";
-                    return RedirectToAction("Index");
-                }
-                catch (Exception ex)
-                {
-                    model.Error = $"Error al editar: {ex.Message}. Vuelva a intentarlo ingresando los datos de nuevo.";
-                    return CargarEditarViewModel(model);
-                }
+                TempData["Mensaje"] = "Información actualizada exitosamente.";
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                model.Error = ex.Message;
+                return CargarEditarViewModel(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                model.Error = ex.Message;
+                return CargarEditarViewModel(model);
+            }
+            catch (Exception ex)
+            {
+                model.Error = $"Error al editar: {ex.Message}. Vuelva a intentarlo ingresando los datos de nuevo.";
+                return CargarEditarViewModel(model);
             }
         }
 

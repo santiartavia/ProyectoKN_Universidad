@@ -1,0 +1,112 @@
+@model RestauranteVistas.Models.ViewModels.InventarioViewModel
+@{
+    ViewBag.Title = "Bitácora de inventario";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var idAdmin = Session["UsuarioId"];
+}
+
+<div class="hero-card">
+    <h2>Bitácora de eventos del inventario</h2>
+    <p>Consulta de auditoría con filtros, exportación e inmutabilidad de registros.</p>
+</div>
+
+<div class="section-card">
+    <div class="section-title">
+        <h3>Filtros de búsqueda</h3>
+    </div>
+    <form method="get" action="@Url.Action("Bitacora")" class="search-bar" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="number" name="idUsuario" value="@Model.FiltroUsuario" placeholder="ID de usuario" min="1" />
+        </div>
+        <div class="form-group">
+            <label>Tipo de acción</label>
+            <select name="accion">
+                <option value="">Todas</option>
+                @if (Model.AccionesBitacora != null)
+                {
+                    foreach (var a in Model.AccionesBitacora)
+                    {
+                        <option value="@a" @(Model.FiltroAccion == a ? "selected" : "")>@a</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Fecha inicio</label>
+            <input type="date" name="fechaInicio" value="@Model.FiltroFechaInicio" />
+        </div>
+        <div class="form-group">
+            <label>Fecha fin</label>
+            <input type="date" name="fechaFin" value="@Model.FiltroFechaFin" />
+        </div>
+        <div class="form-actions" style="grid-column:1/-1;">
+            <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-outlined">search</span> Buscar
+            </button>
+            <a href="@Url.Action("Bitacora")" class="btn btn-soft">
+                <span class="material-symbols-outlined">clear</span> Limpiar filtros
+            </a>
+            <a href="@Url.Action("ExportarBitacoraExcel", new { idUsuario = Model.FiltroUsuario, accion = Model.FiltroAccion, fechaInicio = Model.FiltroFechaInicio, fechaFin = Model.FiltroFechaFin })" class="btn btn-secondary">
+                <span class="material-symbols-outlined">download</span> Exportar CSV
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="table-card">
+    <div class="section-title">
+        <div>
+            <h3>Registros de auditoría</h3>
+            <p>@(Model.Bitacora?.Count ?? 0) registros encontrados - Los registros son inmutables (solo lectura)</p>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Acción</th>
+                <th>Valor Anterior</th>
+                <th>Valor Nuevo</th>
+                <th>Detalle</th>
+                <th>Fecha/Hora</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Bitacora != null && Model.Bitacora.Any())
+            {
+                foreach (var reg in Model.Bitacora)
+                {
+                    <tr>
+                        <td>@reg.IdRegistro</td>
+                        <td>@(reg.Usuario?.NombreUsuario ?? "")</td>
+                        <td>
+                            <span class="mini-badge">
+                                @switch (reg.Accion)
+                                {
+                                    case "entrada": <text>Entrada</text>; break;
+                                    case "salida": <text>Salida</text>; break;
+                                    case "ajuste": <text>Ajuste</text>; break;
+                                    case "baja": <text>Baja</text>; break;
+                                    case "activacion": <text>Activación</text>; break;
+                                    default: @reg.Accion; break;
+                                }
+                            </span>
+                        </td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">@reg.ValorAnterior</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">@reg.ValorNuevo</td>
+                        <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;">@reg.Detalle</td>
+                        <td>@reg.FechaHora.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="7" style="text-align:center;padding:30px;">No se encontraron registros en la bitácora</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+

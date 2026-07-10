@@ -1,0 +1,183 @@
+@model RestauranteVistas.Models.ViewModels.InventarioViewModel
+@{
+    ViewBag.Title = "Ajuste de existencias";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Ajuste manual de existencias</h2>
+    <p>Registro de entradas y salidas (mermas) de inventario con trazabilidad completa.</p>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;">
+        <strong>@Model.Mensaje</strong>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;">
+        <strong>@Model.Error</strong>
+    </div>
+}
+@if (TempData["AlertaStock"] != null)
+{
+    <div class="banner" style="background:#fff3e0;border-left-color:#e65100;margin-bottom:16px;">
+        <span class="material-symbols-outlined" style="vertical-align:middle;margin-right:8px;">warning</span>
+        <strong>@TempData["AlertaStock"].ToString()</strong>
+    </div>
+}
+
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <div>
+                <h3>Registrar ajuste</h3>
+                <p>Seleccione el insumo y el tipo de movimiento</p>
+            </div>
+        </div>
+
+        <form method="post" action="@Url.Action("AjustarStock")" id="formAjuste">
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Insumo *</label>
+                <select name="idInsumo" id="selInsumo" required style="width:100%;">
+                    <option value="">Seleccione un insumo...</option>
+                    @foreach (var ins in Model.Insumos)
+                    {
+                        var selected = ViewBag.InsumoSeleccionado != null && (int)ViewBag.InsumoSeleccionado == ins.IdInsumo ? "selected" : "";
+                        <option value="@ins.IdInsumo" data-stock="@ins.StockActual.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-nombre="@ins.NombreInsumo" @selected>@ins.NombreInsumo - @ins.StockActual.ToString("F2") @ins.UnidadMedida</option>
+                    }
+                </select>
+            </div>
+
+            <div style="display:flex;gap:16px;margin-bottom:16px;">
+                <div class="form-group" style="flex:1;">
+                    <label>Tipo de ajuste *</label>
+                    <select name="tipoAjuste" id="tipoAjuste" required>
+                        <option value="entrada">Entrada (sumar stock)</option>
+                        <option value="salida">Salida / Merma (restar stock)</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                    <label>Cantidad *</label>
+                    <input type="number" name="cantidad" id="cantidadAjuste" min="0.01" step="0.01" placeholder="0.00" required />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:16px;">
+                <label>Motivo del ajuste *</label>
+                <textarea name="motivo" id="motivoAjuste" rows="3" placeholder="Describa el motivo del ajuste..." required></textarea>
+            </div>
+
+            <div id="alertaStock" class="banner" style="display:none;margin-bottom:16px;background:#fff8e1;border-left-color:#f57f17;">
+                <strong>Advertencia:</strong> <span id="alertaStockTexto"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" onclick="return validarAjuste();">
+                    <span class="material-symbols-outlined">swap_vert</span> Procesar ajuste
+                </button>
+                <button type="reset" class="btn btn-soft">Limpiar</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-card">
+        <div class="section-title">
+            <div>
+                <h3>Insumos activos</h3>
+                <p>Stock actual para referencia</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Insumo</th>
+                    <th>Stock actual</th>
+                    <th>Stock mínimo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Insumos != null && Model.Insumos.Any())
+                {
+                    foreach (var ins in Model.Insumos)
+                    {
+                        bool bajoStock = ins.StockActual < ins.StockMinimo;
+                        string estadoClase = bajoStock ? "danger" : "success";
+                        string estadoTexto = bajoStock ? "Bajo mínimo" : "Normal";
+                        <tr>
+                            <td>@ins.NombreInsumo</td>
+                            <td>@ins.StockActual.ToString("F2") @ins.UnidadMedida</td>
+                            <td>@ins.StockMinimo.ToString("F2") @ins.UnidadMedida</td>
+                            <td><span class="status @estadoClase">@estadoTexto</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('selInsumo').addEventListener('change', verificarAlerta);
+    document.getElementById('tipoAjuste').addEventListener('change', verificarAlerta);
+    document.getElementById('cantidadAjuste').addEventListener('input', verificarAlerta);
+
+    function verificarAlerta() {
+        var sel = document.getElementById('selInsumo');
+        var tipo = document.getElementById('tipoAjuste').value;
+        var cantidad = parseFloat(document.getElementById('cantidadAjuste').value) || 0;
+        var alerta = document.getElementById('alertaStock');
+        var alertaTexto = document.getElementById('alertaStockTexto');
+
+        if (sel.selectedIndex > 0 && tipo === 'salida' && cantidad > 0) {
+            var opt = sel.options[sel.selectedIndex];
+            var stockActual = parseFloat(opt.getAttribute('data-stock'));
+            if (cantidad > stockActual) {
+                alerta.style.display = 'block';
+                alertaTexto.textContent = 'El ajuste de salida (' + cantidad + ') supera el stock actual (' + stockActual + '). No se puede realizar la operación.';
+            } else {
+                var nuevoStock = stockActual - cantidad;
+                if (nuevoStock < 0) nuevoStock = 0;
+                alerta.style.display = 'block';
+                alertaTexto.textContent = 'Stock resultante: ' + nuevoStock.toFixed(2) + '.';
+                alerta.style.background = '#e8f5e9';
+                alerta.style.borderLeftColor = '#2e7d32';
+            }
+        } else {
+            alerta.style.display = 'none';
+        }
+    }
+
+    function validarAjuste() {
+        var sel = document.getElementById('selInsumo');
+        var tipo = document.getElementById('tipoAjuste').value;
+        var cantidad = parseFloat(document.getElementById('cantidadAjuste').value) || 0;
+        var motivo = document.getElementById('motivoAjuste').value.trim();
+
+        if (sel.selectedIndex === 0) {
+            alert('Debe seleccionar un insumo.');
+            return false;
+        }
+        if (cantidad <= 0) {
+            alert('La cantidad debe ser mayor a 0.');
+            return false;
+        }
+        if (motivo === '') {
+            alert('Debe escribir un motivo para el ajuste.');
+            return false;
+        }
+        if (tipo === 'salida') {
+            var opt = sel.options[sel.selectedIndex];
+            var stockActual = parseFloat(opt.getAttribute('data-stock'));
+            if (cantidad > stockActual) {
+                alert('El ajuste de salida (' + cantidad + ') supera el stock actual (' + stockActual + '). No se puede realizar la operación.');
+                return false;
+            }
+        }
+        return true;
+    }
+</script>
+

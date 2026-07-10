@@ -1,72 +1,125 @@
-﻿@{
+﻿@model RestauranteVistas.Models.ViewModels.InventarioViewModel
+@{
     ViewBag.Title = "Inventario";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var usuario = Session["UsuarioNombre"]?.ToString() ?? "";
 }
 
 <div class="hero-card">
-    <h2>Control visual de inventario</h2>
-    <p>
-        Controla acá el inventario de insumos del restaurante.
-    </p>
+    <h2>Control de inventario de insumos</h2>
+    <p>Gestión completa del catálogo de insumos: registrar, consultar, modificar y desactivar insumos del restaurante El Colibrí.</p>
 </div>
 
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;">
+        <strong>@Model.Mensaje</strong>
+    </div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;">
+        <strong>@Model.Error</strong>
+    </div>
+}
+
 <div class="grid-3">
-    <div class="metric-card"><h3>Insumos activos</h3><div class="value">63</div></div>
-    <div class="metric-card alt-red"><h3>Alertas mínimas</h3><div class="value">7</div></div>
-    <div class="metric-card alt-teal"><h3>Categorías</h3><div class="value">9</div></div>
+    <div class="metric-card"><h3>Insumos activos</h3><div class="value">@Model.InsumosActivos</div></div>
+    <div class="metric-card alt-red"><h3>Alertas mínimas</h3><div class="value">@Model.AlertasMinimas</div></div>
+    <div class="metric-card alt-teal"><h3>Categorías</h3><div class="value">@Model.TotalCategorias</div></div>
 </div>
 
 <div class="grid-2">
+
     <div class="form-card">
         <div class="section-title">
             <div>
                 <h3>Registrar insumo</h3>
-                <p>Formulario de catálogo visual</p>
+                <p>Nuevo ingrediente al catálogo</p>
             </div>
         </div>
 
-        <div class="form-grid">
-            <div class="form-group"><label>Nombre del insumo</label><input type="text" placeholder="Tomate" /></div>
-            <div class="form-group">
-                <label>Categoría</label>
-                <select>
-                    <option>Vegetales</option>
-                    <option>Carnes</option>
-                    <option>Bebidas</option>
-                    <option>Lácteos</option>
-                </select>
+        <form method="post" action="@Url.Action("RegistrarInsumo")">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del insumo *</label>
+                    <input type="text" name="nombreInsumo" placeholder="Ej: Tomate" required />
+                </div>
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="idCategoria" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var cat in Model.Categorias)
+                        {
+                            <option value="@cat.IdCategoria">@cat.NombreCategoria</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Unidad de medida *</label>
+                    <select name="unidadMedida" required>
+                        <option value="">Seleccione...</option>
+                        <option value="Kg">Kg</option>
+                        <option value="g">g</option>
+                        <option value="L">L</option>
+                        <option value="ml">ml</option>
+                        <option value="oz">oz</option>
+                        <option value="Unidad">Unidad</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Stock mínimo</label>
+                    <input type="number" name="stockMinimo" value="0" min="0" step="0.01" placeholder="0" />
+                </div>
+                <div class="form-group">
+                    <label>Proveedor (opcional)</label>
+                    <select name="idProveedor">
+                        <option value="">Sin proveedor</option>
+                        @foreach (var prov in Model.Proveedores)
+                        {
+                            <option value="@prov.IdProveedor">@prov.NombreEmpresa</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Unidad de medida</label>
-                <select>
-                    <option>Kg</option>
-                    <option>Litros</option>
-                    <option>Unidad</option>
-                </select>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">inventory</span> Registrar
+                </button>
             </div>
-            <div class="form-group"><label>Stock mínimo</label><input type="number" placeholder="10" /></div>
-        </div>
-
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Insumo registrado correctamente')">
-                <span class="material-symbols-outlined">inventory</span> Registrar
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('Complete todos los campos obligatorios')">
-                <span class="material-symbols-outlined">report</span> Validar
-            </button>
-            <button class="btn btn-danger" onclick="accionDemo('Ya existe un insumo con ese nombre')">
-                <span class="material-symbols-outlined">block</span> Duplicado
-            </button>
-        </div>
+        </form>
     </div>
 
     <div class="table-card">
         <div class="section-title">
             <div>
-                <h3>Existencias actuales</h3>
-                <p>Vista de insumos</p>
+                <h3>Catálogo de insumos</h3>
+                <p>Consulta de existencias</p>
+            </div>
+            <div>
+                <a href="@Url.Action("Inactivos")" class="btn btn-soft">
+                    <span class="material-symbols-outlined">archive</span> Inactivos
+                </a>
+                <a href="@Url.Action("Ajustes")" class="btn btn-soft">
+                    <span class="material-symbols-outlined">tune</span> Ajustes
+                </a>
+                <a href="@Url.Action("Bitacora")" class="btn btn-soft">
+                    <span class="material-symbols-outlined">history</span> Bitácora
+                </a>
             </div>
         </div>
+
+        <form method="get" action="@Url.Action("Index")" class="search-bar" style="margin-bottom:16px;display:flex;gap:12px;">
+            <input type="text" name="busqueda" value="@Model.Busqueda" placeholder="Buscar insumo por nombre..." style="flex:1;" />
+            <select name="idCategoria" style="min-width:160px;">
+                <option value="">Todas las categorías</option>
+                @foreach (var cat in Model.Categorias)
+                {
+                    <option value="@cat.IdCategoria" @(Model.FiltroCategoria == cat.IdCategoria ? "selected" : "")>@cat.NombreCategoria</option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+        </form>
 
         <table>
             <thead>
@@ -75,58 +128,147 @@
                     <th>Categoría</th>
                     <th>Unidad</th>
                     <th>Existencia</th>
+                    <th>Stock Mín.</th>
                     <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Tomate</td>
-                    <td>Vegetales</td>
-                    <td>Kg</td>
-                    <td>12</td>
-                    <td><span class="status success">Normal</span></td>
-                </tr>
-                <tr>
-                    <td>Papa</td>
-                    <td>Vegetales</td>
-                    <td>Kg</td>
-                    <td>4</td>
-                    <td><span class="status danger">Bajo mínimo</span></td>
-                </tr>
-                <tr>
-                    <td>Carne molida</td>
-                    <td>Carnes</td>
-                    <td>Kg</td>
-                    <td>0</td>
-                    <td><span class="status warning">Agotado</span></td>
-                </tr>
+                @if (Model.Insumos != null && Model.Insumos.Any())
+                {
+                    foreach (var ins in Model.Insumos)
+                    {
+                        bool bajoStock = ins.StockActual < ins.StockMinimo;
+                        bool agotado = ins.StockActual == 0;
+                        string filaClase = "";
+                        string estadoTexto = "Normal";
+                        string estadoClase = "success";
+                        if (agotado) { estadoTexto = "Agotado"; estadoClase = "danger"; filaClase = "style=\"background:#fff0f0;\""; }
+                        else if (bajoStock) { estadoTexto = "Bajo mínimo"; estadoClase = "warning"; filaClase = "style=\"background:#fff8e1;\""; }
+
+                        <tr @Html.Raw(filaClase)>
+                            <td><strong>@ins.NombreInsumo</strong></td>
+                            <td>@(ins.Categoria != null ? ins.Categoria.NombreCategoria : "")</td>
+                            <td>@ins.UnidadMedida</td>
+                            <td>@ins.StockActual.ToString("F2")</td>
+                            <td>@ins.StockMinimo.ToString("F2")</td>
+                            <td><span class="status @estadoClase">@estadoTexto</span></td>
+                            <td class="card-actions-inline">
+                                <button class="btn btn-soft" onclick="abrirModalEditar(@ins.IdInsumo, '@ins.NombreInsumo', @ins.IdCategoria, '@ins.UnidadMedida', @ins.StockMinimo.ToString(System.Globalization.CultureInfo.InvariantCulture))">
+                                    <span class="material-symbols-outlined">edit</span>
+                                </button>
+                                <button class="btn btn-danger" onclick="abrirModalDesactivar(@ins.IdInsumo, '@ins.NombreInsumo')">
+                                    <span class="material-symbols-outlined">toggle_off</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" style="text-align:center;padding:30px;">No se encontraron insumos activos</td></tr>
+                }
             </tbody>
         </table>
+
+        @if (Model.TotalPaginas > 1)
+        {
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:16px;">
+                @for (int i = 1; i <= Model.TotalPaginas; i++)
+                {
+                    <a href="@Url.Action("Index", new { busqueda = Model.Busqueda, idCategoria = Model.FiltroCategoria, pagina = i })"
+                       class="btn @(i == Model.PaginaActual ? "btn-primary" : "btn-soft")">@i</a>
+                }
+            </div>
+        }
     </div>
 </div>
 
-<div class="story-card">
-    <h4>Escenarios representados</h4>
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">Registro correcto de insumo <span>+</span></button>
-            <div class="accordion-content">El sistema inserta el nuevo insumo y lo deja listo para su seguimiento.</div>
+<div id="modalEditar" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3>Modificar insumo</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalEditar')"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Insumo duplicado <span>+</span></button>
-            <div class="accordion-content">No se permite registrar otro insumo con el mismo nombre.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Stock inicial en cero <span>+</span></button>
-            <div class="accordion-content">La vista contempla la creación de insumos sin compra inicial.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Campos obligatorios <span>+</span></button>
-            <div class="accordion-content">Nombre y categoría son indispensables para registrar el insumo.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Stock mínimo inválido <span>+</span></button>
-            <div class="accordion-content">No se admite un valor negativo para el stock mínimo.</div>
-        </div>
+        <form method="post" action="@Url.Action("ActualizarInsumo")">
+            <input type="hidden" name="idInsumo" id="editIdInsumo" />
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre del insumo *</label>
+                    <input type="text" name="nombreInsumo" id="editNombreInsumo" required />
+                </div>
+                <div class="form-group">
+                    <label>Categoría *</label>
+                    <select name="idCategoria" id="editIdCategoria" required>
+                        @foreach (var cat in Model.Categorias)
+                        {
+                            <option value="@cat.IdCategoria">@cat.NombreCategoria</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Unidad de medida</label>
+                    <select name="unidadMedida" id="editUnidadMedida" disabled style="background:#f0f0f0;">
+                        <option value="Kg">Kg</option>
+                        <option value="g">g</option>
+                        <option value="L">L</option>
+                        <option value="ml">ml</option>
+                        <option value="oz">oz</option>
+                        <option value="Unidad">Unidad</option>
+                    </select>
+                    <small style="color:#999;">La unidad de medida no se puede modificar</small>
+                </div>
+                <div class="form-group">
+                    <label>Stock mínimo</label>
+                    <input type="number" name="stockMinimo" id="editStockMinimo" min="0" step="0.01" />
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">save</span> Guardar cambios
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<div id="modalDesactivar" class="custom-modal">
+    <div class="custom-modal-content">
+        <div class="modal-header">
+            <h3>Desactivar insumo</h3>
+            <button class="icon-btn" onclick="cerrarModal('modalDesactivar')"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p style="margin:16px 0;font-size:15px;line-height:1.6;">
+            ¿Está seguro de desactivar el insumo <strong id="desactivarNombre"></strong>?
+        </p>
+        <p style="color:#666;font-size:14px;">Se ocultará del catálogo activo pero se conservará su historial.</p>
+        <form method="post" action="@Url.Action("DesactivarInsumo")">
+            <input type="hidden" name="idInsumo" id="desactivarIdInsumo" />
+            <div class="modal-actions" style="gap:10px;">
+                <button type="submit" class="btn btn-danger">
+                    <span class="material-symbols-outlined">toggle_off</span> Desactivar
+                </button>
+                <button type="button" class="btn btn-soft" onclick="cerrarModal('modalDesactivar')">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function abrirModalEditar(id, nombre, idCat, udm, stockMin) {
+        document.getElementById('editIdInsumo').value = id;
+        document.getElementById('editNombreInsumo').value = nombre;
+        document.getElementById('editIdCategoria').value = idCat;
+        document.getElementById('editUnidadMedida').value = udm;
+        document.getElementById('editStockMinimo').value = stockMin;
+        abrirModal('modalEditar');
+    }
+
+    function abrirModalDesactivar(id, nombre) {
+        document.getElementById('desactivarIdInsumo').value = id;
+        document.getElementById('desactivarNombre').textContent = nombre;
+        abrirModal('modalDesactivar');
+    }
+</script>
+

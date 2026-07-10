@@ -135,6 +135,7 @@
     <Compile Include="Controllers\EmpleadosController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InventarioController.cs" />
+    <Compile Include="Controllers\ProductosController.cs" />
     <Compile Include="Controllers\MesasController.cs" />
     <Compile Include="Controllers\BitacoraPedidosController.cs" />
     <Compile Include="Controllers\LoginController.cs" />
@@ -157,6 +158,8 @@
     <Compile Include="Models\ViewModels\AsignarRolViewModel.cs" />
     <Compile Include="Models\ViewModels\EliminarUsuarioViewModel.cs" />
     <Compile Include="Models\ViewModels\BitacoraPedidosViewModel.cs" />
+    <Compile Include="Models\ViewModels\InventarioViewModel.cs" />
+    <Compile Include="Models\ViewModels\ProductosViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -220,6 +223,10 @@
     <Content Include="Views\Usuarios\Index.cshtml" />
     <Content Include="Views\Pedidos\Index.cshtml" />
     <Content Include="Views\Inventario\Index.cshtml" />
+    <Content Include="Views\Inventario\Ajustes.cshtml" />
+    <Content Include="Views\Inventario\Bitacora.cshtml" />
+    <Content Include="Views\Inventario\Inactivos.cshtml" />
+    <Content Include="Views\Productos\Index.cshtml" />
     <Content Include="Views\Contabilidad\Index.cshtml" />
     <Content Include="Views\Reporteria\Index.cshtml" />
     <Content Include="Views\PuntoVenta\Index.cshtml" />
