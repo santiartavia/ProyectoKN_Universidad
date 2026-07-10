@@ -8,7 +8,7 @@ namespace Abstracciones.Models
         public int IdPedido { get; set; }
         public int? IdSubcuenta { get; set; }
         public int IdEmpleado { get; set; }
-        public int? IdApertura { get; set; }
+        public int IdApertura { get; set; }
         public string TipoVenta { get; set; }
         public decimal TotalCobrado { get; set; }
         public decimal MontoRecibido { get; set; }
@@ -17,5 +17,6 @@ namespace Abstracciones.Models
         public string EstadoVenta { get; set; }
         public DateTime FechaHora { get; set; }
         public bool Estado { get; set; }
+        public AperturaCaja Apertura { get; set; }
     }
 }

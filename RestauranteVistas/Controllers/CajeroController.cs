@@ -1,6 +1,7 @@
 ﻿using AccesoADatos;
 using Abstracciones.Models;
 using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -88,12 +89,21 @@ namespace RestauranteVistas.Controllers
 
             int idEmpleado = ObtenerIdEmpleado();
 
+            var aperturaActiva = db.AperturasCaja
+                .Include(a => a.Caja)
+                .FirstOrDefault(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta");
+            if (aperturaActiva == null)
+            {
+                TempData["Error"] = "No hay una apertura de caja activa para este cajero. Debe abrir caja primero.";
+                return RedirectToAction("Index");
+            }
+
             var venta = new Venta
             {
                 IdPedido = idPedido,
                 IdSubcuenta = subcuenta.IdSubcuenta,
                 IdEmpleado = idEmpleado,
-                IdApertura = null,
+                IdApertura = aperturaActiva.IdApertura,
                 TipoVenta = "normal",
                 TotalCobrado = total,
                 MontoRecibido = montoRecibido,

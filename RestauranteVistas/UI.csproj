@@ -160,6 +160,7 @@
     <Compile Include="Models\ViewModels\BitacoraPedidosViewModel.cs" />
     <Compile Include="Models\ViewModels\InventarioViewModel.cs" />
     <Compile Include="Models\ViewModels\ProductosViewModel.cs" />
+    <Compile Include="Models\ViewModels\ContabilidadViewModel.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

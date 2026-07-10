@@ -23,6 +23,13 @@ namespace AccesoADatos
         public DbSet<Producto> Productos { get; set; }
         public DbSet<DetallePedido> DetallePedidos { get; set; }
         public DbSet<BitacoraPedido> BitacoraPedidos { get; set; }
+        public DbSet<Caja> Cajas { get; set; }
+        public DbSet<AperturaCaja> AperturasCaja { get; set; }
+        public DbSet<CierreCaja> CierresCaja { get; set; }
+        public DbSet<EgresoCaja> EgresosCaja { get; set; }
+        public DbSet<NotaCredito> NotasCredito { get; set; }
+        public DbSet<BitacoraFinanciera> BitacoraFinanciera { get; set; }
+        public DbSet<ReporteGenerado> ReportesGenerados { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
         public DbSet<HistorialEstadoPedido> HistorialEstadosPedido { get; set; }
@@ -209,6 +216,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Venta>().Property(v => v.EstadoVenta).HasColumnName("estado_venta");
             modelBuilder.Entity<Venta>().Property(v => v.FechaHora).HasColumnName("fecha_hora");
             modelBuilder.Entity<Venta>().Property(v => v.Estado).HasColumnName("estado");
+            modelBuilder.Entity<Venta>().HasRequired(v => v.Apertura).WithMany().HasForeignKey(v => v.IdApertura);
 
             modelBuilder.Entity<SubcuentaPedido>().ToTable("Subcuentas_Pedido").HasKey(s => s.IdSubcuenta);
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdSubcuenta).HasColumnName("id_subcuenta");
@@ -347,6 +355,87 @@ namespace AccesoADatos
             modelBuilder.Entity<RecetaInsumo>().Property(ri => ri.CantidadUsar).HasColumnName("cantidad_usar");
             modelBuilder.Entity<RecetaInsumo>().HasRequired(ri => ri.Receta).WithMany().HasForeignKey(ri => ri.IdReceta);
             modelBuilder.Entity<RecetaInsumo>().HasRequired(ri => ri.Insumo).WithMany().HasForeignKey(ri => ri.IdInsumo);
+
+            modelBuilder.Entity<Caja>().ToTable("Cajas").HasKey(c => c.IdCaja);
+            modelBuilder.Entity<Caja>().Property(c => c.IdCaja).HasColumnName("id_caja");
+            modelBuilder.Entity<Caja>().Property(c => c.NombreCaja).HasColumnName("nombre_caja");
+            modelBuilder.Entity<Caja>().Property(c => c.EstadoCaja).HasColumnName("estado_caja");
+            modelBuilder.Entity<Caja>().Property(c => c.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<AperturaCaja>().ToTable("Apertura_Caja").HasKey(a => a.IdApertura);
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.IdApertura).HasColumnName("id_apertura");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.IdCaja).HasColumnName("id_caja");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.IdCajero).HasColumnName("id_cajero");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.MontoInicial).HasColumnName("monto_inicial");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.FechaApertura).HasColumnName("fecha_apertura");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.Observaciones).HasColumnName("observaciones");
+            modelBuilder.Entity<AperturaCaja>().Property(a => a.Estado).HasColumnName("estado");
+            modelBuilder.Entity<AperturaCaja>().HasRequired(a => a.Caja).WithMany(c => c.Aperturas).HasForeignKey(a => a.IdCaja);
+            modelBuilder.Entity<AperturaCaja>().HasRequired(a => a.Cajero).WithMany().HasForeignKey(a => a.IdCajero);
+
+            modelBuilder.Entity<CierreCaja>().ToTable("Cierres_Caja").HasKey(c => c.IdCierre);
+            modelBuilder.Entity<CierreCaja>().Property(c => c.IdCierre).HasColumnName("id_cierre");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.IdCajero).HasColumnName("id_cajero");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.IdApertura).HasColumnName("id_apertura");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.FechaCierre).HasColumnName("fecha_cierre");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.MontoApertura).HasColumnName("monto_apertura");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.TotalEfectivo).HasColumnName("total_efectivo");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.TotalSinpe).HasColumnName("total_sinpe");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.TotalTarjeta).HasColumnName("total_tarjeta");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.TotalEgresos).HasColumnName("total_egresos");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.SaldoEsperado).HasColumnName("saldo_esperado");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.SaldoReal).HasColumnName("saldo_real");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.Descuadre).HasColumnName("descuadre");
+            modelBuilder.Entity<CierreCaja>().Property(c => c.Estado).HasColumnName("estado");
+            modelBuilder.Entity<CierreCaja>().HasRequired(c => c.Apertura).WithMany().HasForeignKey(c => c.IdApertura);
+            modelBuilder.Entity<CierreCaja>().HasRequired(c => c.Cajero).WithMany().HasForeignKey(c => c.IdCajero);
+
+            modelBuilder.Entity<EgresoCaja>().ToTable("Egresos_Caja").HasKey(e => e.IdEgreso);
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.IdEgreso).HasColumnName("id_egreso");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.IdApertura).HasColumnName("id_apertura");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.CategoriaGasto).HasColumnName("categoria_gasto");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.Descripcion).HasColumnName("descripcion");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.Monto).HasColumnName("monto");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<EgresoCaja>().Property(e => e.Estado).HasColumnName("estado");
+            modelBuilder.Entity<EgresoCaja>().HasRequired(e => e.Apertura).WithMany().HasForeignKey(e => e.IdApertura);
+            modelBuilder.Entity<EgresoCaja>().HasRequired(e => e.Usuario).WithMany().HasForeignKey(e => e.IdUsuario);
+
+            modelBuilder.Entity<NotaCredito>().ToTable("Notas_Credito").HasKey(n => n.IdNotaCredito);
+            modelBuilder.Entity<NotaCredito>().Property(n => n.IdNotaCredito).HasColumnName("id_nota_credito");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.Motivo).HasColumnName("motivo");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.Monto).HasColumnName("monto");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<NotaCredito>().Property(n => n.Estado).HasColumnName("estado");
+            modelBuilder.Entity<NotaCredito>().HasRequired(n => n.Venta).WithMany().HasForeignKey(n => n.IdVenta);
+            modelBuilder.Entity<NotaCredito>().HasRequired(n => n.Usuario).WithMany().HasForeignKey(n => n.IdUsuario);
+
+            modelBuilder.Entity<BitacoraFinanciera>().ToTable("Bitacora_Financiera").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.TablaAfectada).HasColumnName("tabla_afectada");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.IdRegistroAfectado).HasColumnName("id_registro_afectado");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.Accion).HasColumnName("accion");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.ValorAnterior).HasColumnName("valor_anterior");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.ValorNuevo).HasColumnName("valor_nuevo");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.IpOrigen).HasColumnName("ip_origen");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.Dispositivo).HasColumnName("dispositivo");
+            modelBuilder.Entity<BitacoraFinanciera>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<BitacoraFinanciera>().HasRequired(b => b.Usuario).WithMany().HasForeignKey(b => b.IdUsuario);
+
+            modelBuilder.Entity<ReporteGenerado>().ToTable("Reportes_Generados").HasKey(r => r.IdReporte);
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.IdReporte).HasColumnName("id_reporte");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.TipoReporte).HasColumnName("tipo_reporte");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.Parametros).HasColumnName("parametros");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.FormatoSalida).HasColumnName("formato_salida");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.FechaGeneracion).HasColumnName("fecha_generacion");
+            modelBuilder.Entity<ReporteGenerado>().Property(r => r.Estado).HasColumnName("estado");
+            modelBuilder.Entity<ReporteGenerado>().HasRequired(r => r.Usuario).WithMany().HasForeignKey(r => r.IdUsuario);
         }
     }
 }
