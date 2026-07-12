@@ -271,9 +271,8 @@ namespace LogicaDeNegocios.Services
                 if (!tiposValidos.Contains(tipoReporte))
                     throw new ArgumentException($"Tipo de reporte inválido. Válidos: {string.Join(", ", tiposValidos)}");
 
-                var formatosValidos = new[] { "pdf", "excel", "csv" };
-                if (!formatosValidos.Contains(formato))
-                    throw new ArgumentException($"Formato inválido. Válidos: {string.Join(", ", formatosValidos)}");
+                if (formato != "csv")
+                    throw new ArgumentException("El único formato disponible es CSV.");
 
                 var reporte = new ReporteGenerado
                 {

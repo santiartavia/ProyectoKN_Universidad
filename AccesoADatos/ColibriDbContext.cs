@@ -191,6 +191,8 @@ namespace AccesoADatos
             modelBuilder.Entity<DetallePedido>().Property(d => d.ObservacionesItem).HasColumnName("observaciones_item");
             modelBuilder.Entity<DetallePedido>().Property(d => d.EstadoItem).HasColumnName("estado_item");
             modelBuilder.Entity<DetallePedido>().Property(d => d.Estado).HasColumnName("estado");
+            modelBuilder.Entity<DetallePedido>().HasRequired(d => d.Pedido).WithMany().HasForeignKey(d => d.IdPedido);
+            modelBuilder.Entity<DetallePedido>().HasRequired(d => d.Producto).WithMany().HasForeignKey(d => d.IdProducto);
 
             modelBuilder.Entity<BitacoraPedido>().ToTable("Bitacora_Pedidos").HasKey(b => b.IdRegistro);
             modelBuilder.Entity<BitacoraPedido>().Property(b => b.IdRegistro).HasColumnName("id_registro");

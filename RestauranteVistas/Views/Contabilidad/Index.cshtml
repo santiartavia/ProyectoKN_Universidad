@@ -105,7 +105,7 @@
         <div class="form-card">
             <div class="section-title">
                 <h3>Cerrar caja</h3>
-                <p>Apertura #@Model.AperturaActiva.IdApertura - Caja @Model.AperturaActiva.Caja?.NombreCaja</p>
+                <p>Apertura #@Model.AperturaActiva.IdApertura - Caja @(Model.AperturaActiva.Caja?.NombreCaja ?? "")</p>
             </div>
             <form method="post" action="@Url.Action("CerrarCaja")" class="form-grid">
                 <input type="hidden" name="idApertura" value="@Model.AperturaActiva.IdApertura" />
@@ -207,17 +207,14 @@ else
                     <option value="cierre_turno">Cierre de turno</option>
                 </select>
             </div>
+                <input type="hidden" name="formato" value="csv" />
             <div class="form-group">
-                <label>Formato</label>
-                <select name="formato" required>
-                    <option value="pdf">PDF</option>
-                    <option value="excel">Excel</option>
-                    <option value="csv">CSV</option>
-                </select>
+                <label>Fecha inicio</label>
+                <input type="date" name="fechaInicio" />
             </div>
-            <div class="form-group" style="grid-column:1/-1;">
-                <label>Parámetros (opcional)</label>
-                <input type="text" name="parametros" placeholder="ej: mes=2026-04" />
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="date" name="fechaFin" />
             </div>
             <div class="form-actions" style="grid-column:1/-1;">
                 <button type="submit" class="btn btn-secondary"><span class="material-symbols-outlined">description</span> Generar</button>
@@ -254,7 +251,7 @@ else
                 {
                     <tr>
                         <td>@c.IdCierre</td>
-                        <td>@c.Cajero?.Nombre @c.Cajero?.Apellidos</td>
+                        <td>@(c.Cajero?.Nombre ?? "") @(c.Cajero?.Apellidos ?? "")</td>
                         <td>@c.FechaCierre.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@c.MontoApertura.ToString("N2")</td>
                         <td>@c.TotalEfectivo.ToString("N2")</td>
@@ -298,7 +295,7 @@ else
                         <td>@r.TipoReporte</td>
                         <td>@r.FormatoSalida.ToUpper()</td>
                         <td>@r.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@r.Usuario?.NombreUsuario</td>
+                        <td>@(ViewBag.NombreEmpleados != null && ViewBag.NombreEmpleados.ContainsKey(r.IdUsuario) ? ViewBag.NombreEmpleados[r.IdUsuario] : r.Usuario?.NombreUsuario ?? "")</td>
                     </tr>
                 }
             </tbody>

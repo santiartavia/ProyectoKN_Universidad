@@ -26,7 +26,7 @@ namespace RestauranteVistas.Controllers
 
             ViewBag.Detalles = db.DetallePedidos.Where(d => d.Estado == true).ToList();
             ViewBag.Productos = db.Productos.Where(p => p.Estado == true).ToList();
-            ViewBag.Ventas = db.Ventas.Where(v => v.Estado == true).ToList();
+            ViewBag.Ventas = db.Ventas.Include(v => v.Apertura).Where(v => v.Estado == true).ToList();
 
             return View();
         }
@@ -224,17 +224,13 @@ namespace RestauranteVistas.Controllers
 
         private int ObtenerIdEmpleado()
         {
+            var idUsuario = Session["UsuarioId"] as int?;
+            if (idUsuario == null || idUsuario.Value == 0) return 0;
+
             var empleado = db.Empleados
-                .Where(e => e.Estado == true)
-                .OrderBy(e => e.IdEmpleado)
-                .FirstOrDefault();
+                .FirstOrDefault(e => e.IdUsuario == idUsuario.Value && e.Estado);
 
-            if (empleado != null)
-            {
-                return empleado.IdEmpleado;
-            }
-
-            return 1;
+            return empleado?.IdEmpleado ?? 0;
         }
 
         protected override void Dispose(bool disposing)

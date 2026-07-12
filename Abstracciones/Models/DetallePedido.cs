@@ -10,5 +10,7 @@
         public string ObservacionesItem { get; set; }
         public string EstadoItem { get; set; }
         public bool Estado { get; set; }
+        public Pedido Pedido { get; set; }
+        public Producto Producto { get; set; }
     }
 }
