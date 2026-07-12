@@ -1,0 +1,104 @@
+@model RestauranteVistas.Models.ViewModels.ContabilidadViewModel
+@{
+    ViewBag.Title = "Bitácora Financiera";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var empleados = ViewBag.NombreEmpleados as Dictionary<int, string> ?? new Dictionary<int, string>();
+}
+
+<div class="hero-card">
+    <h2>Bitácora financiera</h2>
+    <p>Registro de auditoría de operaciones contables</p>
+</div>
+
+<a href="@Url.Action("Index")" class="btn btn-sm" style="margin-bottom:12px;display:inline-flex;align-items:center;gap:6px;">
+    <span class="material-symbols-outlined">arrow_back</span> Volver
+</a>
+
+<div class="form-card">
+    <div class="section-title"><h3>Filtros</h3></div>
+    <form method="get" action="@Url.Action("Bitacora")" class="form-grid">
+        <div class="form-group">
+            <label>Usuario</label>
+            <select name="idUsuario">
+                <option value="">Todos</option>
+                @if (empleados.Any())
+                {
+                    foreach (var kvp in empleados)
+                    {
+                        <option value="@kvp.Key" @(Model.FiltroUsuario == kvp.Key ? "selected" : "")>@kvp.Value</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Acción</label>
+            <select name="accion">
+                <option value="">Todas</option>
+                @if (Model.AccionesBitacora != null)
+                {
+                    foreach (var a in Model.AccionesBitacora)
+                    {
+                        <option value="@a" @(Model.FiltroAccion == a ? "selected" : "")>@a</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Fecha inicio</label>
+            <input type="date" name="fechaInicio" value="@Model.FiltroFechaInicio" />
+        </div>
+        <div class="form-group">
+            <label>Fecha fin</label>
+            <input type="date" name="fechaFin" value="@Model.FiltroFechaFin" />
+        </div>
+        <div class="form-actions" style="grid-column:1/-1;">
+            <button type="submit" class="btn btn-secondary"><span class="material-symbols-outlined">search</span> Filtrar</button>
+            <a href="@Url.Action("ExportarBitacoraCsv", new { idUsuario = Model.FiltroUsuario, accion = Model.FiltroAccion, fechaInicio = Model.FiltroFechaInicio, fechaFin = Model.FiltroFechaFin })" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined">download</span> Exportar CSV
+            </a>
+        </div>
+    </form>
+</div>
+
+@if (Model.BitacoraFinanciera != null && Model.BitacoraFinanciera.Any())
+{
+    <div class="table-card">
+        <div class="section-title">
+            <h3>Registros</h3>
+            <p>@Model.BitacoraFinanciera.Count resultados</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Tabla</th>
+                    <th>ID Afectado</th>
+                    <th>Detalle</th>
+                    <th>Fecha/Hora</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.BitacoraFinanciera)
+                {
+                    <tr>
+                        <td>@r.IdRegistro</td>
+                        <td>@(empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : r.Usuario?.NombreUsuario ?? "")</td>
+                        <td>@r.Accion</td>
+                        <td>@r.TablaAfectada</td>
+                        <td>@r.IdRegistroAfectado</td>
+                        <td style="max-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="@r.Detalle">@r.Detalle</td>
+                        <td>@r.FechaHora.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="form-card" style="text-align:center;padding:32px;">
+        <p>No se encontraron registros en la bitácora.</p>
+    </div>
+}

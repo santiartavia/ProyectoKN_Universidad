@@ -45,6 +45,7 @@ namespace AccesoADatos
         public DbSet<Receta> Recetas { get; set; }
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<CategoriaProducto> CategoriasProducto { get; set; }
+        public DbSet<CierrePeriodo> CierresPeriodo { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -218,7 +219,7 @@ namespace AccesoADatos
             modelBuilder.Entity<Venta>().Property(v => v.EstadoVenta).HasColumnName("estado_venta");
             modelBuilder.Entity<Venta>().Property(v => v.FechaHora).HasColumnName("fecha_hora");
             modelBuilder.Entity<Venta>().Property(v => v.Estado).HasColumnName("estado");
-            modelBuilder.Entity<Venta>().HasRequired(v => v.Apertura).WithMany().HasForeignKey(v => v.IdApertura);
+            modelBuilder.Entity<Venta>().HasOptional(v => v.Apertura).WithMany().HasForeignKey(v => v.IdApertura);
 
             modelBuilder.Entity<SubcuentaPedido>().ToTable("Subcuentas_Pedido").HasKey(s => s.IdSubcuenta);
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdSubcuenta).HasColumnName("id_subcuenta");
@@ -438,6 +439,20 @@ namespace AccesoADatos
             modelBuilder.Entity<ReporteGenerado>().Property(r => r.FechaGeneracion).HasColumnName("fecha_generacion");
             modelBuilder.Entity<ReporteGenerado>().Property(r => r.Estado).HasColumnName("estado");
             modelBuilder.Entity<ReporteGenerado>().HasRequired(r => r.Usuario).WithMany().HasForeignKey(r => r.IdUsuario);
+
+            modelBuilder.Entity<CierrePeriodo>().ToTable("Cierres_Periodo").HasKey(c => c.IdCierrePeriodo);
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.IdCierrePeriodo).HasColumnName("id_cierre_periodo");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.TipoPeriodo).HasColumnName("tipo_periodo");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.Mes).HasColumnName("mes");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.Anio).HasColumnName("anio");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.FechaCierre).HasColumnName("fecha_cierre");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.TotalIngresos).HasColumnName("total_ingresos");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.TotalEgresos).HasColumnName("total_egresos");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.TotalNotasCredito).HasColumnName("total_notas_credito");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.SaldoFinal).HasColumnName("saldo_final");
+            modelBuilder.Entity<CierrePeriodo>().Property(c => c.Estado).HasColumnName("estado");
+            modelBuilder.Entity<CierrePeriodo>().HasRequired(c => c.Usuario).WithMany().HasForeignKey(c => c.IdUsuario);
         }
     }
 }

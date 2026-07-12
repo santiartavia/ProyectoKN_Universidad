@@ -10,6 +10,18 @@
     <p>Gestión de apertura, egresos, cierres y anulación de ventas.</p>
 </div>
 
+@if (rol == "Cajero" && Model.AperturaActiva != null)
+{
+    <div class="banner" style="background:#f3e5f5;border-left-color:#7b1fa2;font-size:13px;font-family:monospace;">
+        <strong>Debug:</strong> Apertura #@Model.AperturaActiva.IdApertura | IdCajero=@Model.AperturaActiva.IdCajero | Ventas cargadas=@(Model.Ventas?.Count ?? 0)
+        @if (Model.Ventas != null && Model.Ventas.Any())
+        {
+            var primera = Model.Ventas.First();
+            <span> | Muestra: Venta #@primera.IdVenta MetodoPago=@primera.MetodoPago Total=@primera.TotalCobrado.ToString("N2") IdApertura=@(primera.IdApertura?.ToString() ?? "NULL")</span>
+        }
+    </div>
+}
+
 @if (!string.IsNullOrEmpty(Model.Mensaje))
 {
     <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;"><strong>@Model.Mensaje</strong></div>
@@ -23,124 +35,32 @@
     <div class="banner" style="background:#fff3e0;border-left-color:#e65100;"><strong>@Model.Alerta</strong></div>
 }
 
-@if (Model.AperturaActiva != null)
+@if (TempData.Keys.Contains("ReporteCierre"))
 {
-    <div class="grid-4">
-        <div class="metric-card">
-            <h3>Apertura</h3>
-            <div class="value">@Model.AperturaActiva.MontoInicial.ToString("N2")</div>
-            <small>#@Model.AperturaActiva.IdApertura</small>
-        </div>
-        <div class="metric-card alt-blue">
-            <h3>Efectivo</h3>
-            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "efectivo").Sum(v => v.TotalCobrado).ToString("N2")</div>
-        </div>
-        <div class="metric-card alt-orange">
-            <h3>SINPE</h3>
-            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "sinpe").Sum(v => v.TotalCobrado).ToString("N2")</div>
-        </div>
-        <div class="metric-card alt-red">
-            <h3>Egresos</h3>
-            <div class="value">@Model.Egresos.Sum(e => e.Monto).ToString("N2")</div>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div class="form-card">
-            <div class="section-title">
-                <h3>Registrar egreso</h3>
-            </div>
-            <form method="post" action="@Url.Action("RegistrarEgreso")" class="form-grid">
-                <input type="hidden" name="idApertura" value="@Model.AperturaActiva.IdApertura" />
-                <div class="form-group">
-                    <label>Categoría</label>
-                    <select name="categoriaGasto" required>
-                        <option value="">Seleccione...</option>
-                        @if (Model.CategoriasGasto != null)
-                        {
-                            foreach (var cat in Model.CategoriasGasto)
-                            {
-                                <option value="@cat">@cat</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <input type="text" name="descripcion" maxlength="300" />
-                </div>
-                <div class="form-group">
-                    <label>Monto</label>
-                    <input type="number" name="monto" step="0.01" min="0.01" required />
-                </div>
-                <div class="form-actions" style="grid-column:1/-1;">
-                    <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">money_off</span> Registrar egreso</button>
-                </div>
-            </form>
-
-            @if (Model.Egresos.Any())
-            {
-                <div class="section-title" style="margin-top:18px;">
-                    <h3>Egresos registrados</h3>
-                </div>
-                <table>
-                    <thead>
-                        <tr><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Fecha</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var e in Model.Egresos)
-                        {
-                            <tr>
-                                <td>@e.CategoriaGasto</td>
-                                <td>@e.Descripcion</td>
-                                <td>@e.Monto.ToString("N2")</td>
-                                <td>@e.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-        </div>
-
-        <div class="form-card">
-            <div class="section-title">
-                <h3>Cerrar caja</h3>
-                <p>Apertura #@Model.AperturaActiva.IdApertura - Caja @(Model.AperturaActiva.Caja?.NombreCaja ?? "")</p>
-            </div>
-            <form method="post" action="@Url.Action("CerrarCaja")" class="form-grid">
-                <input type="hidden" name="idApertura" value="@Model.AperturaActiva.IdApertura" />
-                <div class="form-group">
-                    <label>Saldo esperado</label>
-                    <input type="text" value="@((Model.AperturaActiva.MontoInicial + Model.Ventas.Where(v => v.MetodoPago == "efectivo" || v.MetodoPago == "sinpe" || v.MetodoPago == "tarjeta" || v.MetodoPago == "mixto").Sum(v => v.TotalCobrado) - Model.Egresos.Sum(e => e.Monto)).ToString("N2"))" readonly style="background:#f5f5f5;" />
-                </div>
-                <div class="form-group">
-                    <label>Saldo real</label>
-                    <input type="number" name="saldoReal" step="0.01" required />
-                </div>
-                <div class="form-actions" style="grid-column:1/-1;">
-                    <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">payments</span> Cerrar caja</button>
-                </div>
-            </form>
-        </div>
+    <div class="banner" style="background:#e3f2fd;border-left-color:#1565c0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <strong style="flex:1;">Reporte de cierre generado</strong>
+        <a href="@Url.Action("DescargarReporteCierre")" class="btn btn-sm" style="display:inline-flex;align-items:center;gap:4px;">
+            <span class="material-symbols-outlined" style="font-size:18px;">download</span> Descargar CSV
+        </a>
     </div>
 }
-else
-{
+
+<div class="grid-2">
+    @if (rol == "Cajero")
+    {
     <div class="form-card">
-        <div class="section-title">
-            <h3>Abrir caja</h3>
-            <p>Inicie un nuevo turno de caja</p>
-        </div>
+        <div class="section-title"><h3>Abrir caja</h3></div>
+        <p>Inicie un nuevo turno</p>
         <form method="post" action="@Url.Action("AbrirCaja")" class="form-grid">
             <div class="form-group">
                 <label>Caja</label>
                 <select name="idCaja" required>
                     <option value="">Seleccione...</option>
-                    @if (Model.Cajas != null)
+                    @if (Model.CajasCerradas != null)
                     {
-                        foreach (var c in Model.Cajas)
+                        foreach (var c in Model.CajasCerradas)
                         {
-                            <option value="@c.IdCaja">@c.NombreCaja (@c.EstadoCaja)</option>
+                            <option value="@c.IdCaja">@c.NombreCaja</option>
                         }
                     }
                 </select>
@@ -165,31 +85,202 @@ else
                 <input type="text" name="observaciones" maxlength="300" />
             </div>
             <div class="form-actions" style="grid-column:1/-1;">
-                <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">cash_register</span> Abrir caja</button>
+                <button type="submit" class="btn btn-primary">Abrir caja</button>
+            </div>
+        </form>
+    </div>
+    }
+
+    @if (rol == "Administrador")
+    {
+    <div class="form-card">
+        <div class="section-title"><h3>Cerrar caja</h3></div>
+        @if (Model.AperturasActivas != null && Model.AperturasActivas.Any())
+        {
+            <form method="post" action="@Url.Action("CerrarCaja")" class="form-grid">
+                <div class="form-group">
+                    <label>Apertura activa</label>
+                    <select name="idApertura" required>
+                        <option value="">Seleccione...</option>
+                        @foreach (var ap in Model.AperturasActivas)
+                        {
+                            <option value="@ap.IdApertura">#@ap.IdApertura - @(ap.Caja != null ? ap.Caja.NombreCaja : "") (@ap.MontoInicial.ToString("N2"))</option>
+                        }
+                    </select>
+                </div>
+                @if (Model.AperturaActiva != null)
+                {
+                    <div class="form-group">
+                        <label>Saldo esperado (ref)</label>
+                        <input type="text" value="@Model.SaldoEsperado.ToString("N2")" readonly style="background:#f5f5f5;" />
+                    </div>
+                }
+                <div class="form-group">
+                    <label>Saldo real</label>
+                    <input type="number" name="saldoReal" step="0.01" required />
+                </div>
+                <div class="form-actions" style="grid-column:1/-1;">
+                    <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">payments</span> Cerrar caja</button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <p>No hay aperturas activas.</p>
+        }
+    </div>
+    }
+</div>
+
+@if (Model.AperturaActiva != null)
+{
+    <div class="grid-4">
+        <div class="metric-card">
+            <h3>Apertura</h3>
+            <div class="value">@Model.AperturaActiva.MontoInicial.ToString("N2")</div>
+            <small>#@Model.AperturaActiva.IdApertura - @(Model.AperturaActiva.Caja != null ? Model.AperturaActiva.Caja.NombreCaja : "")</small>
+        </div>
+        <div class="metric-card alt-blue">
+            <h3>Efectivo</h3>
+            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "efectivo").Sum(v => v.TotalCobrado).ToString("N2")</div>
+        </div>
+        <div class="metric-card alt-orange">
+            <h3>SINPE</h3>
+            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "sinpe").Sum(v => v.TotalCobrado).ToString("N2")</div>
+        </div>
+        <div class="metric-card alt-red">
+            <h3>Egresos</h3>
+            <div class="value">@Model.Egresos.Sum(e => e.Monto).ToString("N2")</div>
+        </div>
+    </div>
+}
+
+@if (Model.AperturaActiva != null && rol == "Administrador")
+{
+    <div class="form-card">
+        <div class="section-title">
+            <h3>Registrar egreso</h3>
+            <small>Apertura #@Model.AperturaActiva.IdApertura</small>
+        </div>
+        <form method="post" action="@Url.Action("RegistrarEgreso")" class="form-grid">
+            <input type="hidden" name="idApertura" value="@Model.AperturaActiva.IdApertura" />
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoriaGasto" required>
+                    <option value="">Seleccione...</option>
+                    @if (Model.CategoriasGasto != null)
+                    {
+                        foreach (var cat in Model.CategoriasGasto)
+                        {
+                            <option value="@cat">@cat</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <input type="text" name="descripcion" maxlength="300" />
+            </div>
+            <div class="form-group">
+                <label>Monto</label>
+                <input type="number" name="monto" step="0.01" min="0.01" required />
+            </div>
+            <div class="form-actions" style="grid-column:1/-1;">
+                <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">money_off</span> Registrar egreso</button>
             </div>
         </form>
     </div>
 }
 
-<div class="grid-2">
+@if (Model.AperturaActiva != null && Model.Egresos.Any())
+{
     <div class="form-card">
-        <div class="section-title">
-            <h3>Anular venta</h3>
-            <p>Nota de crédito por anulación</p>
+        <div class="section-title" style="margin-top:18px;"><h3>Egresos registrados</h3></div>
+        <table>
+            <thead><tr><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Fecha</th></tr></thead>
+            <tbody>
+                @foreach (var e in Model.Egresos)
+                {
+                    <tr>
+                        <td>@e.CategoriaGasto</td>
+                        <td>@e.Descripcion</td>
+                        <td>@e.Monto.ToString("N2")</td>
+                        <td>@e.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<div class="grid-2">
+    <div style="display:flex;flex-direction:column;gap:16px;">
+        <div class="form-card">
+            <div class="section-title">
+                <h3>Ventas canceladas / Notas de crédito</h3>
+                <p>@(Model.VentasCanceladas != null ? Model.VentasCanceladas.Count + " registros" : "")</p>
+            </div>
+            @if (Model.VentasCanceladas != null && Model.VentasCanceladas.Any())
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th># NC</th>
+                            <th>Venta</th>
+                            <th>Monto</th>
+                            <th>Motivo</th>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var nc in Model.VentasCanceladas)
+                        {
+                            <tr>
+                                <td>@nc.IdNotaCredito</td>
+                                <td>#@nc.IdVenta @(nc.Venta != null ? "(" + nc.Venta.MetodoPago + ")" : "")</td>
+                                <td>@nc.Monto.ToString("N2")</td>
+                                <td>@nc.Motivo</td>
+                                <td>@nc.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@(nc.Usuario != null ? nc.Usuario.NombreUsuario : "")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
         </div>
-        <form method="post" action="@Url.Action("AnularVenta")" class="form-grid">
-            <div class="form-group">
-                <label>ID Venta</label>
-                <input type="number" name="idVenta" required min="1" />
+
+        @if (rol == "Administrador")
+        {
+            <div class="form-card">
+                <div class="section-title">
+                    <h3>Anular venta</h3>
+                    <p>Nota de crédito por anulación</p>
+                </div>
+                <form method="post" action="@Url.Action("AnularVenta")" class="form-grid">
+                    <div class="form-group">
+                        <label>Venta</label>
+                        <select name="idVenta" required>
+                            <option value="">Seleccione una venta...</option>
+                            @if (Model.VentasAnulables != null)
+                            {
+                                foreach (var v in Model.VentasAnulables)
+                                {
+                                    <option value="@v.IdVenta">#@v.IdVenta - @v.TotalCobrado.ToString("N2") (@v.MetodoPago) - @v.FechaHora.ToString("dd/MM/yyyy HH:mm")</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Motivo de anulación</label>
+                        <input type="text" name="motivo" required maxlength="300" />
+                    </div>
+                    <div class="form-actions" style="grid-column:1/-1;">
+                        <button type="submit" class="btn btn-danger"><span class="material-symbols-outlined">cancel</span> Anular venta</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label>Motivo de anulación</label>
-                <input type="text" name="motivo" required maxlength="300" />
-            </div>
-            <div class="form-actions" style="grid-column:1/-1;">
-                <button type="submit" class="btn btn-danger"><span class="material-symbols-outlined">cancel</span> Anular venta</button>
-            </div>
-        </form>
+        }
     </div>
 
     <div class="form-card">
@@ -207,7 +298,7 @@ else
                     <option value="cierre_turno">Cierre de turno</option>
                 </select>
             </div>
-                <input type="hidden" name="formato" value="csv" />
+            <input type="hidden" name="formato" value="csv" />
             <div class="form-group">
                 <label>Fecha inicio</label>
                 <input type="date" name="fechaInicio" />
@@ -223,7 +314,7 @@ else
     </div>
 </div>
 
-@if (Model.Cierres.Any())
+@if (Model.Cierres != null && Model.Cierres.Any())
 {
     <div class="table-card">
         <div class="section-title">
@@ -251,7 +342,7 @@ else
                 {
                     <tr>
                         <td>@c.IdCierre</td>
-                        <td>@(c.Cajero?.Nombre ?? "") @(c.Cajero?.Apellidos ?? "")</td>
+                        <td>@(c.Cajero != null ? c.Cajero.Nombre + " " + c.Cajero.Apellidos : "")</td>
                         <td>@c.FechaCierre.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@c.MontoApertura.ToString("N2")</td>
                         <td>@c.TotalEfectivo.ToString("N2")</td>
@@ -277,7 +368,7 @@ else
     </div>
 }
 
-@if (Model.Reportes.Any())
+@if (Model.Reportes != null && Model.Reportes.Any())
 {
     <div class="table-card">
         <div class="section-title">
@@ -295,7 +386,88 @@ else
                         <td>@r.TipoReporte</td>
                         <td>@r.FormatoSalida.ToUpper()</td>
                         <td>@r.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@(ViewBag.NombreEmpleados != null && ViewBag.NombreEmpleados.ContainsKey(r.IdUsuario) ? ViewBag.NombreEmpleados[r.IdUsuario] : r.Usuario?.NombreUsuario ?? "")</td>
+                        <td>@(ViewBag.NombreEmpleados != null && ViewBag.NombreEmpleados.ContainsKey(r.IdUsuario) ? ViewBag.NombreEmpleados[r.IdUsuario] : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (rol == "Administrador")
+{
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <h3>Bitácora financiera</h3>
+            <p>Consultar registros de auditoría</p>
+        </div>
+        <a href="@Url.Action("Bitacora")" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:6px;"><span class="material-symbols-outlined">receipt_long</span> Ir a bitácora</a>
+    </div>
+
+    <div class="form-card">
+        <div class="section-title">
+            <h3>Cierre periódico</h3>
+            <p>Generar cierre contable mensual o anual</p>
+        </div>
+        <form method="post" action="@Url.Action("GenerarCierrePeriodo")" class="form-grid">
+            <div class="form-group">
+                <label>Tipo de período</label>
+                <select name="tipoPeriodo" required>
+                    <option value="mensual">Mensual</option>
+                    <option value="anual">Anual</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Año</label>
+                <input type="number" name="anio" value="@DateTime.Now.Year" min="2020" max="2099" required />
+            </div>
+            <div class="form-group">
+                <label>Mes (solo mensual)</label>
+                <input type="number" name="mes" min="1" max="12" value="@DateTime.Now.Month" />
+            </div>
+            <div class="form-actions" style="grid-column:1/-1;">
+                <button type="submit" class="btn btn-primary"><span class="material-symbols-outlined">calendar_month</span> Generar cierre</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+@if (Model.CierresPeriodo != null && Model.CierresPeriodo.Any())
+{
+    <div class="table-card">
+        <div class="section-title">
+            <h3>Cierres periódicos</h3>
+            <p>@Model.CierresPeriodo.Count registros</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tipo</th>
+                    <th>Período</th>
+                    <th>Fecha</th>
+                    <th>Ingresos</th>
+                    <th>Egresos</th>
+                    <th>NC</th>
+                    <th>Saldo final</th>
+                    <th>CSV</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in Model.CierresPeriodo)
+                {
+                    <tr>
+                        <td>@c.IdCierrePeriodo</td>
+                        <td>@c.TipoPeriodo</td>
+                        <td>@(c.TipoPeriodo == "mensual" ? $"{c.Mes}/" : "")@c.Anio</td>
+                        <td>@c.FechaCierre.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@c.TotalIngresos.ToString("N2")</td>
+                        <td>@c.TotalEgresos.ToString("N2")</td>
+                        <td>@c.TotalNotasCredito.ToString("N2")</td>
+                        <td>@c.SaldoFinal.ToString("N2")</td>
+                        <td><a href="@Url.Action("ExportarCierrePeriodoCsv", new { id = c.IdCierrePeriodo })" class="btn btn-sm"><span class="material-symbols-outlined">download</span></a></td>
                     </tr>
                 }
             </tbody>

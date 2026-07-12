@@ -91,7 +91,9 @@ namespace RestauranteVistas.Controllers
 
             var aperturaActiva = db.AperturasCaja
                 .Include(a => a.Caja)
-                .FirstOrDefault(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta");
+                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta")
+                .OrderByDescending(a => a.FechaApertura)
+                .FirstOrDefault();
             if (aperturaActiva == null)
             {
                 TempData["Error"] = "No hay una apertura de caja activa para este cajero. Debe abrir caja primero.";
