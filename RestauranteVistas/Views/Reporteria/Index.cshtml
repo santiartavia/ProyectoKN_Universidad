@@ -1,137 +1,245 @@
-﻿@{
+﻿@using Abstracciones.Models
+@{
     ViewBag.Title = "Reportería";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var catsProd = ViewBag.CategoriasProducto as List<CategoriaProducto> ?? new List<CategoriaProducto>();
+    var catsInsumo = ViewBag.CategoriasInsumo as List<CategoriaInsumo> ?? new List<CategoriaInsumo>();
+    var meseros = ViewBag.Meseros as Dictionary<int, string> ?? new Dictionary<int, string>();
+    var catsEgreso = ViewBag.CategoriasEgreso as string[] ?? new string[0];
 }
 
 <div class="hero-card">
-    <h2>Generación visual de reportes</h2>
-    <p>
-         Presentación de filtros, indicadores y una tabla de resultados para reflejar la
-        generación de reportes administrativos del restaurante.
-    </p>
+    <h2>Generación de reportes</h2>
+    <p>Reportes administrativos del restaurante — descarga en CSV, Excel o PDF y vista previa en pantalla.</p>
 </div>
+
+@if (TempData["ReporteError"] != null)
+{
+    <div class="banner" style="background:#fff3e0;border-left-color:#e65100;"><strong>@TempData["ReporteError"]</strong></div>
+}
+
+@if (!string.IsNullOrEmpty(TempData["Mensaje"]?.ToString()))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;"><strong>@TempData["Mensaje"]</strong></div>
+}
+@if (!string.IsNullOrEmpty(TempData["Error"]?.ToString()))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;"><strong>@TempData["Error"]</strong></div>
+}
 
 <div class="grid-2">
     <div class="form-card">
         <div class="section-title">
-            <div>
-                <h3>Parámetros del reporte</h3>
-                <p>Consulta por fechas y formato</p>
-            </div>
+            <h3>Parámetros del reporte</h3>
+            <p>Seleccione el tipo de reporte, formato, rango de fechas y filtros</p>
         </div>
-
-        <div class="form-grid">
-            <div class="form-group"><label>ID Usuario</label><input type="text" placeholder="501" /></div>
-            <div class="form-group"><label>Fecha inicio</label><input type="date" /></div>
-            <div class="form-group"><label>Fecha fin</label><input type="date" /></div>
+        <form method="post" action="@Url.Action("GenerarReporte")" class="form-grid">
             <div class="form-group">
-                <label>Formato</label>
-                <select>
-                    <option>PDF</option>
-                    <option>Excel</option>
+                <label>Tipo de reporte</label>
+                <select name="tipoReporte" id="tipoReporte" required onchange="actualizarFiltros()">
+                    <option value="">Seleccione...</option>
+                    <option value="ventas">Ventas</option>
+                    <option value="productos_mas_vendidos">Productos más vendidos</option>
+                    <option value="ingresos_metodo_pago">Ingresos por método de pago</option>
+                    <option value="desempenio_meseros">Desempeño de meseros</option>
+                    <option value="inventario">Inventario</option>
+                    <option value="egresos">Egresos</option>
+                    <option value="cierre_turno">Cierre de turno</option>
                 </select>
             </div>
-        </div>
+            <div class="form-group">
+                <label>Formato</label>
+                <select name="formato">
+                    <option value="csv">CSV</option>
+                    <option value="xls">Excel (XLS)</option>
+                    <option value="pdf">PDF</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Fecha inicio</label>
+                <input type="date" name="fechaInicio" />
+            </div>
+            <div class="form-group">
+                <label>Fecha fin</label>
+                <input type="date" name="fechaFin" />
+            </div>
 
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Reporte generado correctamente')">
-                <span class="material-symbols-outlined">analytics</span> Generar
-            </button>
-            <button class="btn btn-secondary" onclick="accionDemo('Archivo PDF preparado para descarga')">
-                <span class="material-symbols-outlined">picture_as_pdf</span> Exportar PDF
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('Archivo Excel preparado para descarga')">
-                <span class="material-symbols-outlined">table_view</span> Exportar Excel
-            </button>
-            <button class="btn btn-danger" onclick="accionDemo('La fecha final no puede ser menor a la inicial')">
-                <span class="material-symbols-outlined">event_busy</span> Validar fechas
-            </button>
-        </div>
+            <div class="section-title" id="filtrosTitle" style="grid-column:1/-1;">
+                <h3>Filtros opcionales</h3>
+            </div>
+            <div class="form-group" data-filtro="categoriaProducto">
+                <label>Categoría de producto</label>
+                <select name="categoriaProducto">
+                    <option value="">Todas</option>
+                    @foreach (var c in catsProd)
+                    {
+                        <option value="@c.IdCategoriaProd">@c.NombreCategoria</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="categoriaInsumo">
+                <label>Categoría de insumo</label>
+                <select name="categoriaInsumo">
+                    <option value="">Todas</option>
+                    @foreach (var c in catsInsumo)
+                    {
+                        <option value="@c.IdCategoria">@c.NombreCategoria</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="metodo">
+                <label>Método de pago</label>
+                <select name="metodoPago">
+                    <option value="">Todos</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="sinpe">SINPE</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="mixto">Mixto</option>
+                </select>
+            </div>
+            <div class="form-group" data-filtro="mesero">
+                <label>Mesero</label>
+                <select name="idMesero">
+                    <option value="">Todos</option>
+                    @foreach (var kv in meseros)
+                    {
+                        <option value="@kv.Key">@kv.Value</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="topN">
+                <label>Top productos</label>
+                <select name="topN">
+                    <option value="">Top 10</option>
+                    <option value="5">Top 5</option>
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                </select>
+            </div>
+            <div class="form-group" data-filtro="categoriaEgreso">
+                <label>Categoría de egreso</label>
+                <select name="categoriaEgreso">
+                    <option value="">Todas</option>
+                    @foreach (var c in catsEgreso)
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="termino">
+                <label>Buscar por nombre</label>
+                <input type="text" name="terminoBusqueda" placeholder="Nombre de producto o insumo" />
+            </div>
+            <div class="form-group" data-filtro="stockBajo" style="display:flex;align-items:center;gap:8px;padding-top:24px;">
+                <input type="checkbox" name="stockBajo" value="true" id="chkStockBajo" />
+                <label for="chkStockBajo" style="margin:0;">Solo insumos con stock bajo</label>
+            </div>
+            <div class="form-actions" style="grid-column:1/-1;">
+                <button type="submit" class="btn btn-primary">
+                    <span class="material-symbols-outlined">analytics</span> Generar
+                </button>
+            </div>
+        </form>
     </div>
 
     <div class="section-card">
         <div class="section-title">
+            <h3>Tipos de reporte disponibles</h3>
+            <p>7 reportes administrativos</p>
+        </div>
+        <ul style="list-style:none;padding:0;margin:0;">
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Ventas</strong> — detalle de ventas por fecha, totales y desglose por método de pago</li>
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Productos más vendidos</strong> — top 5/10/20 por unidades e ingresos, filtro por categoría</li>
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Ingresos por método de pago</strong> — totales agrupados por efectivo, SINPE, tarjeta, mixto</li>
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Desempeño de meseros</strong> — pedidos atendidos, ingresos y tiempo promedio de entrega</li>
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Inventario</strong> — búsqueda por nombre, filtro por categoría y stock bajo</li>
+            <li style="padding:8px 0;border-bottom:1px solid #eee;"><strong>Egresos</strong> — detalle y totales por categoría</li>
+            <li style="padding:8px 0;"><strong>Cierre de turno</strong> — histórico de cierres de caja</li>
+        </ul>
+        <div style="margin-top:16px;">
+            <a href="@Url.Action("BitacoraReportes")" class="btn btn-sm" style="display:inline-flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">history</span> Ver bitácora de reportes
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (Session["ReporteResultado"] != null)
+{
+    Html.RenderPartial("_ResultadoReporte");
+}
+else if (TempData["ReporteVacio"] != null)
+{
+    <div class="form-card" style="text-align:center;padding:32px;">
+        <p>@(TempData["ReporteMensajeVacio"]?.ToString() ?? "No se encontraron registros para el reporte solicitado en el rango de fechas especificado.")</p>
+    </div>
+}
+
+@{
+    var reportes = ViewBag.Reportes as System.Collections.Generic.List<Abstracciones.Models.ReporteGenerado>;
+    var empleados = ViewBag.NombreEmpleados as System.Collections.Generic.Dictionary<int, string>;
+}
+@if (reportes != null && reportes.Any())
+{
+    <div class="table-card">
+        <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;">
             <div>
-                <h3>Indicadores</h3>
-                <p>Resumen del período</p>
+                <h3>Reportes generados</h3>
+                <p>@reportes.Count registros</p>
             </div>
+            <a href="@Url.Action("ExportarHistorialCsv")" class="btn btn-sm btn-primary" style="display:inline-flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">download</span> Exportar CSV
+            </a>
         </div>
-
-        <div class="grid-2">
-            <div class="metric-card"><h3>Total ventas</h3><div class="value">₡925k</div></div>
-            <div class="metric-card alt-blue"><h3>Facturas</h3><div class="value">126</div></div>
-            <div class="metric-card alt-orange"><h3>Efectivo</h3><div class="value">₡410k</div></div>
-            <div class="metric-card alt-teal"><h3>SINPE</h3><div class="value">₡515k</div></div>
-        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Tipo</th><th>Formato</th><th>Fecha</th><th>Usuario</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in reportes)
+                {
+                    <tr>
+                        <td>@r.IdReporte</td>
+                        <td>@r.TipoReporte</td>
+                        <td>@r.FormatoSalida.ToUpper()</td>
+                        <td>@r.FechaGeneracion.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(empleados != null && empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : "")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-</div>
+}
 
-<div class="table-card">
-    <div class="section-title">
-        <div>
-            <h3>Detalle del reporte</h3>
-            <p>Resultados demostrativos</p>
-        </div>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Factura</th>
-                <th>Fecha</th>
-                <th>Método</th>
-                <th>Monto</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>F-1001</td>
-                <td>03/04/2026</td>
-                <td>Efectivo</td>
-                <td>₡8 500</td>
-                <td><span class="status success">Pagada</span></td>
-            </tr>
-            <tr>
-                <td>F-1002</td>
-                <td>03/04/2026</td>
-                <td>SINPE</td>
-                <td>₡12 900</td>
-                <td><span class="status success">Pagada</span></td>
-            </tr>
-            <tr>
-                <td>F-1003</td>
-                <td>03/04/2026</td>
-                <td>Efectivo</td>
-                <td>₡6 200</td>
-                <td><span class="status success">Pagada</span></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
-<div class="story-card">
-    <h4>Historias del módulo de reportería</h4>
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">Generación exitosa del reporte <span>+</span></button>
-            <div class="accordion-content">El sistema prepara visualmente el reporte con todos los datos consolidados.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Sin ventas en el rango <span>+</span></button>
-            <div class="accordion-content">Se refleja la condición cuando no existen registros en el período consultado.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Fechas incoherentes <span>+</span></button>
-            <div class="accordion-content">La fecha final no puede ser menor que la fecha inicial.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Exportar PDF <span>+</span></button>
-            <div class="accordion-content">La interfaz simula la generación de un PDF descargable.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Exportar Excel <span>+</span></button>
-            <div class="accordion-content">La interfaz simula la exportación del informe a Excel.</div>
-        </div>
-    </div>
-</div>
+<script>
+    function actualizarFiltros() {
+        var tipo = document.getElementById('tipoReporte').value;
+        var porTipo = {
+            'ventas': ['metodo'],
+            'productos_mas_vendidos': ['categoriaProducto', 'topN', 'termino'],
+            'ingresos_metodo_pago': ['metodo'],
+            'desempenio_meseros': ['mesero'],
+            'inventario': ['categoriaInsumo', 'stockBajo', 'termino'],
+            'egresos': ['categoriaEgreso'],
+            'cierre_turno': []
+        };
+        var visibles = porTipo[tipo] || [];
+        var grupos = document.querySelectorAll('[data-filtro]');
+        var algunoVisible = false;
+        for (var i = 0; i < grupos.length; i++) {
+            var g = grupos[i];
+            var vis = visibles.indexOf(g.getAttribute('data-filtro')) !== -1;
+            g.style.display = vis ? '' : 'none';
+            var campos = g.querySelectorAll('input, select, textarea');
+            for (var j = 0; j < campos.length; j++) {
+                campos[j].disabled = !vis;
+                if (!vis) { campos[j].value = ''; }
+            }
+            if (vis) { algunoVisible = true; }
+        }
+        var titulo = document.getElementById('filtrosTitle');
+        if (titulo) { titulo.style.display = algunoVisible ? '' : 'none'; }
+    }
+    document.addEventListener('DOMContentLoaded', actualizarFiltros);
+</script>

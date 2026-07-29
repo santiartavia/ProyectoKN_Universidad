@@ -2,11 +2,13 @@
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
+using LogicaDeNegocios.Reportes;
 using LogicaDeNegocios.Services;
 using RestauranteVistas.Models.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Web.Mvc;
@@ -17,16 +19,19 @@ namespace RestauranteVistas.Controllers
     public class ContabilidadController : Controller
     {
         private readonly IContabilidadService _contabilidadService;
+        private readonly ReporteService _reporteService;
         private static readonly string[] CategoriasGasto = { "Servicios públicos", "Mantenimiento", "Limpieza", "Oficina", "Transporte", "Otros" };
 
         public ContabilidadController()
         {
             _contabilidadService = new ContabilidadService(new FechasLN());
+            _reporteService = new ReporteService();
         }
 
         public ActionResult Index()
         {
             var vm = new ContabilidadViewModel { CategoriasGasto = CategoriasGasto };
+            CargarListasFiltros();
 
             try
             {
@@ -164,7 +169,7 @@ namespace RestauranteVistas.Controllers
             sb.AppendLine($"Apertura #: {p[0]}");
             sb.AppendLine($"Caja #: {p[1]}");
             sb.AppendLine($"Cajero #: {p[2]}");
-            sb.AppendLine($"Monto inicial: {decimal.Parse(p[3]):N2}");
+            sb.AppendLine($"Monto inicial: {D(decimal.Parse(p[3]))}");
             sb.AppendLine($"Fecha: {p[4]}");
             sb.AppendLine($"Observaciones: {p[5]}");
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
@@ -199,7 +204,7 @@ namespace RestauranteVistas.Controllers
 
                 var sb = new StringBuilder();
                 sb.AppendLine("ID Cierre,Cajero,Fecha,Apertura,Efectivo,SINPE,Tarjeta,Egresos,Esperado,Real,Descuadre");
-                sb.AppendLine($"{cierre.IdCierre},{EscapeCsv(cajeroNombre)},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{cierre.MontoApertura:N2},{cierre.TotalEfectivo:N2},{cierre.TotalSinpe:N2},{cierre.TotalTarjeta:N2},{cierre.TotalEgresos:N2},{cierre.SaldoEsperado:N2},{cierre.SaldoReal:N2},{cierre.Descuadre}");
+                sb.AppendLine($"{cierre.IdCierre},{EscapeCsv(cajeroNombre)},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{D(cierre.MontoApertura)},{D(cierre.TotalEfectivo)},{D(cierre.TotalSinpe)},{D(cierre.TotalTarjeta)},{D(cierre.TotalEgresos)},{D(cierre.SaldoEsperado)},{D(cierre.SaldoReal)},{cierre.Descuadre}");
                 TempData["ReporteCierre"] = sb.ToString();
                 TempData["ReporteCierreNombre"] = $"cierre_turno_{cierre.IdCierre}.csv";
 
@@ -247,7 +252,7 @@ namespace RestauranteVistas.Controllers
                 var egreso = _contabilidadService.RegistrarEgreso(idApertura, idAdmin, categoriaGasto, descripcion, monto,
                     Request.UserHostAddress, Request.UserAgent);
                 TempData["Mensaje"] = $"Egreso: {categoriaGasto} - {monto:C}";
-                TempData["ValeEgreso"] = $"{egreso.IdEgreso}|{egreso.CategoriaGasto}|{egreso.Descripcion}|{egreso.Monto:N2}|{egreso.FechaHora:yyyy-MM-dd HH:mm:ss}";
+                TempData["ValeEgreso"] = $"{egreso.IdEgreso}|{egreso.CategoriaGasto}|{egreso.Descripcion}|{D(egreso.Monto)}|{egreso.FechaHora:yyyy-MM-dd HH:mm:ss}";
             }
             catch (Exception ex)
             {
@@ -299,114 +304,97 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        public ActionResult GenerarReporte(string tipoReporte, string formato, string fechaInicio, string fechaFin)
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        public ActionResult GenerarReporte(string tipoReporte, string formato, string fechaInicio, string fechaFin,
+            int? categoriaProducto, int? categoriaInsumo, string metodoPago, int? idMesero, int? topN,
+            bool? stockBajo, string terminoBusqueda, string categoriaEgreso)
         {
             var idAdmin = ObtenerIdAdmin();
             if (idAdmin == 0) return RedirectToAction("Index", "Login");
 
+            var reportesConFechas = new[] { "ventas", "productos_mas_vendidos", "ingresos_metodo_pago", "desempenio_meseros", "egresos", "cierre_turno" };
+            if (reportesConFechas.Contains(tipoReporte) && (string.IsNullOrWhiteSpace(fechaInicio) || string.IsNullOrWhiteSpace(fechaFin)))
+            {
+                TempData["ReporteError"] = "Debe seleccionar la fecha de inicio y la fecha final para generar este reporte.";
+                return RedirectToAction("Index");
+            }
+
+            DateTime? fi = null, ff = null;
+            if (!string.IsNullOrWhiteSpace(fechaInicio)) fi = DateTime.Parse(fechaInicio);
+            if (!string.IsNullOrWhiteSpace(fechaFin)) ff = DateTime.Parse(fechaFin).Date.AddDays(1).AddSeconds(-1);
+
+            if (fi.HasValue && ff.HasValue && fi > ff)
+            {
+                TempData["ReporteError"] = "La fecha de inicio no puede ser mayor que la fecha final.";
+                return RedirectToAction("Index");
+            }
+
             try
             {
-                DateTime? fi = null, ff = null;
-                if (!string.IsNullOrWhiteSpace(fechaInicio)) fi = DateTime.Parse(fechaInicio);
-                if (!string.IsNullOrWhiteSpace(fechaFin)) ff = DateTime.Parse(fechaFin).Date.AddDays(1).AddSeconds(-1);
-
-                string csv;
-                string nombre = $"reporte_{tipoReporte}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-
-                using (var ctx = new ColibriDbContext())
+                var filtros = new ReporteFiltros
                 {
-                    switch (tipoReporte)
-                    {
-                        case "ventas":
-                            {
-                                var q = ctx.Ventas.Where(v => v.Estado);
-                                if (fi.HasValue) q = q.Where(v => v.FechaHora >= fi.Value);
-                                if (ff.HasValue) q = q.Where(v => v.FechaHora <= ff.Value);
-                                var data = q.OrderByDescending(v => v.FechaHora).ToList();
-                                var sb = new StringBuilder();
-                                sb.AppendLine("ID Venta,ID Pedido,Método Pago,Total Cobrado,Vuelto,Estado,Fecha/Hora");
-                                foreach (var v in data)
-                                    sb.AppendLine($"{v.IdVenta},{v.IdPedido},{v.MetodoPago},{v.TotalCobrado:N2},{v.Vuelto:N2},{v.EstadoVenta},{v.FechaHora:yyyy-MM-dd HH:mm:ss}");
-                                csv = sb.ToString();
-                                break;
-                            }
-                        case "productos_mas_vendidos":
-                            {
-                                var q = ctx.DetallePedidos.Where(d => d.Estado);
-                                if (fi.HasValue) q = q.Where(d => d.Pedido.FechaHora >= fi.Value);
-                                if (ff.HasValue) q = q.Where(d => d.Pedido.FechaHora <= ff.Value);
-                                var data = q
-                                    .GroupBy(d => new { d.IdProducto, d.Producto.NombreProducto })
-                                    .Select(g => new { g.Key.IdProducto, g.Key.NombreProducto, Total = g.Sum(d => d.Cantidad), Ingresos = g.Sum(d => d.Cantidad * d.PrecioUnitario) })
-                                    .OrderByDescending(x => x.Total).ToList();
-                                var sb = new StringBuilder();
-                                sb.AppendLine("ID Producto,Nombre,Unidades Vendidas,Ingresos Totales");
-                                foreach (var p in data)
-                                    sb.AppendLine($"{p.IdProducto},{EscapeCsv(p.NombreProducto)},{p.Total},{p.Ingresos:N2}");
-                                csv = sb.ToString();
-                                break;
-                            }
-                        case "ingresos_metodo_pago":
-                            {
-                                var q = ctx.Ventas.Where(v => v.Estado && v.EstadoVenta == "completada");
-                                if (fi.HasValue) q = q.Where(v => v.FechaHora >= fi.Value);
-                                if (ff.HasValue) q = q.Where(v => v.FechaHora <= ff.Value);
-                                var data = q
-                                    .GroupBy(v => v.MetodoPago)
-                                    .Select(g => new { Metodo = g.Key, Total = g.Sum(v => v.TotalCobrado), Cantidad = g.Count() })
-                                    .ToList();
-                                var sb = new StringBuilder();
-                                sb.AppendLine("Método de Pago,Cantidad Ventas,Total Ingresos");
-                                foreach (var i in data)
-                                    sb.AppendLine($"{i.Metodo},{i.Cantidad},{i.Total:N2}");
-                                csv = sb.ToString();
-                                break;
-                            }
-                        case "egresos":
-                            {
-                                var q = ctx.EgresosCaja.Where(e => e.Estado);
-                                if (fi.HasValue) q = q.Where(e => e.FechaHora >= fi.Value);
-                                if (ff.HasValue) q = q.Where(e => e.FechaHora <= ff.Value);
-                                var data = q.OrderByDescending(e => e.FechaHora).ToList();
-                                var sb = new StringBuilder();
-                                sb.AppendLine("ID Egreso,Categoría,Descripción,Monto,Fecha/Hora");
-                                foreach (var e in data)
-                                    sb.AppendLine($"{e.IdEgreso},{EscapeCsv(e.CategoriaGasto)},{EscapeCsv(e.Descripcion)},{e.Monto:N2},{e.FechaHora:yyyy-MM-dd HH:mm:ss}");
-                                csv = sb.ToString();
-                                break;
-                            }
-                        case "cierre_turno":
-                            {
-                                var q = ctx.CierresCaja.Include(c => c.Cajero).Where(c => c.Estado);
-                                if (fi.HasValue) q = q.Where(c => c.FechaCierre >= fi.Value);
-                                if (ff.HasValue) q = q.Where(c => c.FechaCierre <= ff.Value);
-                                var data = q.OrderByDescending(c => c.FechaCierre).ToList();
-                                var sb = new StringBuilder();
-                                sb.AppendLine("ID Cierre,Cajero,Fecha,Apertura,Efectivo,SINPE,Tarjeta,Egresos,Esperado,Real,Descuadre");
-                                foreach (var c in data)
-                                    sb.AppendLine($"{c.IdCierre},{EscapeCsv(c.Cajero?.Nombre ?? "")} {EscapeCsv(c.Cajero?.Apellidos ?? "")},{c.FechaCierre:yyyy-MM-dd HH:mm},{c.MontoApertura:N2},{c.TotalEfectivo:N2},{c.TotalSinpe:N2},{c.TotalTarjeta:N2},{c.TotalEgresos:N2},{c.SaldoEsperado:N2},{c.SaldoReal:N2},{c.Descuadre}");
-                                csv = sb.ToString();
-                                break;
-                            }
-                        default:
-                            throw new ArgumentException($"Tipo de reporte '{tipoReporte}' no válido.");
-                    }
+                    CategoriaProducto = categoriaProducto,
+                    CategoriaInsumo = categoriaInsumo,
+                    MetodoPago = metodoPago,
+                    IdMesero = idMesero,
+                    TopN = topN,
+                    StockBajo = stockBajo ?? false,
+                    TerminoBusqueda = terminoBusqueda,
+                    CategoriaEgreso = categoriaEgreso
+                };
+
+                var resultado = _reporteService.Generar(tipoReporte, fi, ff, filtros);
+                var formatoOk = string.IsNullOrWhiteSpace(formato) ? "csv" : formato.ToLower();
+
+                _contabilidadService.GenerarReporte(idAdmin, tipoReporte, formatoOk, Parametros(tipoReporte, fechaInicio, fechaFin, filtros, formatoOk));
+                RegistrarBitacora(idAdmin, tipoReporte, fechaInicio, fechaFin, formatoOk);
+
+                if (!resultado.TieneDatos)
+                {
+                    TempData["ReporteVacio"] = "true";
+                    TempData["ReporteMensajeVacio"] = resultado.MensajeVacio;
+                    Session.Remove("ReporteResultado");
+                }
+                else
+                {
+                    Session["ReporteResultado"] = resultado;
+                    Session["ReporteFormato"] = formatoOk;
+                    Session["ReporteDetalle"] = $"Reporte {tipoReporte} | {FechaDesc(fechaInicio)} al {FechaDesc(fechaFin)} | {formatoOk}";
                 }
 
-                _contabilidadService.GenerarReporte(idAdmin, tipoReporte, formato, null);
-
-                var bytes = Encoding.UTF8.GetBytes(csv);
-                var bom = Encoding.UTF8.GetPreamble();
-                var final = new byte[bom.Length + bytes.Length];
-                bom.CopyTo(final, 0);
-                bytes.CopyTo(final, bom.Length);
-                return File(final, "text/csv", nombre);
+                TempData["Mensaje"] = "Reporte generado correctamente.";
+                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
                 TempData["Error"] = $"Error al generar reporte: {ex.Message}";
                 return RedirectToAction("Index");
             }
+        }
+
+        [HttpGet]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        public ActionResult DescargarReporteGenerado()
+        {
+            var resultado = Session["ReporteResultado"] as ReporteResultado;
+            var formato = Session["ReporteFormato"]?.ToString() ?? "csv";
+            if (resultado == null)
+            {
+                TempData["Error"] = "No hay reporte disponible para descargar.";
+                return RedirectToAction("Index");
+            }
+
+            var bytes = ExportadorReportes.Generar(formato, resultado);
+            var nombre = $"reporte_{resultado.TipoReporte}_{DateTime.Now:yyyyMMdd_HHmmss}{ExportadorReportes.Extension(formato)}";
+
+            var idAdmin = ObtenerIdAdmin();
+            if (idAdmin != 0)
+            {
+                var detalle = Session["ReporteDetalle"]?.ToString();
+                _contabilidadService.RegistrarBitacoraReporte(idAdmin, "DESCARGA", detalle ?? $"Reporte {resultado.TipoReporte} | {formato}", null,
+                    Request.UserHostAddress, Request.UserAgent);
+            }
+            return File(bytes, ExportadorReportes.ContentType(formato), nombre);
         }
 
         [HttpPost]
@@ -442,7 +430,7 @@ namespace RestauranteVistas.Controllers
 
             var sb = new StringBuilder();
             sb.AppendLine("ID Cierre,Tipo,Periodo,Fecha,Ingresos,Egresos,NC,Saldo Final");
-            sb.AppendLine($"{cierre.IdCierrePeriodo},{cierre.TipoPeriodo},{(cierre.TipoPeriodo == "mensual" ? $"{cierre.Mes}/" : "")}{cierre.Anio},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{cierre.TotalIngresos:N2},{cierre.TotalEgresos:N2},{cierre.TotalNotasCredito:N2},{cierre.SaldoFinal:N2}");
+            sb.AppendLine($"{cierre.IdCierrePeriodo},{cierre.TipoPeriodo},{(cierre.TipoPeriodo == "mensual" ? $"{cierre.Mes}/" : "")}{cierre.Anio},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{D(cierre.TotalIngresos)},{D(cierre.TotalEgresos)},{D(cierre.TotalNotasCredito)},{D(cierre.SaldoFinal)}");
 
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             var bom = Encoding.UTF8.GetPreamble();
@@ -515,10 +503,92 @@ namespace RestauranteVistas.Controllers
             }
         }
 
+        [HttpGet]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        public ActionResult ExportarHistorialReportesCsv()
+        {
+            var idAdmin = ObtenerIdAdmin();
+            if (idAdmin == 0) return RedirectToAction("Index", "Login");
+
+            var registros = _contabilidadService.ListarReportes();
+            using (var ctx = new ColibriDbContext())
+            {
+                var empleados = ctx.Empleados.Where(e => e.Estado)
+                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                var sb = new StringBuilder();
+                sb.AppendLine("ID,Tipo,Formato,Fecha,Usuario");
+                foreach (var r in registros)
+                {
+                    var nom = empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : "";
+                    sb.AppendLine($"{r.IdReporte},{EscapeCsv(r.TipoReporte)},{r.FormatoSalida.ToUpper()},{r.FechaGeneracion:yyyy-MM-dd HH:mm},{EscapeCsv(nom)}");
+                }
+                var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+                var bom = Encoding.UTF8.GetPreamble();
+                var final = new byte[bom.Length + bytes.Length];
+                bom.CopyTo(final, 0);
+                bytes.CopyTo(final, bom.Length);
+                return File(final, "text/csv", $"historial_reportes_{DateTime.Now:yyyyMMdd_HHmmss}.csv");
+            }
+        }
+
         private int ObtenerIdAdmin()
         {
             return Session["UsuarioId"] != null ? (int)Session["UsuarioId"] : 0;
         }
+
+        private void CargarListasFiltros()
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                ViewBag.CategoriasProducto = ctx.CategoriasProducto.Where(c => c.Estado).OrderBy(c => c.NombreCategoria).ToList();
+                ViewBag.CategoriasInsumo = ctx.CategoriasInsumo.Where(c => c.Estado).OrderBy(c => c.NombreCategoria).ToList();
+                ViewBag.Meseros = ctx.Empleados.Where(e => e.Estado)
+                    .OrderBy(e => e.Nombre)
+                    .ToDictionary(e => e.IdEmpleado, e => $"{e.Nombre} {e.Apellidos}");
+                ViewBag.CategoriasEgreso = new[] { "Servicios públicos", "Mantenimiento", "Limpieza", "Oficina", "Transporte", "Otros" };
+            }
+        }
+
+        private void RegistrarBitacora(int idUsuario, string tipoReporte, string fechaInicio, string fechaFin, string formato)
+        {
+            try
+            {
+                var detalle = $"Reporte {tipoReporte} | {FechaDesc(fechaInicio)} al {FechaDesc(fechaFin)} | {formato}";
+                _contabilidadService.RegistrarBitacoraReporte(idUsuario, "GENERACION", detalle, null,
+                    Request.UserHostAddress, Request.UserAgent);
+            }
+            catch
+            {
+            }
+        }
+
+        private string Parametros(string tipo, string fi, string ff, ReporteFiltros f, string formato)
+        {
+            var partes = new List<string>
+            {
+                "tipo=" + tipo,
+                "formato=" + (string.IsNullOrWhiteSpace(formato) ? "csv" : formato),
+                "fi=" + (fi ?? ""),
+                "ff=" + (ff ?? "")
+            };
+            if (f.CategoriaProducto.HasValue) partes.Add("categoriaProducto=" + f.CategoriaProducto.Value);
+            if (f.CategoriaInsumo.HasValue) partes.Add("categoriaInsumo=" + f.CategoriaInsumo.Value);
+            if (!string.IsNullOrWhiteSpace(f.MetodoPago)) partes.Add("metodo=" + f.MetodoPago);
+            if (f.IdMesero.HasValue) partes.Add("idMesero=" + f.IdMesero.Value);
+            if (f.TopN.HasValue) partes.Add("topN=" + f.TopN.Value);
+            if (f.StockBajo) partes.Add("stockBajo=1");
+            if (!string.IsNullOrWhiteSpace(f.TerminoBusqueda)) partes.Add("termino=" + f.TerminoBusqueda);
+            if (!string.IsNullOrWhiteSpace(f.CategoriaEgreso)) partes.Add("categoriaEgreso=" + f.CategoriaEgreso);
+            return string.Join(";", partes);
+        }
+
+        private static string FechaDesc(string f)
+        {
+            DateTime dt;
+            return DateTime.TryParse(f, out dt) ? dt.ToString("dd/MM/yyyy") : "—";
+        }
+
+        private string D(decimal v) => v.ToString("0.00", CultureInfo.InvariantCulture);
 
         private string EscapeCsv(string value)
         {

@@ -1,0 +1,34 @@
+@using LogicaDeNegocios.Reportes
+@{
+    var resultado = Session["ReporteResultado"] as ReporteResultado;
+    var formato = Session["ReporteFormato"]?.ToString() ?? "csv";
+    var accionDescarga = ViewData["ReporteDescargarAction"] != null ? ViewData["ReporteDescargarAction"].ToString() : "DescargarReporte";
+}
+@if (resultado != null)
+{
+    <div class="table-card">
+        <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;">
+            <div>
+                <h3>@resultado.Titulo</h3>
+                <p>@(resultado.Rows != null ? resultado.Rows.Count : 0) filas</p>
+            </div>
+            <a href="@Url.Action(accionDescarga)" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;">
+                <span class="material-symbols-outlined">download</span> Descargar @ExportadorReportes.Etiqueta(formato)
+            </a>
+        </div>
+        <div style="max-height:400px;overflow:auto;">
+            <table>
+                <thead>
+                    <tr>@foreach (var h in resultado.Headers) { <th>@h</th> }</tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in resultado.Rows)
+                    {
+                        if (row == null) { continue; }
+                        <tr>@foreach (var c in row) { <td>@c</td> }</tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

@@ -46,6 +46,7 @@ namespace AccesoADatos
         public DbSet<RecetaInsumo> RecetaInsumos { get; set; }
         public DbSet<CategoriaProducto> CategoriasProducto { get; set; }
         public DbSet<CierrePeriodo> CierresPeriodo { get; set; }
+        public DbSet<BitacoraReporte> BitacoraReportes { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -453,6 +454,18 @@ namespace AccesoADatos
             modelBuilder.Entity<CierrePeriodo>().Property(c => c.SaldoFinal).HasColumnName("saldo_final");
             modelBuilder.Entity<CierrePeriodo>().Property(c => c.Estado).HasColumnName("estado");
             modelBuilder.Entity<CierrePeriodo>().HasRequired(c => c.Usuario).WithMany().HasForeignKey(c => c.IdUsuario);
+
+            modelBuilder.Entity<BitacoraReporte>().ToTable("Bitacora_Reportes").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.Accion).HasColumnName("accion");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.ValorAnterior).HasColumnName("valor_anterior");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.ValorNuevo).HasColumnName("valor_nuevo");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.IpOrigen).HasColumnName("ip_origen");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.Dispositivo).HasColumnName("dispositivo");
+            modelBuilder.Entity<BitacoraReporte>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<BitacoraReporte>().HasRequired(b => b.Usuario).WithMany().HasForeignKey(b => b.IdUsuario);
         }
     }
 }

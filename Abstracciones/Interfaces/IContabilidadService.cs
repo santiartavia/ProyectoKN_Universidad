@@ -26,5 +26,8 @@ namespace Abstracciones.Interfaces
         List<BitacoraFinanciera> ConsultarBitacoraFinanciera(int? idUsuario = null, string accion = null, DateTime? fechaInicio = null, DateTime? fechaFin = null);
         List<string> ObtenerAccionesBitacoraFinanciera();
         void ExportarBitacoraFinancieraCsv(int? idUsuario, string accion, DateTime? fechaInicio, DateTime? fechaFin);
+        List<BitacoraReporte> ConsultarBitacoraReportes(int? idUsuario = null, string accion = null, DateTime? fechaInicio = null, DateTime? fechaFin = null);
+        List<string> ObtenerAccionesBitacoraReportes();
+        BitacoraReporte RegistrarBitacoraReporte(int idUsuario, string accion, string detalle, string valorNuevo = null, string ip = null, string dispositivo = null);
     }
 }

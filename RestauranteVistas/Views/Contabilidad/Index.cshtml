@@ -30,6 +30,10 @@
 {
     <div class="banner" style="background:#ffebee;border-left-color:#c62828;"><strong>@Model.Error</strong></div>
 }
+@if (TempData["ReporteError"] != null)
+{
+    <div class="banner" style="background:#fff3e0;border-left-color:#e65100;"><strong>@TempData["ReporteError"]</strong></div>
+}
 @if (!string.IsNullOrEmpty(Model.Alerta))
 {
     <div class="banner" style="background:#fff3e0;border-left-color:#e65100;"><strong>@Model.Alerta</strong></div>
@@ -74,8 +78,44 @@
                 <div class="form-group">
                     <label>ID Cajero (Empleado)</label>
                     <input type="number" name="idCajero" required min="1" />
-                </div>
+    </div>
+}
+
+@functions {
+    public static string[] ParseCsvLine(string line)
+    {
+        var result = new System.Collections.Generic.List<string>();
+        var current = new System.Text.StringBuilder();
+        bool inQuotes = false;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (c == '"')
+            {
+                if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                {
+                    current.Append('"');
+                    i++;
+                }
+                else
+                {
+                    inQuotes = !inQuotes;
+                }
             }
+            else if (c == ',' && !inQuotes)
+            {
+                result.Add(current.ToString());
+                current.Clear();
+            }
+            else
+            {
+                current.Append(c);
+            }
+        }
+        result.Add(current.ToString());
+        return result.ToArray();
+    }
+}
             <div class="form-group">
                 <label>Monto inicial</label>
                 <input type="number" name="montoInicial" step="0.01" value="0" min="0" />
@@ -283,6 +323,8 @@
         }
     </div>
 
+    @if (rol == "Administrador")
+    {
     <div class="form-card">
         <div class="section-title">
             <h3>Generar reporte</h3>
@@ -290,15 +332,24 @@
         <form method="post" action="@Url.Action("GenerarReporte")" class="form-grid">
             <div class="form-group">
                 <label>Tipo de reporte</label>
-                <select name="tipoReporte" required>
+                <select name="tipoReporte" id="tipoReporte" required onchange="actualizarFiltros()">
                     <option value="ventas">Ventas</option>
                     <option value="productos_mas_vendidos">Productos más vendidos</option>
                     <option value="ingresos_metodo_pago">Ingresos por método de pago</option>
+                    <option value="desempenio_meseros">Desempeño de meseros</option>
+                    <option value="inventario">Inventario</option>
                     <option value="egresos">Egresos</option>
                     <option value="cierre_turno">Cierre de turno</option>
                 </select>
             </div>
-            <input type="hidden" name="formato" value="csv" />
+            <div class="form-group">
+                <label>Formato</label>
+                <select name="formato">
+                    <option value="csv">CSV</option>
+                    <option value="xls">Excel (XLS)</option>
+                    <option value="pdf">PDF</option>
+                </select>
+            </div>
             <div class="form-group">
                 <label>Fecha inicio</label>
                 <input type="date" name="fechaInicio" />
@@ -307,12 +358,107 @@
                 <label>Fecha fin</label>
                 <input type="date" name="fechaFin" />
             </div>
+            <div class="section-title" id="filtrosTitle" style="grid-column:1/-1;">
+                <h3>Filtros opcionales</h3>
+            </div>
+            <div class="form-group" data-filtro="categoriaProducto">
+                <label>Categoría de producto</label>
+                <select name="categoriaProducto">
+                    <option value="">Todas</option>
+                    @if (ViewBag.CategoriasProducto != null)
+                    {
+                        foreach (var c in ViewBag.CategoriasProducto as List<Abstracciones.Models.CategoriaProducto>)
+                        {
+                            <option value="@c.IdCategoriaProd">@c.NombreCategoria</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="categoriaInsumo">
+                <label>Categoría de insumo</label>
+                <select name="categoriaInsumo">
+                    <option value="">Todas</option>
+                    @if (ViewBag.CategoriasInsumo != null)
+                    {
+                        foreach (var c in ViewBag.CategoriasInsumo as List<Abstracciones.Models.CategoriaInsumo>)
+                        {
+                            <option value="@c.IdCategoria">@c.NombreCategoria</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="metodo">
+                <label>Método de pago</label>
+                <select name="metodoPago">
+                    <option value="">Todos</option>
+                    <option value="efectivo">Efectivo</option>
+                    <option value="sinpe">SINPE</option>
+                    <option value="tarjeta">Tarjeta</option>
+                    <option value="mixto">Mixto</option>
+                </select>
+            </div>
+            <div class="form-group" data-filtro="mesero">
+                <label>Mesero</label>
+                <select name="idMesero">
+                    <option value="">Todos</option>
+                    @if (ViewBag.Meseros != null)
+                    {
+                        foreach (var kv in ViewBag.Meseros as Dictionary<int, string>)
+                        {
+                            <option value="@kv.Key">@kv.Value</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="topN">
+                <label>Top productos</label>
+                <select name="topN">
+                    <option value="">Top 10</option>
+                    <option value="5">Top 5</option>
+                    <option value="10">Top 10</option>
+                    <option value="20">Top 20</option>
+                </select>
+            </div>
+            <div class="form-group" data-filtro="categoriaEgreso">
+                <label>Categoría de egreso</label>
+                <select name="categoriaEgreso">
+                    <option value="">Todas</option>
+                    @if (ViewBag.CategoriasEgreso != null)
+                    {
+                        foreach (var c in ViewBag.CategoriasEgreso as string[])
+                        {
+                            <option value="@c">@c</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group" data-filtro="termino">
+                <label>Buscar por nombre</label>
+                <input type="text" name="terminoBusqueda" placeholder="Nombre de producto o insumo" />
+            </div>
+            <div class="form-group" data-filtro="stockBajo" style="display:flex;align-items:center;gap:8px;padding-top:24px;">
+                <input type="checkbox" name="stockBajo" value="true" id="chkStockBajo" />
+                <label for="chkStockBajo" style="margin:0;">Solo insumos con stock bajo</label>
+            </div>
             <div class="form-actions" style="grid-column:1/-1;">
                 <button type="submit" class="btn btn-secondary"><span class="material-symbols-outlined">description</span> Generar</button>
             </div>
         </form>
     </div>
+    }
 </div>
+
+@if (Session["ReporteResultado"] != null)
+{
+    ViewData["ReporteDescargarAction"] = "DescargarReporteGenerado";
+    Html.RenderPartial("_ResultadoReporte");
+}
+else if (TempData["ReporteVacio"] != null)
+{
+    <div class="form-card" style="text-align:center;padding:32px;">
+        <p>@(TempData["ReporteMensajeVacio"]?.ToString() ?? "No se encontraron registros para el reporte solicitado en el rango de fechas especificado.")</p>
+    </div>
+}
 
 @if (Model.Cierres != null && Model.Cierres.Any())
 {
@@ -368,11 +514,20 @@
     </div>
 }
 
-@if (Model.Reportes != null && Model.Reportes.Any())
+@if (rol == "Administrador" && Model.Reportes != null && Model.Reportes.Any())
 {
     <div class="table-card">
         <div class="section-title">
-            <h3>Reportes generados</h3>
+            <h3>Historial de reportes generados</h3>
+            <p>@Model.Reportes.Count registros</p>
+        </div>
+        <div style="margin-bottom:8px;text-align:right;">
+            <a href="@Url.Action("ExportarHistorialReportesCsv")" class="btn btn-sm btn-primary" style="display:inline-flex;align-items:center;gap:4px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">download</span> Exportar CSV
+            </a>
+            <a href="@Url.Action("BitacoraReportes", "Reporteria")" class="btn btn-sm" style="display:inline-flex;align-items:center;gap:4px;margin-left:8px;">
+                <span class="material-symbols-outlined" style="font-size:16px;">history</span> Ver bitácora de reportes
+            </a>
         </div>
         <table>
             <thead>
@@ -474,3 +629,35 @@
         </table>
     </div>
 }
+
+<script>
+    function actualizarFiltros() {
+        var tipo = document.getElementById('tipoReporte').value;
+        var porTipo = {
+            'ventas': ['metodo'],
+            'productos_mas_vendidos': ['categoriaProducto', 'topN', 'termino'],
+            'ingresos_metodo_pago': ['metodo'],
+            'desempenio_meseros': ['mesero'],
+            'inventario': ['categoriaInsumo', 'stockBajo', 'termino'],
+            'egresos': ['categoriaEgreso'],
+            'cierre_turno': []
+        };
+        var visibles = porTipo[tipo] || [];
+        var grupos = document.querySelectorAll('[data-filtro]');
+        var algunoVisible = false;
+        for (var i = 0; i < grupos.length; i++) {
+            var g = grupos[i];
+            var vis = visibles.indexOf(g.getAttribute('data-filtro')) !== -1;
+            g.style.display = vis ? '' : 'none';
+            var campos = g.querySelectorAll('input, select, textarea');
+            for (var j = 0; j < campos.length; j++) {
+                campos[j].disabled = !vis;
+                if (!vis) { campos[j].value = ''; }
+            }
+            if (vis) { algunoVisible = true; }
+        }
+        var titulo = document.getElementById('filtrosTitle');
+        if (titulo) { titulo.style.display = algunoVisible ? '' : 'none'; }
+    }
+    document.addEventListener('DOMContentLoaded', actualizarFiltros);
+</script>

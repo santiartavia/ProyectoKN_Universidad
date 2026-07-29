@@ -60,6 +60,8 @@
                     <a href="@Url.Action("Index", "BitacoraPedidos")"><span class="material-symbols-outlined">receipt_long</span> Bit. Pedidos</a>
                     <a href="@Url.Action("BitacoraAcceso", "Usuarios")"><span class="material-symbols-outlined">security</span> Accesos</a>
                     <a href="@Url.Action("Bitacora", "Inventario")"><span class="material-symbols-outlined">inventory</span> Bit. Inventario</a>
+                    <a href="@Url.Action("Bitacora", "Contabilidad")"><span class="material-symbols-outlined">account_balance</span> Bit. Financiera</a>
+                    <a href="@Url.Action("BitacoraReportes", "Reporteria")"><span class="material-symbols-outlined">receipt_long</span> Bit. Reportes</a>
                 }
                 else if (rol == "Cajero")
                 {
@@ -68,7 +70,7 @@
                     <a href="@Url.Action("Index", "Cajero")"><span class="material-symbols-outlined">point_of_sale</span> Panel Cajero</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
                     <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">payments</span> Cierres</a>
-                    <a href="@Url.Action("Index", "Reporteria")"><span class="material-symbols-outlined">receipt_long</span> Cuentas</a>
+                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">receipt_long</span> Cuentas</a>
                 }
                 else if (rol == "Mesero")
                 {

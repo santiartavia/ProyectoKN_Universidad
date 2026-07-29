@@ -293,15 +293,16 @@ namespace LogicaDeNegocios.Services
                 var tiposValidos = new[] { "ventas", "productos_mas_vendidos", "ingresos_metodo_pago", "desempenio_meseros", "inventario", "egresos", "cierre_turno", "bitacora" };
                 if (!tiposValidos.Contains(tipoReporte))
                     throw new ArgumentException($"Tipo de reporte inválido. Válidos: {string.Join(", ", tiposValidos)}");
-                if (formato != "csv")
-                    throw new ArgumentException("El único formato disponible es CSV.");
+                var formatoOk = (formato ?? "csv").ToLower();
+                if (formatoOk != "csv" && formatoOk != "xls" && formatoOk != "xlsx" && formatoOk != "pdf")
+                    throw new ArgumentException("Formato no válido. Formatos disponibles: csv, xls, pdf.");
 
                 var reporte = new ReporteGenerado
                 {
                     IdUsuario = idUsuario,
                     TipoReporte = tipoReporte,
                     Parametros = parametros,
-                    FormatoSalida = formato,
+                    FormatoSalida = formatoOk,
                     FechaGeneracion = _fechas.ObtenerFechaActual(),
                     Estado = true
                 };
@@ -435,6 +436,56 @@ namespace LogicaDeNegocios.Services
 
         public void ExportarBitacoraFinancieraCsv(int? idUsuario, string accion, DateTime? fechaInicio, DateTime? fechaFin)
         {
+        }
+
+        public List<BitacoraReporte> ConsultarBitacoraReportes(int? idUsuario = null, string accion = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var query = ctx.BitacoraReportes.Include(b => b.Usuario).AsQueryable();
+                if (idUsuario.HasValue)
+                    query = query.Where(b => b.IdUsuario == idUsuario.Value);
+                if (!string.IsNullOrWhiteSpace(accion))
+                    query = query.Where(b => b.Accion == accion);
+                if (fechaInicio.HasValue)
+                    query = query.Where(b => b.FechaHora >= fechaInicio.Value);
+                if (fechaFin.HasValue)
+                    query = query.Where(b => b.FechaHora <= fechaFin.Value);
+                return query.OrderByDescending(b => b.FechaHora).ToList();
+            }
+        }
+
+        public List<string> ObtenerAccionesBitacoraReportes()
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                return ctx.BitacoraReportes
+                    .Select(b => b.Accion)
+                    .Distinct()
+                    .OrderBy(a => a)
+                    .ToList();
+            }
+        }
+
+        public BitacoraReporte RegistrarBitacoraReporte(int idUsuario, string accion, string detalle, string valorNuevo = null, string ip = null, string dispositivo = null)
+        {
+            using (var ctx = new ColibriDbContext())
+            {
+                var bitacora = new BitacoraReporte
+                {
+                    IdUsuario = idUsuario,
+                    Accion = accion,
+                    ValorAnterior = null,
+                    ValorNuevo = valorNuevo,
+                    Detalle = detalle,
+                    IpOrigen = ip,
+                    Dispositivo = dispositivo,
+                    FechaHora = _fechas.ObtenerFechaActual()
+                };
+                ctx.BitacoraReportes.Add(bitacora);
+                ctx.SaveChanges();
+                return bitacora;
+            }
         }
 
         private void RegistrarAuditoria(ColibriDbContext ctx, string accion, string tabla,
