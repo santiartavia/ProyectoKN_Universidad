@@ -64,6 +64,36 @@ namespace RestauranteVistas.Controllers
 
             string estadoAnterior = pedido.EstadoPedido;
 
+            if (pedido.TipoServicio == "rapida")
+            {
+                pedido.EstadoPedido = "finalizado";
+                pedido.FechaHoraFinalizacion = DateTime.Now;
+
+                RegistrarHistorial(
+                    pedido.IdPedido,
+                    estadoAnterior,
+                    "finalizado",
+                    "Mesero",
+                    "Pedido rápido (venta ya pagada en PDV) entregado y finalizado directamente."
+                );
+
+                int uid2 = Session["UsuarioId"] as int? ?? 0;
+                db.BitacoraPedidos.Add(new BitacoraPedido
+                {
+                    IdUsuario = uid2,
+                    IdPedido = idPedido,
+                    Accion = "ENTREGA",
+                    EstadoAnterior = estadoAnterior,
+                    EstadoNuevo = "finalizado",
+                    Detalle = "Pedido rápido entregado; ya fue cobrado en el Punto de Venta, por lo que se finaliza sin pasar por caja.",
+                    FechaHora = DateTime.Now
+                });
+
+                db.SaveChanges();
+                TempData["Mensaje"] = "Pedido rápido entregado. Como la venta ya fue pagada en PDV, quedó finalizado.";
+                return RedirectToAction("Index");
+            }
+
             pedido.EstadoPedido = "entregado";
             pedido.FechaHoraEntrega = DateTime.Now;
 

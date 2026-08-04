@@ -258,11 +258,11 @@ namespace RestauranteVistas.Controllers
             var registros = _contabilidadService.ListarReportes();
             var empleados = ObtenerNombresEmpleados();
             var sb = new StringBuilder();
-            sb.AppendLine("ID,Tipo,Formato,Fecha,Usuario");
+            sb.AppendLine("ID;Tipo;Formato;Fecha;Usuario");
             foreach (var r in registros)
             {
                 var nom = empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : "";
-                sb.AppendLine($"{r.IdReporte},{EscapeCsv(r.TipoReporte)},{r.FormatoSalida.ToUpper()},{r.FechaGeneracion:yyyy-MM-dd HH:mm},{EscapeCsv(nom)}");
+                sb.AppendLine($"{r.IdReporte};{EscapeCsv(r.TipoReporte)};{r.FormatoSalida.ToUpper()};{r.FechaGeneracion:yyyy-MM-dd HH:mm};{EscapeCsv(nom)}");
             }
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             var bom = Encoding.UTF8.GetPreamble();
@@ -365,7 +365,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

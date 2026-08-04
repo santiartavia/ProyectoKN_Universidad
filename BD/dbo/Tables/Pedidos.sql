@@ -10,7 +10,7 @@
     [estado]              BIT            CONSTRAINT [DF_Ped_activo] DEFAULT ((1)) NOT NULL,
     CONSTRAINT [PK_Pedidos] PRIMARY KEY CLUSTERED ([id_pedido] ASC),
     CONSTRAINT [CK_Ped_estado] CHECK ([estado_pedido]='cancelado' OR [estado_pedido]='entregado' OR [estado_pedido]='listo' OR [estado_pedido]='en_proceso' OR [estado_pedido]='abierto'),
-    CONSTRAINT [CK_Ped_tipo] CHECK ([tipo_servicio]='delivery' OR [tipo_servicio]='para_llevar' OR [tipo_servicio]='mesa'),
+    CONSTRAINT [CK_Ped_tipo] CHECK ([tipo_servicio]='delivery' OR [tipo_servicio]='para_llevar' OR [tipo_servicio]='mesa' OR [tipo_servicio]='rapida'),
     CONSTRAINT [FK_Ped_Empleado] FOREIGN KEY ([id_empleado]) REFERENCES [dbo].[Empleados] ([id_empleado]),
     CONSTRAINT [FK_Ped_Mesa] FOREIGN KEY ([id_mesa]) REFERENCES [dbo].[Mesas] ([id_mesa])
 );

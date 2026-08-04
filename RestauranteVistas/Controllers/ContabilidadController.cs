@@ -203,8 +203,8 @@ namespace RestauranteVistas.Controllers
                     Request.UserHostAddress, Request.UserAgent);
 
                 var sb = new StringBuilder();
-                sb.AppendLine("ID Cierre,Cajero,Fecha,Apertura,Efectivo,SINPE,Tarjeta,Egresos,Esperado,Real,Descuadre");
-                sb.AppendLine($"{cierre.IdCierre},{EscapeCsv(cajeroNombre)},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{D(cierre.MontoApertura)},{D(cierre.TotalEfectivo)},{D(cierre.TotalSinpe)},{D(cierre.TotalTarjeta)},{D(cierre.TotalEgresos)},{D(cierre.SaldoEsperado)},{D(cierre.SaldoReal)},{cierre.Descuadre}");
+                sb.AppendLine("ID Cierre;Cajero;Fecha;Apertura;Efectivo;SINPE;Tarjeta;Egresos;Esperado;Real;Descuadre");
+                sb.AppendLine($"{cierre.IdCierre};{EscapeCsv(cajeroNombre)};{cierre.FechaCierre:yyyy-MM-dd HH:mm};{D(cierre.MontoApertura)};{D(cierre.TotalEfectivo)};{D(cierre.TotalSinpe)};{D(cierre.TotalTarjeta)};{D(cierre.TotalEgresos)};{D(cierre.SaldoEsperado)};{D(cierre.SaldoReal)};{cierre.Descuadre}");
                 TempData["ReporteCierre"] = sb.ToString();
                 TempData["ReporteCierreNombre"] = $"cierre_turno_{cierre.IdCierre}.csv";
 
@@ -429,8 +429,8 @@ namespace RestauranteVistas.Controllers
             }
 
             var sb = new StringBuilder();
-            sb.AppendLine("ID Cierre,Tipo,Periodo,Fecha,Ingresos,Egresos,NC,Saldo Final");
-            sb.AppendLine($"{cierre.IdCierrePeriodo},{cierre.TipoPeriodo},{(cierre.TipoPeriodo == "mensual" ? $"{cierre.Mes}/" : "")}{cierre.Anio},{cierre.FechaCierre:yyyy-MM-dd HH:mm},{D(cierre.TotalIngresos)},{D(cierre.TotalEgresos)},{D(cierre.TotalNotasCredito)},{D(cierre.SaldoFinal)}");
+            sb.AppendLine("ID Cierre;Tipo;Periodo;Fecha;Ingresos;Egresos;NC;Saldo Final");
+            sb.AppendLine($"{cierre.IdCierrePeriodo};{cierre.TipoPeriodo};{(cierre.TipoPeriodo == "mensual" ? $"{cierre.Mes}/" : "")}{cierre.Anio};{cierre.FechaCierre:yyyy-MM-dd HH:mm};{D(cierre.TotalIngresos)};{D(cierre.TotalEgresos)};{D(cierre.TotalNotasCredito)};{D(cierre.SaldoFinal)}");
 
             var bytes = Encoding.UTF8.GetBytes(sb.ToString());
             var bom = Encoding.UTF8.GetPreamble();
@@ -488,11 +488,11 @@ namespace RestauranteVistas.Controllers
                 var empleados = ctx.Empleados.Where(e => e.Estado)
                     .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
                 var sb = new StringBuilder();
-                sb.AppendLine("ID,Usuario,Acción,Tabla,ID Afectado,Valor Anterior,Valor Nuevo,Detalle,Fecha/Hora");
+                sb.AppendLine("ID;Usuario;Acción;Tabla;ID Afectado;Valor Anterior;Valor Nuevo;Detalle;Fecha/Hora");
                 foreach (var r in registros)
                 {
                     var nom = empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : r.Usuario?.NombreUsuario ?? "";
-                    sb.AppendLine($"{r.IdRegistro},{EscapeCsv(nom)},{r.Accion},{EscapeCsv(r.TablaAfectada)},{r.IdRegistroAfectado},{EscapeCsv(r.ValorAnterior)},{EscapeCsv(r.ValorNuevo)},{EscapeCsv(r.Detalle)},{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
+                    sb.AppendLine($"{r.IdRegistro};{EscapeCsv(nom)};{r.Accion};{EscapeCsv(r.TablaAfectada)};{r.IdRegistroAfectado};{EscapeCsv(r.ValorAnterior)};{EscapeCsv(r.ValorNuevo)};{EscapeCsv(r.Detalle)};{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
                 }
                 var bytes = Encoding.UTF8.GetBytes(sb.ToString());
                 var bom = Encoding.UTF8.GetPreamble();
@@ -516,11 +516,11 @@ namespace RestauranteVistas.Controllers
                 var empleados = ctx.Empleados.Where(e => e.Estado)
                     .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
                 var sb = new StringBuilder();
-                sb.AppendLine("ID,Tipo,Formato,Fecha,Usuario");
+                sb.AppendLine("ID;Tipo;Formato;Fecha;Usuario");
                 foreach (var r in registros)
                 {
                     var nom = empleados.ContainsKey(r.IdUsuario) ? empleados[r.IdUsuario] : "";
-                    sb.AppendLine($"{r.IdReporte},{EscapeCsv(r.TipoReporte)},{r.FormatoSalida.ToUpper()},{r.FechaGeneracion:yyyy-MM-dd HH:mm},{EscapeCsv(nom)}");
+                    sb.AppendLine($"{r.IdReporte};{EscapeCsv(r.TipoReporte)};{r.FormatoSalida.ToUpper()};{r.FechaGeneracion:yyyy-MM-dd HH:mm};{EscapeCsv(nom)}");
                 }
                 var bytes = Encoding.UTF8.GetBytes(sb.ToString());
                 var bom = Encoding.UTF8.GetPreamble();
@@ -593,7 +593,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

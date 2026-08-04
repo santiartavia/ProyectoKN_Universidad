@@ -97,11 +97,11 @@ namespace RestauranteVistas.Controllers
                     .ToDictionary(e => e.IdUsuario, e => e.Nombre + " " + e.Apellidos);
 
                 var sb = new System.Text.StringBuilder();
-                sb.AppendLine("ID,Usuario,Pedido,Accion,Estado Anterior,Estado Nuevo,Detalle,Fecha/Hora");
+                sb.AppendLine("ID;Usuario;Pedido;Accion;Estado Anterior;Estado Nuevo;Detalle;Fecha/Hora");
                 foreach (var r in registros)
                 {
                     string nombreUsuario = dicUsuarios.ContainsKey(r.IdUsuario) ? dicUsuarios[r.IdUsuario] : "";
-                    sb.AppendLine(string.Format("{0},{1},{2},{3},{4},{5},{6},{7:yyyy-MM-dd HH:mm:ss}",
+                    sb.AppendLine(string.Format("{0};{1};{2};{3};{4};{5};{6};{7:yyyy-MM-dd HH:mm:ss}",
                         r.IdRegistro, EscapeCsv(nombreUsuario),
                         r.IdPedido, r.Accion,
                         r.EstadoAnterior, r.EstadoNuevo,
@@ -116,7 +116,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

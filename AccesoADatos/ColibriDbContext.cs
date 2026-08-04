@@ -32,6 +32,11 @@ namespace AccesoADatos
         public DbSet<ReporteGenerado> ReportesGenerados { get; set; }
         public DbSet<Venta> Ventas { get; set; }
         public DbSet<SubcuentaPedido> SubcuentasPedido { get; set; }
+        public DbSet<DetalleVenta> DetallesVenta { get; set; }
+        public DbSet<EnvioPdv> EnviosPdv { get; set; }
+        public DbSet<BitacoraPdv> BitacoraPdv { get; set; }
+        public DbSet<SubcuentaVenta> SubcuentasVenta { get; set; }
+        public DbSet<SubcuentaDetalleVenta> SubcuentaDetallesVenta { get; set; }
         public DbSet<HistorialEstadoPedido> HistorialEstadosPedido { get; set; }
         public DbSet<NominaMensual> NominasMensuales { get; set; }
         public DbSet<PasswordHistorial> PasswordHistorial { get; set; }
@@ -227,6 +232,58 @@ namespace AccesoADatos
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.IdPedido).HasColumnName("id_pedido");
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.NombreSubcuenta).HasColumnName("nombre_subcuenta");
             modelBuilder.Entity<SubcuentaPedido>().Property(s => s.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<DetalleVenta>().ToTable("Detalle_Venta").HasKey(d => d.IdDetalleVenta);
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.IdDetalleVenta).HasColumnName("id_detalle_venta");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.IdProducto).HasColumnName("id_producto");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.Cantidad).HasColumnName("cantidad");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.PrecioUnitario).HasColumnName("precio_unitario");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.SubtotalItem).HasColumnName("subtotal_item");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.ObservacionesItem).HasColumnName("observaciones_item");
+            modelBuilder.Entity<DetalleVenta>().Property(d => d.Estado).HasColumnName("estado");
+            modelBuilder.Entity<DetalleVenta>().HasRequired(d => d.Venta).WithMany().HasForeignKey(d => d.IdVenta);
+            modelBuilder.Entity<DetalleVenta>().HasRequired(d => d.Producto).WithMany().HasForeignKey(d => d.IdProducto);
+
+            modelBuilder.Entity<EnvioPdv>().ToTable("Envios_PDV").HasKey(e => e.IdEnvio);
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.IdEnvio).HasColumnName("id_envio");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.IdUsuario).HasColumnName("id_usuario");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.Destino).HasColumnName("destino");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.Prioridad).HasColumnName("prioridad");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.EstadoEnvio).HasColumnName("estado_envio");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.CodigoConfirmacion).HasColumnName("codigo_confirmacion");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.Observaciones).HasColumnName("observaciones");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.MotivoReenvio).HasColumnName("motivo_reenvio");
+            modelBuilder.Entity<EnvioPdv>().Property(e => e.FechaHoraEnvio).HasColumnName("fecha_hora_envio");
+
+            modelBuilder.Entity<BitacoraPdv>().ToTable("Bitacora_PDV").HasKey(b => b.IdRegistro);
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.IdRegistro).HasColumnName("id_registro");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.IdCaja).HasColumnName("id_caja");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.IdUsuarioCajero).HasColumnName("id_usuario_cajero");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.AccionOperativa).HasColumnName("accion_operativa");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.Detalle).HasColumnName("detalle");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.FechaHora).HasColumnName("fecha_hora");
+            modelBuilder.Entity<BitacoraPdv>().Property(b => b.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<SubcuentaVenta>().ToTable("Subcuentas_Venta").HasKey(s => s.IdSubcuenta);
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.IdSubcuenta).HasColumnName("id_subcuenta");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.IdVenta).HasColumnName("id_venta");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.NombreSubcuenta).HasColumnName("nombre_subcuenta");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.Subtotal).HasColumnName("subtotal");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.Pagada).HasColumnName("pagada");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.FechaOperacion).HasColumnName("fecha_operacion");
+            modelBuilder.Entity<SubcuentaVenta>().Property(s => s.Estado).HasColumnName("estado");
+
+            modelBuilder.Entity<SubcuentaDetalleVenta>().ToTable("Subcuenta_Detalle_Venta").HasKey(sd => sd.IdSubcuentaDetalle);
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.IdSubcuentaDetalle).HasColumnName("id_subcuenta_detalle");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.IdSubcuenta).HasColumnName("id_subcuenta");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.IdDetalleVenta).HasColumnName("id_detalle_venta");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.Cantidad).HasColumnName("cantidad");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.Subtotal).HasColumnName("subtotal");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.FechaOperacion).HasColumnName("fecha_operacion");
+            modelBuilder.Entity<SubcuentaDetalleVenta>().Property(sd => sd.Estado).HasColumnName("estado");
 
             modelBuilder.Entity<HistorialEstadoPedido>().ToTable("Historial_Estados_Pedido").HasKey(h => h.IdHistorial);
             modelBuilder.Entity<HistorialEstadoPedido>().Property(h => h.IdHistorial).HasColumnName("id_historial");

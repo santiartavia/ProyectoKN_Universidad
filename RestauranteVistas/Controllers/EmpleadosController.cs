@@ -405,10 +405,10 @@ namespace RestauranteVistas.Controllers
             var registros = _auditoriaService.Consultar(idEmpleado, null, fi, ff, accion);
 
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("ID,Usuario,ID Usuario,Tabla,ID Registro,Acción,Valor Anterior,Valor Nuevo,Detalle,Fecha/Hora");
+            sb.AppendLine("ID;Usuario;ID Usuario;Tabla;ID Registro;Acción;Valor Anterior;Valor Nuevo;Detalle;Fecha/Hora");
             foreach (var r in registros)
             {
-                sb.AppendLine($"{r.IdRegistro},{EscapeCsv(r.Usuario?.NombreUsuario)},{r.IdUsuario},{r.TablaAfectada},{r.IdRegistroAfectado},{r.Accion},{EscapeCsv(r.ValorAnterior)},{EscapeCsv(r.ValorNuevo)},{EscapeCsv(r.Detalle)},{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine($"{r.IdRegistro};{EscapeCsv(r.Usuario?.NombreUsuario)};{r.IdUsuario};{r.TablaAfectada};{r.IdRegistroAfectado};{r.Accion};{EscapeCsv(r.ValorAnterior)};{EscapeCsv(r.ValorNuevo)};{EscapeCsv(r.Detalle)};{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
@@ -487,11 +487,11 @@ namespace RestauranteVistas.Controllers
             var registros = consulta.OrderByDescending(h => h.FechaHoraCambio).ToList();
 
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("ID,Pedido,Estado Anterior,Estado Nuevo,Responsable,Fecha/Hora,Detalle");
+            sb.AppendLine("ID;Pedido;Estado Anterior;Estado Nuevo;Responsable;Fecha/Hora;Detalle");
 
             foreach (var r in registros)
             {
-                sb.AppendLine($"{r.IdHistorial},{r.IdPedido},{EscapeCsv(r.EstadoAnterior)},{EscapeCsv(r.EstadoNuevo)},{EscapeCsv(r.UsuarioResponsable)},{r.FechaHoraCambio:yyyy-MM-dd HH:mm:ss},{EscapeCsv(r.Detalle)}");
+                sb.AppendLine($"{r.IdHistorial};{r.IdPedido};{EscapeCsv(r.EstadoAnterior)};{EscapeCsv(r.EstadoNuevo)};{EscapeCsv(r.UsuarioResponsable)};{r.FechaHoraCambio:yyyy-MM-dd HH:mm:ss};{EscapeCsv(r.Detalle)}");
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
@@ -506,7 +506,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

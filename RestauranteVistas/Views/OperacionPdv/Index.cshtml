@@ -1,0 +1,238 @@
+@model RestauranteVistas.Models.ViewModels.OperacionPdvViewModel
+@{
+    ViewBag.Title = "Operación PDV";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="hero-card">
+    <h2>Panel de operación - Punto de venta</h2>
+    <p>Indicadores en tiempo real y seguimiento de las ventas rápidas del día, con alertas de demoras y sobre-edición.</p>
+</div>
+
+<div class="grid-4">
+    <div class="metric-card">
+        <h3>Ventas activas</h3>
+        <div class="value" id="valVentasActivas">@Model.VentasActivas</div>
+        <small>abiertas / en revisión / validadas</small>
+    </div>
+    <div class="metric-card alt-green">
+        <h3>Ventas cobradas</h3>
+        <div class="value" id="valVentasCobradas">@Model.VentasCobradas</div>
+        <small>completadas hoy</small>
+    </div>
+    <div class="metric-card alt-blue">
+        <h3>Total cobrado</h3>
+        <div class="value" id="valTotalCobrado">₡@Model.TotalCobrado.ToString("N0")</div>
+        <small>ventas completadas</small>
+    </div>
+    <div class="metric-card alt-orange">
+        <h3>Tiempo promedio</h3>
+        <div class="value" id="valTiempoPromedio">@Model.TiempoPromedioMinutos.ToString("0.#") min</div>
+        <small>apertura a cobro</small>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="form-card">
+        <div class="section-title">
+            <h3>Ventas del día</h3>
+            <p>Total pendiente de cobro: <strong id="valTotalPendiente">₡@Model.TotalPendiente.ToString("N0")</strong></p>
+        </div>
+        <form method="get" action="@Url.Action("Index", "OperacionPdv")" class="form-grid">
+            <div class="form-group">
+                <label>Estado</label>
+                <select name="estado" id="filtroEstado">
+                    <option value="">Todos</option>
+                    <option value="abierta" @(Model.FiltroEstado == "abierta" ? "selected" : "")>Abierta</option>
+                    <option value="en_revision" @(Model.FiltroEstado == "en_revision" ? "selected" : "")>En revisión</option>
+                    <option value="validada" @(Model.FiltroEstado == "validada" ? "selected" : "")>Validada</option>
+                    <option value="completada" @(Model.FiltroEstado == "completada" ? "selected" : "")>Completada</option>
+                    <option value="anulada" @(Model.FiltroEstado == "anulada" ? "selected" : "")>Anulada</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mesa</label>
+                <select name="idMesa" id="filtroMesa">
+                    <option value="">Todas</option>
+                    @if (Model.Mesas != null)
+                    {
+                        foreach (var m in Model.Mesas)
+                        {
+                            <option value="@m.IdMesa" @(Model.FiltroIdMesa == m.IdMesa ? "selected" : "")>Mesa @m.NumeroMesa (@m.EstadoMesa)</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary"><span class="material-symbols-outlined">search</span> Filtrar</button>
+                <a href="@Url.Action("Index")" class="btn btn-sm"><span class="material-symbols-outlined">clear</span> Limpiar</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="form-card">
+        <div class="section-title">
+            <h3>Productos más vendidos (hoy)</h3>
+        </div>
+        @if (Model.ProductosMasVendidos != null && Model.ProductosMasVendidos.Any())
+        {
+            <table>
+                <thead><tr><th>#</th><th>Producto</th><th>Total</th></tr></thead>
+                <tbody id="tbodyProductos">
+                    @for (var i = 0; i < Model.ProductosMasVendidos.Count; i++)
+                    {
+                        <tr>
+                            <td>@(i + 1)</td>
+                            <td>@Model.ProductosMasVendidos[i].Nombre</td>
+                            <td>@Model.ProductosMasVendidos[i].Cantidad</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No hay productos vendidos hoy.</p>
+        }
+    </div>
+</div>
+
+<div class="form-card" id="sinResultados" style="text-align:center;padding:32px;display:@(Model.Ventas != null && Model.Ventas.Any() ? "none" : "block");">
+    <p id="sinResultadosTexto">No hay ventas registradas en el día @(string.IsNullOrEmpty(Model.FiltroEstado) && Model.FiltroIdMesa == null ? "" : "para el criterio seleccionado").</p>
+</div>
+
+@if (Model.Ventas != null && Model.Ventas.Any())
+{
+    <div class="table-card" id="tablaVentas">
+        <div class="section-title">
+            <h3>Seguimiento de ventas</h3>
+            <p>@Model.Ventas.Count resultados</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th># Venta</th>
+                    <th>Estado</th>
+                    <th>Mesa/Ref</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Alertas</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyVentas">
+                @foreach (var v in Model.Ventas)
+                {
+                    <tr>
+                        <td>@v.IdVenta</td>
+                        <td>@v.Estado</td>
+                        <td>@(v.Mesa ?? "-")</td>
+                        <td>₡@v.Total.ToString("N2")</td>
+                        <td>@v.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @if (v.Demorada && v.MuyEditada)
+                            {
+                                <span class="status danger">Demorada + sobre-edición (@v.Ediciones)</span>
+                            }
+                            else if (v.Demorada)
+                            {
+                                <span class="status danger">Demorada</span>
+                            }
+                            else if (v.MuyEditada)
+                            {
+                                <span class="status warning">Sobre-editada (@v.Ediciones)</span>
+                            }
+                            else
+                            {
+                                <span class="status success">OK</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+<script>
+    var ultimaBusqueda = @Html.Raw(Json.Encode((Model.FiltroEstado ?? "") + "|" + (Model.FiltroIdMesa?.ToString() ?? "")));
+
+    function formatearColones(valor) {
+        return '₡' + Number(valor).toLocaleString('es-CR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function estadoAlerta(v) {
+        if (v.Demorada && v.MuyEditada) return '<span class="status danger">Demorada + sobre-edición (' + v.Ediciones + ')</span>';
+        if (v.Demorada) return '<span class="status danger">Demorada</span>';
+        if (v.MuyEditada) return '<span class="status warning">Sobre-editada (' + v.Ediciones + ')</span>';
+        return '<span class="status success">OK</span>';
+    }
+
+    function pintarResumen(d) {
+        document.getElementById('valVentasActivas').textContent = d.VentasActivas;
+        document.getElementById('valVentasCobradas').textContent = d.VentasCobradas;
+        document.getElementById('valTotalCobrado').textContent = formatearColones(d.TotalCobrado);
+        document.getElementById('valTiempoPromedio').textContent = (Number(d.TiempoPromedioMinutos) || 0).toFixed(1) + ' min';
+        document.getElementById('valTotalPendiente').textContent = formatearColones(d.TotalPendiente);
+    }
+
+    function pintarProductos(productos) {
+        var tb = document.getElementById('tbodyProductos');
+        if (!tb) return;
+        tb.innerHTML = '';
+        if (!productos || productos.length === 0) {
+            tb.innerHTML = '<tr><td colspan="3" style="color:#888;">No hay productos vendidos hoy.</td></tr>';
+            return;
+        }
+        productos.forEach(function (p, i) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + p.Nombre + '</td><td>' + p.Cantidad + '</td>';
+            tb.appendChild(tr);
+        });
+    }
+
+    function pintarVentas(ventas) {
+        var tb = document.getElementById('tbodyVentas');
+        var tabla = document.getElementById('tablaVentas');
+        var sinRes = document.getElementById('sinResultados');
+        if (!tb || !tabla || !sinRes) return;
+        tb.innerHTML = '';
+        if (!ventas || ventas.length === 0) {
+            tabla.style.display = 'none';
+            sinRes.style.display = 'block';
+            document.getElementById('sinResultadosTexto').textContent = 'No hay ventas registradas en el día para el criterio seleccionado.';
+            return;
+        }
+        tabla.style.display = 'block';
+        sinRes.style.display = 'none';
+        ventas.forEach(function (v) {
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + v.IdVenta + '</td><td>' + v.Estado + '</td><td>' + (v.Mesa || '-') + '</td>' +
+                '<td>' + formatearColones(v.Total) + '</td><td>' + v.FechaHora + '</td><td>' + estadoAlerta(v) + '</td>';
+            tb.appendChild(tr);
+        });
+    }
+
+    function filtrosActivos() {
+        var selEstado = document.getElementById('filtroEstado');
+        var selMesa = document.getElementById('filtroMesa');
+        var e = selEstado ? selEstado.value : '';
+        var m = selMesa ? selMesa.value : '';
+        return (e !== '' || m !== '');
+    }
+
+    function actualizarPanel() {
+        if (filtrosActivos()) return;
+        fetch('@Url.Action("Resumen", "OperacionPdv")')
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+                pintarResumen(d);
+                pintarProductos(d.Productos);
+                pintarVentas(d.Ventas);
+            })
+            .catch(function () { });
+    }
+
+    setInterval(actualizarPanel, 15000);
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!filtrosActivos()) actualizarPanel();
+    });
+</script>

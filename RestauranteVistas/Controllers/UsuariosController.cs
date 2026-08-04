@@ -749,10 +749,10 @@ namespace RestauranteVistas.Controllers
                 var registros = query.OrderByDescending(b => b.FechaHora).ToList();
 
                 var sb = new System.Text.StringBuilder();
-                sb.AppendLine("ID,Usuario,ID Usuario,Acción,Detalle,Ip Origen,Dispositivo,Fecha/Hora");
+                sb.AppendLine("ID;Usuario;ID Usuario;Acción;Detalle;Ip Origen;Dispositivo;Fecha/Hora");
                 foreach (var r in registros)
                 {
-                    sb.AppendLine($"{r.IdRegistro},{EscapeCsv(r.Usuario?.NombreUsuario)},{r.IdUsuario},{r.Accion},{EscapeCsv(r.Detalle)},{EscapeCsv(r.IpOrigen)},{EscapeCsv(r.Dispositivo)},{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
+                    sb.AppendLine($"{r.IdRegistro};{EscapeCsv(r.Usuario?.NombreUsuario)};{r.IdUsuario};{r.Accion};{EscapeCsv(r.Detalle)};{EscapeCsv(r.IpOrigen)};{EscapeCsv(r.Dispositivo)};{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
                 }
 
                 var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
@@ -768,7 +768,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

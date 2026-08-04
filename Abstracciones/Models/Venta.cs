@@ -5,7 +5,7 @@ namespace Abstracciones.Models
     public class Venta
     {
         public int IdVenta { get; set; }
-        public int IdPedido { get; set; }
+        public int? IdPedido { get; set; }
         public int? IdSubcuenta { get; set; }
         public int IdEmpleado { get; set; }
         public int? IdApertura { get; set; }

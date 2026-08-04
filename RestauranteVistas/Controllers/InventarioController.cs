@@ -226,10 +226,10 @@ namespace RestauranteVistas.Controllers
             var registros = _inventarioService.ConsultarBitacora(idUsuario, accion, fi, ff);
 
             var sb = new System.Text.StringBuilder();
-            sb.AppendLine("ID,Usuario,Acción,Valor Anterior,Valor Nuevo,Detalle,Fecha/Hora");
+            sb.AppendLine("ID;Usuario;Acción;Valor Anterior;Valor Nuevo;Detalle;Fecha/Hora");
             foreach (var r in registros)
             {
-                sb.AppendLine($"{r.IdRegistro},{EscapeCsv(r.Usuario?.NombreUsuario)},{r.Accion},{EscapeCsv(r.ValorAnterior)},{EscapeCsv(r.ValorNuevo)},{EscapeCsv(r.Detalle)},{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
+                sb.AppendLine($"{r.IdRegistro};{EscapeCsv(r.Usuario?.NombreUsuario)};{r.Accion};{EscapeCsv(r.ValorAnterior)};{EscapeCsv(r.ValorNuevo)};{EscapeCsv(r.Detalle)};{r.FechaHora:yyyy-MM-dd HH:mm:ss}");
             }
 
             var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
@@ -268,7 +268,7 @@ namespace RestauranteVistas.Controllers
         private string EscapeCsv(string value)
         {
             if (string.IsNullOrEmpty(value)) return "";
-            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            if (value.Contains(";") || value.Contains("\"") || value.Contains("\n") || value.Contains("\r"))
                 return "\"" + value.Replace("\"", "\"\"") + "\"";
             return value;
         }

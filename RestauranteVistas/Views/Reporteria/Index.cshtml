@@ -234,7 +234,13 @@ else if (TempData["ReporteVacio"] != null)
             var campos = g.querySelectorAll('input, select, textarea');
             for (var j = 0; j < campos.length; j++) {
                 campos[j].disabled = !vis;
-                if (!vis) { campos[j].value = ''; }
+                if (!vis) {
+                    if (campos[j].type === 'checkbox') {
+                        campos[j].checked = false;
+                    } else {
+                        campos[j].value = '';
+                    }
+                }
             }
             if (vis) { algunoVisible = true; }
         }

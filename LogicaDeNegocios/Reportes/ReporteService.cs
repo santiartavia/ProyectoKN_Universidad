@@ -237,7 +237,7 @@ namespace LogicaDeNegocios.Reportes
             if (f.CategoriaInsumo.HasValue)
                 q = q.Where(i => i.IdCategoria == f.CategoriaInsumo.Value);
             if (f.StockBajo)
-                q = q.Where(i => i.StockActual <= i.StockMinimo);
+                q = q.Where(i => i.StockActual < i.StockMinimo);
             if (!string.IsNullOrWhiteSpace(f.TerminoBusqueda))
                 q = q.Where(i => i.NombreInsumo.Contains(f.TerminoBusqueda));
             var data = q.OrderBy(i => i.NombreInsumo).ToList();

@@ -67,11 +67,11 @@ namespace LogicaDeNegocios.Reportes
         public static byte[] GenerarCsv(ReporteResultado r)
         {
             var sb = new StringBuilder();
-            sb.AppendLine(string.Join(",", ToCsv(r.Headers)));
+            sb.AppendLine(string.Join(";", ToCsv(r.Headers)));
             if (r.Rows != null)
             {
                 foreach (var row in r.Rows)
-                    sb.AppendLine(string.Join(",", ToCsv(row)));
+                    sb.AppendLine(string.Join(";", ToCsv(row)));
             }
             var body = Encoding.UTF8.GetBytes(sb.ToString());
             var bom = Encoding.UTF8.GetPreamble();
@@ -154,13 +154,23 @@ namespace LogicaDeNegocios.Reportes
             var enc = Encoding.GetEncoding(1252);
             var cols = r.Headers != null ? r.Headers.Length : 0;
             var charW = 5.2;
-            var pageW = 612.0;
-            var left = 40.0;
-            var rightLimit = pageW - 40.0;
+            var lineH = 12.0;
+            var pageW = 792.0;
+            var pageH = 612.0;
+            var margen = 40.0;
+            var usableW = pageW - 2 * margen;
+            var top = pageH - margen;
+            var bottom = margen;
+
             var ancho = new double[cols];
+            var anchoHeader = new double[cols];
+            double hdrSize = 9.0;
+            double hdrCharW = 5.8;
+            var contentLen = new int[cols];
             for (int j = 0; j < cols; j++)
             {
-                int maxLen = r.Headers != null && r.Headers[j] != null ? r.Headers[j].Length : 0;
+                int headerLen = r.Headers != null && r.Headers[j] != null ? r.Headers[j].Length : 0;
+                int maxLen = headerLen;
                 if (r.Rows != null)
                 {
                     foreach (var row in r.Rows)
@@ -169,63 +179,115 @@ namespace LogicaDeNegocios.Reportes
                             maxLen = row[j].Length;
                     }
                 }
-                ancho[j] = Math.Min(maxLen * charW + 8.0, 150.0);
+                contentLen[j] = maxLen;
+                anchoHeader[j] = Math.Max(14.0, headerLen * hdrCharW + 6.0);
             }
-            var x = new double[cols];
-            for (int j = 0; j < cols; j++)
-                x[j] = j == 0 ? left : x[j - 1] + ancho[j - 1];
 
-            var paginas = new List<string>();
-            var actual = new StringBuilder();
-            double y = 760.0;
-
-            void NuevaLinea(double cantidad)
+            double sumHdr = 0;
+            foreach (var a in anchoHeader) sumHdr += a;
+            if (sumHdr > usableW)
             {
-                y -= cantidad;
-                if (y < 45.0)
+                var f = usableW / sumHdr;
+                hdrSize = Math.Max(5.0, 9.0 * f);
+                hdrCharW = 5.8 * hdrSize / 9.0;
+                for (int j = 0; j < cols; j++)
                 {
-                    actual.Append("ET\n");
-                    paginas.Add(actual.ToString());
-                    actual.Clear();
-                    y = 760.0;
-                    actual.Append("BT\n/F1 9 Tf\n");
-                    for (int j = 0; j < cols; j++)
-                    {
-                        if (r.Headers != null && j < r.Headers.Length)
-                            actual.Append(x[j].ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Td (")
-                                .Append(EscPdf(r.Headers[j])).Append(") Tj\n");
-                    }
-                    y -= 16.0;
-                    actual.Append("0 0 0 rg\n");
+                    int headerLen = r.Headers != null && r.Headers[j] != null ? r.Headers[j].Length : 0;
+                    anchoHeader[j] = Math.Max(14.0 * hdrSize / 9.0, headerLen * hdrCharW + 6.0 * hdrSize / 9.0);
                 }
             }
 
-            actual.Append("BT\n");
-            if (r.Headers != null && r.Headers.Length > 0)
+            for (int j = 0; j < cols; j++)
+                ancho[j] = Math.Max(anchoHeader[j], contentLen[j] * charW + 8.0);
+
+            double total = 0;
+            foreach (var a in ancho) total += a;
+            if (total > usableW)
             {
-                actual.Append("/F2 14 Tf\n").Append(left.ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Td (").Append(EscPdf(r.Titulo ?? "Reporte")).Append(") Tj\n");
-                y -= 20.0;
-            }
-            actual.Append("/F1 9 Tf\n");
-            actual.Append("0 0 0 rg\n");
-            if (r.Headers != null && r.Headers.Length > 0)
-            {
+                var factor = usableW / total;
                 for (int j = 0; j < cols; j++)
-                    actual.Append(x[j].ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Td (").Append(EscPdf(r.Headers[j])).Append(") Tj\n");
-                y -= 14.0;
+                    ancho[j] = Math.Max(anchoHeader[j], ancho[j] * factor);
             }
+
+            var x = new double[cols];
+            for (int j = 0; j < cols; j++)
+                x[j] = j == 0 ? margen : x[j - 1] + ancho[j - 1];
+
+            var paginas = new List<string>();
+            var actual = new StringBuilder();
+            double y = top;
+
+            void CerrarPagina()
+            {
+                actual.Append("ET\n");
+                paginas.Add(actual.ToString());
+                actual.Clear();
+            }
+
+            void EmpezarPagina(bool conTitulo)
+            {
+                actual.Append("BT\n");
+                if (conTitulo && r.Headers != null && r.Headers.Length > 0)
+                {
+                    actual.Append("/F2 14 Tf\n");
+                    var titulo = r.Titulo ?? "Reporte";
+                    var lineasTitulo = PartirLineas(titulo, usableW, 7.2);
+                    foreach (var lt in lineasTitulo)
+                    {
+                        actual.Append("1 0 0 1 ").Append(margen.ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Tm (").Append(EscPdf(lt)).Append(") Tj\n");
+                        y -= 20.0;
+                    }
+                }
+                if (r.Headers != null && r.Headers.Length > 0)
+                {
+                    actual.Append("/F2 ").Append(hdrSize.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Tf\n");
+                    actual.Append("0 0 0 rg\n");
+                    for (int j = 0; j < cols; j++)
+                    {
+                        var texto = r.Headers[j] ?? "";
+                        actual.Append("1 0 0 1 ").Append(x[j].ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Tm (").Append(EscPdf(texto)).Append(") Tj\n");
+                    }
+                    y -= lineH;
+                }
+                actual.Append("/F1 9 Tf\n");
+            }
+
+            void NuevaPagina()
+            {
+                CerrarPagina();
+                y = top;
+                EmpezarPagina(false);
+            }
+
+            EmpezarPagina(true);
             if (r.Rows != null)
             {
                 foreach (var row in r.Rows)
                 {
                     if (row == null) { continue; }
-                    for (int j = 0; j < cols && j < row.Length; j++)
-                        actual.Append(x[j].ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Td (").Append(EscPdf(row[j] ?? "")).Append(") Tj\n");
-                    NuevaLinea(14.0);
+                    var lineas = new List<List<string>>();
+                    int maxL = 1;
+                    for (int j = 0; j < cols; j++)
+                    {
+                        var ls = j < row.Length ? PartirLineas(row[j] ?? "", ancho[j], charW) : new List<string> { "" };
+                        lineas.Add(ls);
+                        if (ls.Count > maxL) maxL = ls.Count;
+                    }
+                    if (y - maxL * lineH < bottom)
+                        NuevaPagina();
+                    for (int li = 0; li < maxL; li++)
+                    {
+                        for (int j = 0; j < cols; j++)
+                        {
+                            var ls = lineas[j];
+                            var texto = li < ls.Count ? ls[li] : "";
+                            actual.Append("1 0 0 1 ").Append(x[j].ToString("0.##", CultureInfo.InvariantCulture)).Append(" ").Append(y.ToString("0.##", CultureInfo.InvariantCulture)).Append(" Tm (").Append(EscPdf(texto)).Append(") Tj\n");
+                        }
+                        y -= lineH;
+                    }
                 }
             }
-            actual.Append("ET\n");
-            paginas.Add(actual.ToString());
+            CerrarPagina();
 
             return EnsamblarPdf(enc, paginas);
         }
@@ -265,10 +327,10 @@ namespace LogicaDeNegocios.Reportes
                 for (int i = 0; i < nPaginas; i++)
                 {
                     int contenido = 3 + nPaginas + 2 + i;
-                    Objeto(3 + i, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R /F2 4 0 R >> >> /Contents " + contenido + " 0 R >>");
+                    Objeto(3 + i, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 5 0 R /F2 4 0 R >> >> /Contents " + contenido + " 0 R >>");
                 }
-                Objeto(3 + nPaginas, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
-                Objeto(3 + nPaginas + 1, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>");
+                Objeto(3 + nPaginas, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+                Objeto(3 + nPaginas + 1, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
                 for (int i = 0; i < nPaginas; i++)
                 {
                     int contenido = 3 + nPaginas + 2 + i;
@@ -299,7 +361,7 @@ namespace LogicaDeNegocios.Reportes
             for (int i = 0; i < values.Length; i++)
             {
                 var v = values[i] ?? "";
-                if (v.Contains(",") || v.Contains("\"") || v.Contains("\n") || v.Contains("\r"))
+                if (v.Contains(";") || v.Contains(",") || v.Contains("\"") || v.Contains("\n") || v.Contains("\r"))
                     result[i] = "\"" + v.Replace("\"", "\"\"") + "\"";
                 else
                     result[i] = v;
@@ -334,6 +396,53 @@ namespace LogicaDeNegocios.Reportes
                 }
             }
             return sb.ToString();
+        }
+
+        private static List<string> PartirLineas(string texto, double anchoCol, double charW)
+        {
+            var lineas = new List<string>();
+            if (string.IsNullOrEmpty(texto)) { lineas.Add(""); return lineas; }
+
+            double maxPix = anchoCol - 4.0;
+            var palabras = texto.Split(' ');
+            var actual = new StringBuilder();
+
+            foreach (var palabra in palabras)
+            {
+                var rest = palabra;
+                while (rest.Length * charW > maxPix)
+                {
+                    if (actual.Length > 0)
+                    {
+                        lineas.Add(actual.ToString());
+                        actual.Clear();
+                    }
+                    int n = (int)(maxPix / charW);
+                    if (n < 1) n = 1;
+                    lineas.Add(rest.Substring(0, Math.Min(n, rest.Length)));
+                    rest = rest.Substring(Math.Min(n, rest.Length));
+                    if (rest.Length == 0) break;
+                }
+                if (rest.Length == 0) continue;
+
+                var candidato = actual.Length > 0 ? actual + " " + rest : rest;
+                if (candidato.Length * charW <= maxPix)
+                {
+                    actual.Clear();
+                    actual.Append(candidato);
+                }
+                else
+                {
+                    if (actual.Length > 0)
+                    {
+                        lineas.Add(actual.ToString());
+                        actual.Clear();
+                    }
+                    actual.Append(rest);
+                }
+            }
+            lineas.Add(actual.ToString());
+            return lineas;
         }
     }
 }

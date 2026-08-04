@@ -1,130 +1,315 @@
-﻿@{
-    ViewBag.Title = "Punto de Venta";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+﻿@model RestauranteVistas.Models.ViewModels.PuntoVentaViewModel
+@{ ViewBag.Title = "Punto de Venta"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@if (!string.IsNullOrEmpty(Model.Mensaje))
+{
+    <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;"><strong>@Model.Mensaje</strong></div>
+}
+@if (!string.IsNullOrEmpty(Model.Error))
+{
+    <div class="banner" style="background:#ffebee;border-left-color:#c62828;"><strong>@Model.Error</strong></div>
+}
+@if (!string.IsNullOrEmpty(Model.Alerta))
+{
+    <div class="banner" style="background:#fff3e0;border-left-color:#e65100;"><strong>@Model.Alerta</strong></div>
 }
 
-<div class="hero-card">
-    <h2>Punto de venta visual</h2>
-    <p>
-        Módulo diseñado para representar ventas rápidas de mostrador, apertura de ticket,
-        agregado de productos y cobro visual.
-    </p>
-</div>
+<div class="hero-card"><h2>Punto de venta — Venta rápida</h2><p>Atienda el mostrador: abra tickets, agregue productos, valide, envie y cobre sin orden previa. Cajero: <strong>@Model.NombreCajero</strong></p></div>
 
 <div class="grid-3">
-    <div class="metric-card"><h3>Caja activa</h3><div class="value">Caja 1</div></div>
-    <div class="metric-card alt-blue"><h3>Ventas rápidas</h3><div class="value">23</div></div>
-    <div class="metric-card alt-orange"><h3>Total del turno</h3><div class="value">₡144k</div></div>
+    <div class="metric-card"><h3>Ventas rápidas abiertas</h3><div class="value">@Model.VentasActivas.Count</div></div>
+    <div class="metric-card alt-red"><h3>Apertura de caja</h3><div class="value">@(Model.TieneAperturaActiva ? "Activa" : "No activa")</div></div>
+    <div class="metric-card alt-blue"><h3>Productos disponibles</h3><div class="value">@(Model.Productos?.Count ?? 0)</div></div>
 </div>
 
-<div class="grid-2">
+@if (!Model.TieneAperturaActiva)
+{
+    <div class="banner" style="background:#fff3e0;border-left-color:#e65100;margin-top:20px;">No hay una apertura de caja activa para este cajero. Debe abrir caja primero (módulo Cierres) antes de registrar ventas rápidas.</div>
+}
+
+<div class="grid-2" style="margin-top:20px;">
     <div class="form-card">
-        <div class="section-title">
-            <div>
-                <h3>Apertura de venta rápida</h3>
-                <p>Flujo de caja</p>
+        <div class="section-title"><div><h3>Apertura de venta rápida</h3><p>Inicia sin productos y queda asociada al cajero</p></div></div>
+        @using (Html.BeginForm("AbrirVentaRapida", "PuntoVenta", FormMethod.Post))
+        {
+            <div class="form-actions" style="justify-content:flex-start;margin-top:10px;">
+                <button type="submit" class="btn btn-primary" @(Model.TieneAperturaActiva ? "" : "disabled")>
+                    <span class="material-symbols-outlined">add_business</span> Abrir venta rápida
+                </button>
             </div>
-        </div>
-
-        <div class="form-grid">
-            <div class="form-group"><label>ID Venta</label><input type="text" placeholder="7001" /></div>
-            <div class="form-group">
-                <label>Tipo</label>
-                <select>
-                    <option>RÁPIDA</option>
-                </select>
-            </div>
-            <div class="form-group"><label>Fecha y hora</label><input type="datetime-local" /></div>
-            <div class="form-group"><label>ID Usuario</label><input type="text" placeholder="502" /></div>
-            <div class="form-group"><label>Nombre cajero</label><input type="text" placeholder="Valeria Castro" /></div>
-            <div class="form-group"><label>ID Caja</label><input type="text" placeholder="1" /></div>
-            <div class="form-group"><label>Producto</label><input type="text" placeholder="Café frío" /></div>
-            <div class="form-group"><label>Cantidad</label><input type="number" placeholder="1" /></div>
-        </div>
-
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Se abrió la venta rápida correctamente')">
-                <span class="material-symbols-outlined">add_business</span> Abrir venta
-            </button>
-            <button class="btn btn-secondary" onclick="accionDemo('Productos agregados al detalle de venta')">
-                <span class="material-symbols-outlined">shopping_cart_checkout</span> Agregar producto
-            </button>
-            <button class="btn btn-danger" onclick="accionDemo('La venta fue cancelada antes del cobro')">
-                <span class="material-symbols-outlined">cancel</span> Cancelar
-            </button>
-        </div>
+        }
     </div>
 
     <div class="table-card">
-        <div class="section-title">
-            <div>
-                <h3>Ticket de venta</h3>
-                <p>Detalle del consumo</p>
+        <div class="section-title"><div><h3>Agregar producto a una venta</h3><p>Elija la venta activa, el producto y la cantidad</p></div></div>
+        @using (Html.BeginForm("AgregarProducto", "PuntoVenta", FormMethod.Post))
+        {
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Venta rápida activa</label>
+                    <select name="idVenta" required>
+                        <option value="">Seleccione una venta...</option>
+                        @foreach (var va in Model.VentasActivas)
+                        {
+                            <option value="@va.Venta.IdVenta">#@va.Venta.IdVenta (@va.Venta.EstadoVenta)</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Producto</label>
+                    <select name="idProducto" required>
+                        <option value="">Seleccione un producto...</option>
+                        @foreach (var p in Model.Productos)
+                        {
+                            <option value="@p.IdProducto">@p.NombreProducto (₡@p.PrecioVenta.ToString("N2"))</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group"><label>Cantidad</label><input type="number" name="cantidad" min="1" value="1" required /></div>
+                <div class="form-group"><label>Observaciones</label><input type="text" name="observaciones" /></div>
             </div>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Café frío</td>
-                    <td>1</td>
-                    <td>₡2 500</td>
-                    <td>₡2 500</td>
-                </tr>
-                <tr>
-                    <td>Empanada</td>
-                    <td>2</td>
-                    <td>₡1 200</td>
-                    <td>₡2 400</td>
-                </tr>
-                <tr>
-                    <td colspan="3"><strong>Total</strong></td>
-                    <td><strong>₡4 900</strong></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="accionDemo('Cobro visual realizado')">
-                <span class="material-symbols-outlined">paid</span> Cobrar
-            </button>
-            <button class="btn btn-warning" onclick="accionDemo('No se puede cobrar una venta vacía')">
-                <span class="material-symbols-outlined">do_not_disturb_on</span> Probar bloqueo
-            </button>
-        </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-secondary" @(Model.VentasActivas.Any() && Model.Productos.Any() ? "" : "disabled")>
+                    <span class="material-symbols-outlined">shopping_cart_checkout</span> Agregar producto
+                </button>
+            </div>
+        }
     </div>
 </div>
 
-<div class="story-card">
-    <h4>Historias reflejadas en punto de venta</h4>
-    <div class="accordion">
-        <div class="accordion-item">
-            <button class="accordion-header">Abrir venta rápida <span>+</span></button>
-            <div class="accordion-content">La venta se crea para registrar consumo inmediato sin orden previa.</div>
+@if (Model.VentasActivas.Any())
+{
+    foreach (var venta in Model.VentasActivas)
+    {
+        <div class="table-card" style="margin-top:20px;">
+            <div class="section-title">
+                <div>
+                    <h3>Ticket de venta #@venta.Venta.IdVenta <span class="status info">@venta.Venta.EstadoVenta</span></h3>
+                    <p>Total: <strong>₡@venta.Total.ToString("N2")</strong> · Cobrado: ₡@venta.Venta.TotalCobrado.ToString("N2")</p>
+                </div>
+            </div>
+
+            @if (venta.MuyEditada)
+            {
+                <div class="banner" style="background:#fff3e0;border-left-color:#e65100;">
+                    <strong>Alerta: esta venta ha sido editada @venta.Ediciones veces (agregar/quitar productos).</strong> Revise el detalle antes de validar para evitar errores recurrentes.
+                </div>
+            }
+
+            <table>
+                <thead><tr><th>Producto</th><th>Cant.</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead>
+                <tbody>
+                    @if (!venta.Detalles.Any())
+                    {
+                        <tr><td colspan="5">La venta inicia sin productos. Agregue artículos para continuar.</td></tr>
+                    }
+                    @foreach (var d in venta.Detalles)
+                    {
+                        var nombre = Model.Productos.FirstOrDefault(p => p.IdProducto == d.IdProducto)?.NombreProducto ?? ("Producto #" + d.IdProducto);
+                        <tr>
+                            <td>@nombre @(!string.IsNullOrEmpty(d.ObservacionesItem) ? "(" + d.ObservacionesItem + ")" : "")</td>
+                            <td>@d.Cantidad</td>
+                            <td>₡@d.PrecioUnitario.ToString("N2")</td>
+                            <td>₡@d.SubtotalItem.ToString("N2")</td>
+                            <td>
+                                @using (Html.BeginForm("QuitarProducto", "PuntoVenta", FormMethod.Post))
+                                {
+                                    <input type="hidden" name="idDetalle" value="@d.IdDetalleVenta" />
+                                    <button class="btn btn-danger btn-sm">Quitar</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    @if (venta.Subcuentas.Any())
+                    {
+                        var sumSub = venta.Subcuentas.Sum(s => s.Subtotal);
+                        <tr><td colspan="4">Total subcuentas</td><td><strong>₡@sumSub.ToString("N2")</strong></td></tr>
+                    }
+                    <tr><td colspan="4"><strong>Total de la cuenta</strong></td><td><strong>₡@venta.Total.ToString("N2")</strong></td></tr>
+                </tfoot>
+            </table>
+
+            @if (venta.Detalles.Any())
+            {
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;">
+                    @using (Html.BeginForm("ValidarVentaRapida", "PuntoVenta", FormMethod.Post))
+                    {
+                        <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
+                        <button class="btn btn-primary">Validar y confirmar detalle</button>
+                    }
+                </div>
+
+                <div class="form-card" style="margin-top:14px;background:transparent;box-shadow:none;padding:0;">
+                    <h4>Cobro de la venta</h4>
+                    @if (venta.Subcuentas.Any())
+                    {
+                        <p style="font-size:14px;color:#666;">Esta venta está dividida. Cobre cada subcuenta por separado en la sección de reparto.</p>
+                    }
+                    else
+                    {
+                        using (Html.BeginForm("CobrarVentaRapida", "PuntoVenta", FormMethod.Post))
+                        {
+                            <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Método de pago</label>
+                                    <select name="metodoPago">
+                                        <option>Efectivo</option><option>Tarjeta</option><option>SINPE</option><option>Mixto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>Monto recibido</label><input type="number" name="montoRecibido" step="0.01" min="0" /></div>
+                            </div>
+                            <button class="btn btn-secondary">Cobrar</button>
+                        }
+                    }
+                </div>
+            }
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;">
+                @using (Html.BeginForm("EnviarVenta", "PuntoVenta", FormMethod.Post))
+                {
+                    <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
+                    <select name="destino"><option value="Cocina">Cocina</option><option value="Bar">Bar</option><option value="Caja">Caja</option></select>
+                    <select name="prioridad"><option value="Normal">Normal</option><option value="Urgente">Urgente</option></select>
+                    <input type="text" name="observaciones" placeholder="Observaciones envío" />
+                    <button class="btn btn-secondary">Enviar</button>
+                }
+                @if (!venta.Subcuentas.Any())
+                {
+                    using (Html.BeginForm("DividirCuenta", "PuntoVenta", FormMethod.Post))
+                    {
+                        <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
+                        <input type="number" name="cantidadSubcuentas" min="2" placeholder="Nº subcuentas" style="width:120px;" />
+                        <button class="btn btn-secondary">Dividir cuenta</button>
+                    }
+                }
+                @using (Html.BeginForm("CancelarVentaRapida", "PuntoVenta", FormMethod.Post))
+                {
+                    <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
+                    <button class="btn btn-danger">Cancelar venta</button>
+                }
+            </div>
+
+            @if (venta.Subcuentas.Any())
+            {
+                <div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.08);padding-top:14px;">
+                    <h4 style="margin:0 0 10px;">Reparto de subcuentas</h4>
+
+                    <div class="form-card" style="background:transparent;box-shadow:none;padding:0;">
+                        <p style="margin:0 0 8px;font-size:14px;">
+                            <strong>Productos pendientes de asignar:</strong>
+                            @foreach (var d in venta.Detalles)
+                            {
+                                var pend = venta.PendientePorDetalle != null && venta.PendientePorDetalle.ContainsKey(d.IdDetalleVenta) ? venta.PendientePorDetalle[d.IdDetalleVenta] : d.Cantidad;
+                                var nombre = Model.Productos.FirstOrDefault(p => p.IdProducto == d.IdProducto)?.NombreProducto ?? ("Producto #" + d.IdProducto);
+                                <span style="display:inline-block;margin-right:10px;">@nombre × @pend</span>
+                            }
+                        </p>
+                        @using (Html.BeginForm("AsignarProductoSubcuenta", "PuntoVenta", FormMethod.Post))
+                        {
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Subcuenta destino</label>
+                                    <select name="idSubcuenta" required>
+                                        @foreach (var sc in venta.Subcuentas)
+                                        {
+                                            <option value="@sc.IdSubcuenta">@sc.NombreSubcuenta @(sc.Pagada ? "(pagada)" : "")</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Producto a asignar</label>
+                                    <select name="idDetalleVenta" required>
+                                        @foreach (var d in venta.Detalles)
+                                        {
+                                            var pend = venta.PendientePorDetalle != null && venta.PendientePorDetalle.ContainsKey(d.IdDetalleVenta) ? venta.PendientePorDetalle[d.IdDetalleVenta] : d.Cantidad;
+                                            if (pend <= 0) { continue; }
+                                            var nombre = Model.Productos.FirstOrDefault(p => p.IdProducto == d.IdProducto)?.NombreProducto ?? ("Producto #" + d.IdProducto);
+                                            <option value="@d.IdDetalleVenta">@nombre (pendiente @pend)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group"><label>Cantidad</label><input type="number" name="cantidad" min="1" value="1" required /></div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top:10px;">Asignar a subcuenta</button>
+                        }
+                    </div>
+
+                    @foreach (var sc in venta.Subcuentas)
+                    {
+                        var items = venta.SubcuentaItems.Where(i => i.IdSubcuenta == sc.IdSubcuenta).ToList();
+                        <div style="margin-top:14px;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                                <strong>@sc.NombreSubcuenta</strong>
+                                <span>Total: ₡@sc.Subtotal.ToString("N2") @if (sc.Pagada) { <span class="status success">Pagada</span> } else { <span class="status info">Pendiente</span> }</span>
+                            </div>
+                            @if (items.Any())
+                            {
+                                <table style="margin-top:8px;">
+                                    <thead><tr><th>Producto</th><th>Cant.</th><th>Subtotal</th><th></th></tr></thead>
+                                    <tbody>
+                                        @foreach (var it in items)
+                                        {
+                                            <tr>
+                                                <td>@it.NombreProducto</td>
+                                                <td>@it.Cantidad</td>
+                                                <td>₡@it.Subtotal.ToString("N2")</td>
+                                                <td>
+                                                    @if (!sc.Pagada)
+                                                    {
+                                                        using (Html.BeginForm("QuitarProductoSubcuenta", "PuntoVenta", FormMethod.Post))
+                                                        {
+                                                            <input type="hidden" name="idSubcuentaDetalle" value="@it.IdSubcuentaDetalle" />
+                                                            <button class="btn btn-danger btn-sm">Quitar</button>
+                                                        }
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p style="margin:8px 0 0;font-size:14px;color:#888;">Sin productos asignados.</p>
+                            }
+                            @if (!sc.Pagada)
+                            {
+                                <div style="margin-top:10px;">
+                                    @using (Html.BeginForm("CobrarSubcuenta", "PuntoVenta", FormMethod.Post))
+                                    {
+                                        <input type="hidden" name="idSubcuenta" value="@sc.IdSubcuenta" />
+                                        <select name="metodoPago">
+                                            <option>Efectivo</option><option>Tarjeta</option><option>SINPE</option><option>Mixto</option>
+                                        </select>
+                                        <input type="number" name="montoRecibido" step="0.01" min="0" placeholder="Monto recibido" style="width:130px;" />
+                                        <button class="btn btn-secondary">Cobrar subcuenta</button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (venta.Envios.Any())
+            {
+                <div style="margin-top:12px;">
+                    <strong>Envíos:</strong>
+                    <ul style="margin:6px 0 0;padding-left:20px;font-size:14px;">
+                        @foreach (var e in venta.Envios)
+                        {
+                            <li>@e.Destino · @e.Prioridad · @e.EstadoEnvio · @e.FechaHoraEnvio.ToString("HH:mm") @(!string.IsNullOrEmpty(e.CodigoConfirmacion) ? "· " + e.CodigoConfirmacion : "")</li>
+                        }
+                    </ul>
+                </div>
+            }
         </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Asociación a cajero y caja <span>+</span></button>
-            <div class="accordion-content">La venta queda identificada con el usuario responsable y la caja activa.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Venta inicialmente vacía <span>+</span></button>
-            <div class="accordion-content">Se pueden agregar productos después de abrir la venta.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Cancelación antes de cobrar <span>+</span></button>
-            <div class="accordion-content">La venta puede cancelarse visualmente antes de finalizar el cobro.</div>
-        </div>
-        <div class="accordion-item">
-            <button class="accordion-header">Bloqueo por detalle vacío <span>+</span></button>
-            <div class="accordion-content">No se permite simular el cobro si no hay productos agregados.</div>
-        </div>
-    </div>
-</div>
+    }
+}
+else
+{
+    <div class="hero-card" style="margin-top:20px;"><p>No hay ventas rápidas activas. Abra una para comenzar.</p></div>
+}

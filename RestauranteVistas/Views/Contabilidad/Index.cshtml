@@ -10,18 +10,6 @@
     <p>Gestión de apertura, egresos, cierres y anulación de ventas.</p>
 </div>
 
-@if (rol == "Cajero" && Model.AperturaActiva != null)
-{
-    <div class="banner" style="background:#f3e5f5;border-left-color:#7b1fa2;font-size:13px;font-family:monospace;">
-        <strong>Debug:</strong> Apertura #@Model.AperturaActiva.IdApertura | IdCajero=@Model.AperturaActiva.IdCajero | Ventas cargadas=@(Model.Ventas?.Count ?? 0)
-        @if (Model.Ventas != null && Model.Ventas.Any())
-        {
-            var primera = Model.Ventas.First();
-            <span> | Muestra: Venta #@primera.IdVenta MetodoPago=@primera.MetodoPago Total=@primera.TotalCobrado.ToString("N2") IdApertura=@(primera.IdApertura?.ToString() ?? "NULL")</span>
-        }
-    </div>
-}
-
 @if (!string.IsNullOrEmpty(Model.Mensaje))
 {
     <div class="banner" style="background:#e8f5e9;border-left-color:#2e7d32;"><strong>@Model.Mensaje</strong></div>
@@ -174,7 +162,7 @@
 
 @if (Model.AperturaActiva != null)
 {
-    <div class="grid-4">
+    <div class="grid-3">
         <div class="metric-card">
             <h3>Apertura</h3>
             <div class="value">@Model.AperturaActiva.MontoInicial.ToString("N2")</div>
@@ -187,6 +175,14 @@
         <div class="metric-card alt-orange">
             <h3>SINPE</h3>
             <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "sinpe").Sum(v => v.TotalCobrado).ToString("N2")</div>
+        </div>
+        <div class="metric-card alt-blue">
+            <h3>Tarjeta</h3>
+            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "tarjeta").Sum(v => v.TotalCobrado).ToString("N2")</div>
+        </div>
+        <div class="metric-card alt-orange">
+            <h3>Mixto</h3>
+            <div class="value">@Model.Ventas.Where(v => v.MetodoPago == "mixto").Sum(v => v.TotalCobrado).ToString("N2")</div>
         </div>
         <div class="metric-card alt-red">
             <h3>Egresos</h3>
@@ -652,7 +648,13 @@ else if (TempData["ReporteVacio"] != null)
             var campos = g.querySelectorAll('input, select, textarea');
             for (var j = 0; j < campos.length; j++) {
                 campos[j].disabled = !vis;
-                if (!vis) { campos[j].value = ''; }
+                if (!vis) {
+                    if (campos[j].type === 'checkbox') {
+                        campos[j].checked = false;
+                    } else {
+                        campos[j].value = '';
+                    }
+                }
             }
             if (vis) { algunoVisible = true; }
         }

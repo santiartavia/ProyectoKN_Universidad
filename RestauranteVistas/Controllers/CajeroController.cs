@@ -15,7 +15,7 @@ namespace RestauranteVistas.Controllers
         public ActionResult Index()
         {
             ViewBag.PedidosEntregados = db.Pedidos
-                .Where(p => p.Estado == true && p.EstadoPedido == "entregado")
+                .Where(p => p.Estado == true && p.EstadoPedido == "entregado" && p.TipoServicio != "rapida")
                 .OrderByDescending(p => p.FechaHoraEntrega)
                 .ToList();
 
@@ -45,6 +45,12 @@ namespace RestauranteVistas.Controllers
             if (pedido.EstadoPedido != "entregado")
             {
                 TempData["Error"] = "Solo se pueden cobrar pedidos entregados.";
+                return RedirectToAction("Index");
+            }
+
+            if (pedido.TipoServicio == "rapida")
+            {
+                TempData["Error"] = "Este pedido proviene de una venta rápida del PDV. El cobro ya se registra desde el módulo Punto de Venta, no desde aquí.";
                 return RedirectToAction("Index");
             }
 

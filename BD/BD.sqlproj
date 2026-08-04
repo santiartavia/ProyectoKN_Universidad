@@ -77,6 +77,11 @@
     <Build Include="dbo\Tables\Empleados.sql" />
     <Build Include="dbo\Tables\Egresos_Caja.sql" />
     <Build Include="dbo\Tables\Detalle_Pedido.sql" />
+    <Build Include="dbo\Tables\Detalle_Venta.sql" />
+    <Build Include="dbo\Tables\Envios_PDV.sql" />
+    <Build Include="dbo\Tables\Bitacora_PDV.sql" />
+    <Build Include="dbo\Tables\Subcuentas_Venta.sql" />
+    <Build Include="dbo\Tables\Subcuenta_Detalle_Venta.sql" />
     <Build Include="dbo\Tables\Cierres_Caja.sql" />
     <Build Include="dbo\Tables\Categorias_Producto.sql" />
     <Build Include="dbo\Tables\Categorias_Insumo.sql" />
@@ -94,5 +99,6 @@
     <Build Include="dbo\Views\v_desempenio_meseros.sql" />
     <Build Include="dbo\Views\v_cierres_caja.sql" />
     <Build Include="dbo\Triggers\trg_Bitacora_Reportes_Inmutable.sql" />
+    <Build Include="dbo\Triggers\trg_Bitacora_PDV_Inmutable.sql" />
   </ItemGroup>
 </Project>
