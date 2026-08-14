@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Models
 {
@@ -10,7 +11,10 @@ namespace Abstracciones.Models
         public DateTime FechaHoraInicio { get; set; }
         public DateTime FechaHoraUltimaAct { get; set; }
         public DateTime? FechaHoraCierre { get; set; }
+
+        [StringLength(500)]
         public string DispositivoAcceso { get; set; }
+
         public string DireccionIp { get; set; }
         public string MotivoCierre { get; set; }
 

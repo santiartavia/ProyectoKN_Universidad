@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Models
 {
@@ -11,6 +12,11 @@ namespace Abstracciones.Models
         public string EstadoAnterior { get; set; }
         public string EstadoNuevo { get; set; }
         public string Detalle { get; set; }
+        public string IpOrigen { get; set; }
+
+        [StringLength(500)]
+        public string Dispositivo { get; set; }
+
         public DateTime FechaHora { get; set; }
     }
 }

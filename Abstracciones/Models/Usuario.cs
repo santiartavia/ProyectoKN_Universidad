@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Abstracciones.Models
 {
@@ -18,7 +19,10 @@ namespace Abstracciones.Models
         public DateTime? FechaPassword { get; set; }
         public DateTime? FechaAvisoPassword { get; set; }
         public string UltimoCambioPasswordIp { get; set; }
+
+        [StringLength(500)]
         public string UltimoCambioPasswordDispositivo { get; set; }
+
         public string Direccion { get; set; }
 
         public Rol Rol { get; set; }
