@@ -1,8 +1,7 @@
 ﻿-- ======================================================================
 -- BASE DE DATOS: COLIBRI - RESTAURANTE EL COLIBRI
--- Script generado automaticamente - crear la base desde cero
+-- Script unificado y corregido
 -- Collation: Modern_Spanish_CI_AI
--- Generado: 2026-08-03 21:27:24
 -- ======================================================================
 
 IF DB_ID('COLIBRI') IS NULL
