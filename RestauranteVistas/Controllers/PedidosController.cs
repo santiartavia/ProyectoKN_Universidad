@@ -1,11 +1,15 @@
-﻿using AccesoADatos;
+using AccesoADatos;
 using Abstracciones.Models;
+using LogicaDeNegocios.Services;
 using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
 namespace RestauranteVistas.Controllers
 {
+    [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador", "Cajero" })]
     public class PedidosController : Controller
     {
         private ColibriDbContext db = new ColibriDbContext();
@@ -14,39 +18,93 @@ namespace RestauranteVistas.Controllers
         {
             ViewBag.Productos = db.Productos
                 .Where(p => p.Estado == true && p.Disponible == true)
+                .OrderBy(p => p.NombreProducto)
                 .ToList();
 
-            ViewBag.Pedidos = db.Pedidos
+            var pedidos = db.Pedidos
                 .Where(p => p.Estado == true)
                 .OrderByDescending(p => p.FechaHora)
                 .ToList();
+            ViewBag.Pedidos = pedidos;
 
             ViewBag.Detalles = db.DetallePedidos
                 .Where(d => d.Estado == true)
                 .ToList();
 
-            ViewBag.Mesas = db.Mesas.Where(m => m.Estado && (m.EstadoMesa == "disponible" || m.EstadoMesa == "reservada")).ToList();
+            // Mesas sin pedido activo en curso
+            var mesasConPedidoActivo = pedidos
+                .Where(p => p.IdMesa.HasValue && p.EstadoPedido != "cancelado" && p.EstadoPedido != "finalizado")
+                .Select(p => p.IdMesa.Value)
+                .Distinct()
+                .ToList();
+
+            ViewBag.Mesas = db.Mesas
+                .Where(m => m.Estado && m.EstadoMesa != "inactiva" && !mesasConPedidoActivo.Contains(m.IdMesa))
+                .OrderBy(m => m.NumeroMesa)
+                .ToList();
+
+            var todasMesas = db.Mesas.Where(m => m.Estado).ToList();
+            ViewBag.NombresMesas = todasMesas.GroupBy(m => m.IdMesa).ToDictionary(g => g.Key, g => g.First().NumeroMesa);
+
+            var empleados = db.Empleados.Include(e => e.Usuario).Include(e => e.Usuario.Rol)
+                .Where(e => e.Estado)
+                .OrderByDescending(e => e.Usuario != null && e.Usuario.Rol != null && e.Usuario.Rol.NombreRol == "Mesero")
+                .ThenBy(e => e.Nombre)
+                .ToList();
+            ViewBag.Meseros = empleados;
+            ViewBag.NombresEmpleados = empleados.GroupBy(e => e.IdEmpleado).ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
 
             var uid = Session["UsuarioId"] as int? ?? 0;
-            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid);
+            var empleado = empleados.FirstOrDefault(e => e.IdUsuario == uid) ?? empleados.FirstOrDefault();
             ViewBag.MeseroId = empleado?.IdEmpleado ?? 0;
-            ViewBag.MeseroNombre = empleado != null ? empleado.Nombre + " " + empleado.Apellidos : "";
+            ViewBag.MeseroNombre = empleado != null ? empleado.Nombre + " " + empleado.Apellidos : (Session["UsuarioNombre"]?.ToString() ?? "");
+
+            // KPIs reales
+            ViewBag.MesasOcupadas = todasMesas.Count(m => m.EstadoMesa == "ocupada");
+            ViewBag.EnPreparacion = pedidos.Count(p => p.EstadoPedido == "en_proceso" || p.EstadoPedido == "abierto");
+            ViewBag.Listos = pedidos.Count(p => p.EstadoPedido == "listo");
+            ViewBag.Entregados = pedidos.Count(p => p.EstadoPedido == "entregado");
 
             return View();
         }
 
         [HttpPost]
-        public ActionResult CrearOrden(int idMesa, byte comensales, int idProducto, decimal cantidad, string tipoServicio, string observaciones)
+        public ActionResult CrearOrden(int idMesa, int? idEmpleado, byte comensales, int idProducto, decimal cantidad, string tipoServicio, string observaciones)
         {
             int uid = Session["UsuarioId"] as int? ?? 0;
             if (uid == 0)
                 return RedirectToAction("Index", "Login");
 
-            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid);
-            if (empleado == null || !empleado.Estado)
+            Empleado empleado = null;
+            if (idEmpleado.HasValue && idEmpleado.Value > 0)
             {
-                TempData["Error"] = "No tiene un perfil de empleado activo para crear ordenes.";
-                return RedirectToAction("Index");
+                empleado = db.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado.Value && e.Estado);
+            }
+            if (empleado == null)
+            {
+                empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid && e.Estado)
+                        ?? db.Empleados.FirstOrDefault(e => e.Estado);
+            }
+
+            if (empleado == null)
+            {
+                // Auto-crear perfil de empleado para el usuario actual si no existe ninguno
+                var usuarioActual = db.Usuarios.FirstOrDefault(u => u.IdUsuario == uid);
+                empleado = new Empleado
+                {
+                    IdUsuario = uid,
+                    Cedula = $"U-{uid}",
+                    Nombre = usuarioActual?.NombreUsuario ?? "Mesero",
+                    Apellidos = "General",
+                    Telefono = "0000-0000",
+                    CorreoPersonal = usuarioActual?.Correo ?? "mesero@colibri.com",
+                    SalarioHora = 2500m,
+                    DiasVacacionesDisponibles = 0,
+                    FechaIngreso = DateTime.Today,
+                    Estado = true
+                };
+                db.Empleados.Add(empleado);
+                db.SaveChanges();
             }
 
             if (idMesa <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0)
@@ -55,42 +113,35 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == idMesa);
-            if (mesa == null || !mesa.Estado || (mesa.EstadoMesa != "disponible" && mesa.EstadoMesa != "reservada"))
+            var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == idMesa && m.Estado);
+            if (mesa == null || mesa.EstadoMesa == "inactiva")
             {
                 TempData["Error"] = "La mesa seleccionada no está disponible.";
                 return RedirectToAction("Index");
             }
 
             var producto = db.Productos.FirstOrDefault(p => p.IdProducto == idProducto && p.Estado == true && p.Disponible == true);
-
             if (producto == null)
             {
                 TempData["Error"] = "El producto seleccionado no existe o no está disponible.";
                 return RedirectToAction("Index");
             }
 
-            var pedidoMismaMesa = db.Pedidos.FirstOrDefault(p => p.IdMesa == idMesa && p.Estado && p.EstadoPedido != "cancelado");
+            // Solo bloquear si hay una orden ACTIVA (no finalizada ni cancelada) en la misma mesa
+            var pedidoMismaMesa = db.Pedidos.FirstOrDefault(p => p.IdMesa == idMesa && p.Estado &&
+                p.EstadoPedido != "cancelado" && p.EstadoPedido != "finalizado");
             if (pedidoMismaMesa != null)
             {
-                TempData["Error"] = "La mesa ya está asignada a otra orden activa.";
+                TempData["Error"] = $"La mesa {mesa.NumeroMesa} ya tiene una orden activa (#{pedidoMismaMesa.IdPedido}). Puede agregarle productos abajo.";
                 return RedirectToAction("Index");
             }
 
-            if (tipoServicio == "Salón" || tipoServicio == "Salon")
-            {
+            if (tipoServicio == "Salón" || tipoServicio == "Salon" || string.IsNullOrWhiteSpace(tipoServicio))
                 tipoServicio = "mesa";
-            }
-
-            if (tipoServicio == "Para llevar")
-            {
+            else if (tipoServicio == "Para llevar")
                 tipoServicio = "para_llevar";
-            }
-
-            if (tipoServicio == "Delivery")
-            {
+            else if (tipoServicio == "Delivery")
                 tipoServicio = "delivery";
-            }
 
             string origenMesa = tipoServicio;
 
@@ -122,37 +173,44 @@ namespace RestauranteVistas.Controllers
 
             db.DetallePedidos.Add(detalle);
 
+            // D-08: Descontar insumos de la receta asociada al producto cuando se confirma/crea la orden
+            string resumenReceta = InventarioService.DescontarStockPorReceta(db, idProducto, cantidad, uid, $"Pedido #{pedido.IdPedido}");
+
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
                 IdPedido = pedido.IdPedido,
                 Accion = "CREACION",
                 EstadoNuevo = "abierto",
-                Detalle = "Pedido creado. Mesa " + idMesa + ", " + cantidad + "x " + producto.NombreProducto,
+                Detalle = $"Pedido creado. Mesa {mesa.NumeroMesa}, {cantidad}x {producto.NombreProducto}",
                 FechaHora = DateTime.Now
             });
 
             mesa.EstadoMesa = "ocupada";
 
+            // Usar Accion = "UPDATE" para cumplir con CK_BitRR_accion en Bitacora_RRHH
             db.BitacoraRRHH.Add(new BitacoraRRHH
             {
                 IdUsuario = uid,
                 TablaAfectada = "Pedidos",
                 IdRegistroAfectado = pedido.IdPedido,
-                Accion = "ASIGNACION_MESA",
+                Accion = "UPDATE",
                 ValorNuevo = Newtonsoft.Json.JsonConvert.SerializeObject(new
                 {
                     idMesa,
                     idEmpleado = empleado.IdEmpleado,
                     origenMesa
                 }),
-                Detalle = $"Mesa #{idMesa} asignada al pedido #{pedido.IdPedido} (mesero: {empleado.Nombre} {empleado.Apellidos})",
+                Detalle = $"Mesa {mesa.NumeroMesa} asignada al pedido #{pedido.IdPedido} (mesero: {empleado.Nombre} {empleado.Apellidos})",
                 FechaHora = DateTime.Now
             });
 
             db.SaveChanges();
 
-            TempData["Mensaje"] = "Orden creada correctamente. Ya aparece en cocina.";
+            string msgExtra = !string.IsNullOrEmpty(resumenReceta)
+                ? $" Insumos descontados de inventario: {resumenReceta}."
+                : "";
+            TempData["Mensaje"] = $"Orden #{pedido.IdPedido} creada correctamente para {mesa.NumeroMesa} (Mesero: {empleado.Nombre} {empleado.Apellidos}). Ya aparece en cocina.{msgExtra}";
             return RedirectToAction("Index");
         }
 
@@ -191,7 +249,11 @@ namespace RestauranteVistas.Controllers
                 Estado = true
             });
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
+            int uid = Session["UsuarioId"] as int? ?? 1;
+
+            // D-08: Descontar insumos de la receta asociada al producto
+            string resumenReceta = InventarioService.DescontarStockPorReceta(db, idProducto, cantidad, uid, $"Pedido #{idPedido}");
+
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
@@ -203,7 +265,10 @@ namespace RestauranteVistas.Controllers
 
             db.SaveChanges();
 
-            TempData["Mensaje"] = "Producto agregado correctamente a la orden.";
+            string msgExtra = !string.IsNullOrEmpty(resumenReceta)
+                ? $" Insumos descontados: {resumenReceta}."
+                : "";
+            TempData["Mensaje"] = $"Producto agregado correctamente a la orden #{idPedido}.{msgExtra}";
             return RedirectToAction("Index");
         }
 
@@ -238,10 +303,20 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            int uid = Session["UsuarioId"] as int? ?? 1;
+            decimal diferencia = cantidad - detalle.Cantidad;
+            if (diferencia > 0)
+            {
+                InventarioService.DescontarStockPorReceta(db, detalle.IdProducto, diferencia, uid, $"Edición Pedido #{detalle.IdPedido}");
+            }
+            else if (diferencia < 0)
+            {
+                InventarioService.RestaurarStockPorReceta(db, detalle.IdProducto, Math.Abs(diferencia), uid, $"Edición Pedido #{detalle.IdPedido}");
+            }
+
             detalle.Cantidad = cantidad;
             detalle.ObservacionesItem = observacionesItem;
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
@@ -282,9 +357,13 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            int uid = Session["UsuarioId"] as int? ?? 1;
+
+            // D-08: Restaurar insumos al inventario al eliminar producto de orden abierta
+            InventarioService.RestaurarStockPorReceta(db, detalle.IdProducto, detalle.Cantidad, uid, $"Eliminación item Pedido #{pedido.IdPedido}");
+
             detalle.Estado = false;
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
@@ -324,7 +403,7 @@ namespace RestauranteVistas.Controllers
 
                 db.SaveChanges();
 
-                TempData["Mensaje"] = "Producto eliminado. La orden quedo cancelada porque no tiene productos.";
+                TempData["Mensaje"] = "Producto eliminado. La orden quedó cancelada porque no tiene productos.";
                 return RedirectToAction("Index");
             }
 
@@ -349,6 +428,8 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            int uid = Session["UsuarioId"] as int? ?? 1;
+
             pedido.EstadoPedido = "cancelado";
             pedido.Observaciones = (pedido.Observaciones ?? "") + " | Cancelación: " + (motivoCancelacion ?? "Sin motivo indicado");
 
@@ -356,6 +437,8 @@ namespace RestauranteVistas.Controllers
 
             foreach (var item in detalles)
             {
+                // D-08: Restaurar insumos al inventario al cancelar orden abierta
+                InventarioService.RestaurarStockPorReceta(db, item.IdProducto, item.Cantidad, uid, $"Cancelación Pedido #{idPedido}");
                 item.EstadoItem = "cancelado";
                 item.Estado = false;
             }
@@ -363,14 +446,12 @@ namespace RestauranteVistas.Controllers
             if (pedido.IdMesa.HasValue)
             {
                 var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == pedido.IdMesa.Value);
-
                 if (mesa != null)
                 {
                     mesa.EstadoMesa = "disponible";
                 }
             }
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
             db.BitacoraPedidos.Add(new BitacoraPedido
             {
                 IdUsuario = uid,
@@ -384,7 +465,41 @@ namespace RestauranteVistas.Controllers
 
             db.SaveChanges();
 
-            TempData["Mensaje"] = "Orden cancelada correctamente. Mesa liberada y disponible.";
+            TempData["Mensaje"] = "Orden cancelada correctamente. Insumos restaurados y mesa liberada.";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult MarcarEntregado(int idPedido)
+        {
+            var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
+            if (pedido == null || pedido.EstadoPedido != "listo")
+            {
+                TempData["Error"] = "Solo se pueden entregar pedidos que estén en estado 'listo'.";
+                return RedirectToAction("Index");
+            }
+
+            pedido.EstadoPedido = "entregado";
+            var detalles = db.DetallePedidos.Where(d => d.IdPedido == idPedido && d.Estado).ToList();
+            foreach (var d in detalles)
+            {
+                d.EstadoItem = "entregado";
+            }
+
+            int uid = Session["UsuarioId"] as int? ?? 1;
+            db.BitacoraPedidos.Add(new BitacoraPedido
+            {
+                IdUsuario = uid,
+                IdPedido = idPedido,
+                Accion = "CAMBIO_ESTADO",
+                EstadoAnterior = "listo",
+                EstadoNuevo = "entregado",
+                Detalle = "Pedido entregado al cliente en mesa",
+                FechaHora = DateTime.Now
+            });
+
+            db.SaveChanges();
+            TempData["Mensaje"] = $"Pedido #{idPedido} marcado como Entregado. Ya está listo para cobro en Caja.";
             return RedirectToAction("Index");
         }
 

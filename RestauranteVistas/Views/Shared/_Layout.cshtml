@@ -1,6 +1,6 @@
-﻿@{
+@{
     var usuario = Session["UsuarioNombre"] != null ? Session["UsuarioNombre"].ToString() : "Usuario Demo";
-    var rol = Session["RolNombre"] != null ? Session["RolNombre"].ToString() : "";
+    var rol = Session["RolNombre"] != null ? Session["RolNombre"].ToString().Trim() : "";
 }
 
 <!DOCTYPE html>
@@ -38,7 +38,7 @@
             </div>
 
             <nav class="menu">
-                @if (rol == "Administrador")
+                @if (string.Equals(rol, "Administrador", StringComparison.OrdinalIgnoreCase))
                 {
                     <a href="@Url.Action("Index", "Home")"><span class="material-symbols-outlined">space_dashboard</span> Dashboard</a>
                     <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
@@ -49,10 +49,13 @@
                     <a href="@Url.Action("Index", "Usuarios")"><span class="material-symbols-outlined">group</span> Usuarios</a>
                     <a href="@Url.Action("Index", "Mesas")"><span class="material-symbols-outlined">table_restaurant</span> Mesas</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
+                    <a href="@Url.Action("Index", "Mesero")"><span class="material-symbols-outlined">room_service</span> Panel Mesero</a>
+                    <a href="@Url.Action("Index", "Cocina")"><span class="material-symbols-outlined">skillet</span> Panel Cocina</a>
+                    <a href="@Url.Action("Index", "Cajero")"><span class="material-symbols-outlined">point_of_sale</span> Panel Cajero</a>
                     <a href="@Url.Action("Index", "Productos")"><span class="material-symbols-outlined">restaurant_menu</span> Productos</a>
                     <a href="@Url.Action("Index", "Inventario")"><span class="material-symbols-outlined">inventory_2</span> Inventario</a>
                     <a href="@Url.Action("Index", "NominaMensual")"><span class="material-symbols-outlined">payments</span> Nómina Mensual</a>
-                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">point_of_sale</span> Contabilidad</a>
+                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">account_balance_wallet</span> Contabilidad</a>
                     <a href="@Url.Action("Index", "Reporteria")"><span class="material-symbols-outlined">monitoring</span> Reportería</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
                     <a href="@Url.Action("Index", "OperacionPdv")"><span class="material-symbols-outlined">monitor_heart</span> Operación PDV</a>
@@ -65,17 +68,16 @@
                     <a href="@Url.Action("Bitacora", "Contabilidad")"><span class="material-symbols-outlined">account_balance</span> Bit. Financiera</a>
                     <a href="@Url.Action("BitacoraReportes", "Reporteria")"><span class="material-symbols-outlined">receipt_long</span> Bit. Reportes</a>
                 }
-                else if (rol == "Cajero")
+                else if (string.Equals(rol, "Cajero", StringComparison.OrdinalIgnoreCase))
                 {
                     <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
                     <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Cajero")"><span class="material-symbols-outlined">point_of_sale</span> Panel Cajero</a>
                     <a href="@Url.Action("Index", "PuntoVenta")"><span class="material-symbols-outlined">shopping_cart</span> Punto de Venta</a>
                     <a href="@Url.Action("Index", "OperacionPdv")"><span class="material-symbols-outlined">monitor_heart</span> Operación PDV</a>
-                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">payments</span> Cierres</a>
-                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">receipt_long</span> Cuentas</a>
+                    <a href="@Url.Action("Index", "Contabilidad")"><span class="material-symbols-outlined">payments</span> Cierres y Caja</a>
                 }
-                else if (rol == "Mesero")
+                else if (string.Equals(rol, "Mesero", StringComparison.OrdinalIgnoreCase))
                 {
                     <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
                     <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
@@ -83,7 +85,7 @@
                     <a href="@Url.Action("Index", "Mesas")"><span class="material-symbols-outlined">table_restaurant</span> Mesas</a>
                     <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Pedidos</a>
                 }
-                else if (rol == "Cocinero")
+                else if (string.Equals(rol, "Cocinero", StringComparison.OrdinalIgnoreCase))
                 {
                     <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
                     <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
@@ -109,7 +111,7 @@
                 </div>
 
                 <div class="top-actions">
-                    <button class="btn btn-soft" onclick="mostrarToast('Vista actualizada correctamente')">
+                    <button class="btn btn-soft" onclick="window.location.reload()">
                         <span class="material-symbols-outlined">refresh</span> Actualizar
                     </button>
                     <button class="btn btn-secondary" onclick="abrirModal('modalAyuda')">
@@ -134,7 +136,6 @@
             </div>
             <p>
                 El sistema muestra menús y vistas distintas según el rol seleccionado en el login.
-                Todo es visual y demostrativo.
             </p>
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="cerrarModal('modalAyuda')">Entendido</button>

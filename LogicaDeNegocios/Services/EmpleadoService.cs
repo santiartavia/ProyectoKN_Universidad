@@ -51,7 +51,7 @@ namespace LogicaDeNegocios.Services
                     IdRol = rol.IdRol,
                     NombreUsuario = cedula,
                     Correo = correo ?? $"{cedula}@colibri.com",
-                    PasswordHash = "",
+                    PasswordHash = Helpers.PasswordHelper.HashPassword(cedula),
                     CambioPasswordRequerido = true,
                     IntentosFallidos = 0,
                     Bloqueado = false,

@@ -1,26 +1,83 @@
 @model IEnumerable<Abstracciones.Models.Mesa>
-
 @{
     ViewBag.Title = "Gestion de Mesas";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var meseros = ViewBag.Meseros as List<Abstracciones.Models.Empleado>;
+    var asignaciones = ViewBag.Asignaciones as Dictionary<int, string> ?? new Dictionary<int, string>();
 }
 
 <div class="hero-card">
     <div>
         <span class="mini-badge">SPS-001</span>
-        <h2>Gestion de Mesas</h2>
-        <p>Administre las mesas del restaurante: cree, edite o elimine mesas.</p>
+        <h2>Gestión de Mesas y Asignación de Meseros</h2>
+        <p>Administre las mesas del restaurante, asigne meseros a mesas disponibles y libere mesas en uso.</p>
     </div>
     <a href="@Url.Action("Create")" class="btn btn-primary">
         <span class="material-symbols-outlined">add</span> Nueva Mesa
     </a>
 </div>
 
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success" style="margin-top:16px;">@TempData["Mensaje"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" style="margin-top:16px;">@TempData["Error"]</div>
+}
+
+<div class="form-card" style="margin-top:20px;">
+    <div class="section-title">
+        <div>
+            <h3>Asignar Mesero a Mesa</h3>
+            <p>Seleccione una mesa disponible y el mesero responsable (las mesas ocupadas no pueden reasignarse hasta ser liberadas)</p>
+        </div>
+    </div>
+
+    @using (Html.BeginForm("AsignarMesero", "Mesas", FormMethod.Post))
+    {
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Mesa *</label>
+                <select name="idMesa" required>
+                    <option value="">Seleccione mesa...</option>
+                    @if (Model != null)
+                    {
+                        foreach (var m in Model)
+                        {
+                            <option value="@m.IdMesa">@m.NumeroMesa - Capacidad: @m.Capacidad (@(m.EstadoMesa == "ocupada" ? "En Uso / Ocupada" : m.EstadoMesa))</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Mesero *</label>
+                <select name="idEmpleado" required>
+                    <option value="">Seleccione mesero...</option>
+                    @if (meseros != null)
+                    {
+                        foreach (var emp in meseros)
+                        {
+                            var rolNombre = emp.Usuario?.Rol?.NombreRol ?? "Empleado";
+                            <option value="@emp.IdEmpleado">@emp.Nombre @emp.Apellidos (@rolNombre)</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-actions" style="margin-top:12px;">
+            <button type="submit" class="btn btn-primary">
+                <span class="material-symbols-outlined">person_pin_circle</span> Asignar mesero a mesa
+            </button>
+        </div>
+    }
+</div>
+
 <div class="table-card" style="margin-top:25px;">
     <div class="section-title">
         <div>
             <h3>Listado de Mesas</h3>
-            <p>Total: @(Model != null ? Model.Count() : 0) mesas.</p>
+            <p>Total: @(Model != null ? Model.Count() : 0) mesas activas.</p>
         </div>
     </div>
 
@@ -28,10 +85,10 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Numero</th>
+                <th>Número</th>
                 <th>Capacidad</th>
                 <th>Estado</th>
-                <th>Activa</th>
+                <th>Mesero Asignado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -44,9 +101,32 @@
                         <td>@m.IdMesa</td>
                         <td><strong>@m.NumeroMesa</strong></td>
                         <td>@m.Capacidad personas</td>
-                        <td><span class="status @(m.EstadoMesa == "disponible" ? "success" : m.EstadoMesa == "ocupada" ? "warning" : "info")">@m.EstadoMesa</span></td>
-                        <td>@(m.Estado ? "Si" : "No")</td>
                         <td>
+                            <span class="status @(m.EstadoMesa == "disponible" ? "success" : m.EstadoMesa == "ocupada" ? "warning" : "info")">
+                                @(m.EstadoMesa == "ocupada" ? "En Uso (ocupada)" : m.EstadoMesa)
+                            </span>
+                        </td>
+                        <td>
+                            @if (asignaciones.ContainsKey(m.IdMesa))
+                            {
+                                <strong>@asignaciones[m.IdMesa]</strong>
+                            }
+                            else
+                            {
+                                <span style="color:#888;">Sin asignar</span>
+                            }
+                        </td>
+                        <td style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                            @if (m.EstadoMesa == "ocupada" || m.EstadoMesa == "sucia" || m.EstadoMesa == "reservada")
+                            {
+                                using (Html.BeginForm("LiberarMesa", "Mesas", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    <input type="hidden" name="id" value="@m.IdMesa" />
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Liberar mesa
+                                    </button>
+                                }
+                            }
                             <a href="@Url.Action("Edit", new { id = m.IdMesa })" class="btn btn-soft btn-sm">Editar</a>
                             @if (m.Estado)
                             {

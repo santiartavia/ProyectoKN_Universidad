@@ -1,4 +1,4 @@
-﻿@using System.Linq
+@using System.Linq
 @using System.Collections.Generic
 @{
     ViewBag.Title = "Seguimiento de Pedidos";
@@ -7,12 +7,16 @@
     var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
     var pedidos = ViewBag.Pedidos as List<Abstracciones.Models.Pedido>;
     var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
+    var meseros = ViewBag.Meseros as List<Abstracciones.Models.Empleado>;
+    var nombresMesas = ViewBag.NombresMesas as Dictionary<int, string> ?? new Dictionary<int, string>();
+    var nombresEmpleados = ViewBag.NombresEmpleados as Dictionary<int, string> ?? new Dictionary<int, string>();
+    int meseroActualId = ViewBag.MeseroId != null ? (int)ViewBag.MeseroId : 0;
 }
 
 <div class="hero-card">
     <h2>Seguimiento visual de pedidos</h2>
     <p>
-        Sigue los pedidos de tus mesas en tiempo real. Crea nuevas órdenes, agrega productos a las existentes y monitorea el estado de cada pedido para brindar un servicio eficiente y personalizado.
+        Sigue los pedidos de tus mesas en tiempo real. Crea nuevas órdenes, asigna el mesero encargado, agrega productos a las existentes y monitorea el estado de cada pedido.
     </p>
 </div>
 
@@ -27,10 +31,10 @@
 }
 
 <div class="grid-4">
-    <div class="metric-card"><h3>Mesas ocupadas</h3><div class="value">11</div></div>
-    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">7</div></div>
-    <div class="metric-card alt-orange"><h3>Listos</h3><div class="value">4</div></div>
-    <div class="metric-card alt-teal"><h3>Entregados</h3><div class="value">19</div></div>
+    <div class="metric-card"><h3>Mesas ocupadas</h3><div class="value">@(ViewBag.MesasOcupadas ?? 0)</div></div>
+    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">@(ViewBag.EnPreparacion ?? 0)</div></div>
+    <div class="metric-card alt-orange"><h3>Listos</h3><div class="value">@(ViewBag.Listos ?? 0)</div></div>
+    <div class="metric-card alt-teal"><h3>Entregados</h3><div class="value">@(ViewBag.Entregados ?? 0)</div></div>
 </div>
 
 <div class="grid-2">
@@ -38,7 +42,7 @@
         <div class="section-title">
             <div>
                 <h3>Crear orden</h3>
-                <p>Vista operativa para meseros</p>
+                <p>Vista operativa para meseros (descuenta insumos de receta automáticamente al confirmar)</p>
             </div>
         </div>
 
@@ -46,39 +50,53 @@
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Mesa</label>
+                    <label>Mesa *</label>
                     <select name="idMesa" required>
                         <option value="">Seleccione mesa</option>
                         @if (ViewBag.Mesas != null)
                         {
                             foreach (var mesa in ViewBag.Mesas)
                             {
-                                <option value="@mesa.IdMesa">@mesa.NumeroMesa (@mesa.EstadoMesa)</option>
+                                <option value="@mesa.IdMesa">@mesa.NumeroMesa (Cap: @mesa.Capacidad - @mesa.EstadoMesa)</option>
                             }
                         }
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Mesero</label>
-                    <span class="readonly-display">@(ViewBag.MeseroNombre ?? "")</span>
+                    <label>Mesero *</label>
+                    <select name="idEmpleado" required>
+                        @if (meseros != null && meseros.Any())
+                        {
+                            foreach (var emp in meseros)
+                            {
+                                <option value="@emp.IdEmpleado" @(emp.IdEmpleado == meseroActualId ? "selected" : "")>
+                                    @emp.Nombre @emp.Apellidos (@(emp.Usuario?.Rol?.NombreRol ?? "Personal"))
+                                </option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="@meseroActualId">@(ViewBag.MeseroNombre ?? "Mesero activo")</option>
+                        }
+                    </select>
                 </div>
-                <div class="form-group"><label>Comensales</label><input type="number" name="comensales" placeholder="4" required /></div>
+                <div class="form-group"><label>Comensales *</label><input type="number" name="comensales" value="2" min="1" max="50" required /></div>
 
                 <div class="form-group">
-                    <label>Producto</label>
+                    <label>Producto *</label>
                     <select name="idProducto" required>
                         <option value="">Seleccione producto</option>
                         @if (productos != null)
                         {
                             foreach (var prod in productos)
                             {
-                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta</option>
+                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta.ToString("N2")</option>
                             }
                         }
                     </select>
                 </div>
 
-                <div class="form-group"><label>Cantidad</label><input type="number" name="cantidad" placeholder="1" min="1" required /></div>
+                <div class="form-group"><label>Cantidad *</label><input type="number" name="cantidad" value="1" min="1" required /></div>
 
                 <div class="form-group">
                     <label>Tipo de servicio</label>
@@ -97,7 +115,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    <span class="material-symbols-outlined">add_shopping_cart</span> Crear orden
+                    <span class="material-symbols-outlined">add_shopping_cart</span> Confirmar y crear orden
                 </button>
             </div>
         }
@@ -110,36 +128,39 @@
         {
             <div class="form-grid">
                 <div class="form-group">
-                    <label>Pedido existente</label>
+                    <label>Pedido existente *</label>
                     <select name="idPedido" required>
                         <option value="">Seleccione pedido</option>
                         @if (pedidos != null)
                         {
                             foreach (var pedido in pedidos.Where(p => p.EstadoPedido == "abierto"))
                             {
-                                <option value="@pedido.IdPedido">Pedido #@pedido.IdPedido - Mesa @pedido.IdMesa - @pedido.EstadoPedido</option>
+                                var numMesa = pedido.IdMesa.HasValue && nombresMesas.ContainsKey(pedido.IdMesa.Value)
+                                    ? nombresMesas[pedido.IdMesa.Value]
+                                    : ("Mesa " + pedido.IdMesa);
+                                <option value="@pedido.IdPedido">Pedido #@pedido.IdPedido - @numMesa (@pedido.EstadoPedido)</option>
                             }
                         }
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Producto</label>
+                    <label>Producto *</label>
                     <select name="idProducto" required>
                         <option value="">Seleccione producto</option>
                         @if (productos != null)
                         {
                             foreach (var prod in productos)
                             {
-                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta</option>
+                                <option value="@prod.IdProducto">@prod.NombreProducto - ₡@prod.PrecioVenta.ToString("N2")</option>
                             }
                         }
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Cantidad</label>
-                    <input type="number" name="cantidad" min="1" placeholder="1" required />
+                    <label>Cantidad *</label>
+                    <input type="number" name="cantidad" min="1" value="1" required />
                 </div>
 
                 <div class="form-group">
@@ -152,9 +173,6 @@
                 <button type="submit" class="btn btn-secondary">
                     <span class="material-symbols-outlined">playlist_add</span> Agregar producto
                 </button>
-                <button type="button" class="btn btn-warning" onclick="accionDemo('Validación realizada')">
-                    <span class="material-symbols-outlined">error</span> Validar campos
-                </button>
             </div>
         }
     </div>
@@ -162,15 +180,15 @@
     <div class="table-card">
         <div class="section-title">
             <div>
-                <h3>Pedidos activos</h3>
-                <p>Monitoreo por mesa</p>
+                <h3>Pedidos registrados</h3>
+                <p>Monitoreo por mesa y entrega al cliente</p>
             </div>
         </div>
 
         <table>
             <thead>
                 <tr>
-                    <th>Mesa</th>
+                    <th>Pedido / Mesa</th>
                     <th>Mesero</th>
                     <th>Descripción</th>
                     <th>Estado</th>
@@ -185,10 +203,16 @@
                     {
                         var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
                         decimal total = detallesPedido != null ? detallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) : 0;
+                        var nombreMesa = pedido.IdMesa.HasValue && nombresMesas.ContainsKey(pedido.IdMesa.Value)
+                            ? nombresMesas[pedido.IdMesa.Value]
+                            : ("Mesa " + pedido.IdMesa);
+                        var nombreMesero = nombresEmpleados.ContainsKey(pedido.IdEmpleado)
+                            ? nombresEmpleados[pedido.IdEmpleado]
+                            : ("Empleado #" + pedido.IdEmpleado);
 
                         <tr>
-                            <td>Mesa @pedido.IdMesa</td>
-                            <td>@pedido.IdEmpleado</td>
+                            <td><strong>#@pedido.IdPedido</strong> - @nombreMesa</td>
+                            <td>@nombreMesero</td>
                             <td>
                                 @if (detallesPedido != null && detallesPedido.Any())
                                 {
@@ -196,10 +220,9 @@
                                     {
                                         var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
                                         <div>
-                                            @(prod != null ? prod.NombreProducto : "Producto no encontrado")
+                                            @(prod != null ? prod.NombreProducto : ("Producto #" + item.IdProducto))
                                             x @item.Cantidad
-                                            - @item.ObservacionesItem
-                                            [@item.EstadoItem]
+                                            @(string.IsNullOrEmpty(item.ObservacionesItem) ? "" : $"({item.ObservacionesItem})")
                                         </div>
                                     }
                                 }
@@ -219,7 +242,15 @@
                                 }
                                 else if (pedido.EstadoPedido == "listo")
                                 {
-                                    <span class="status success">Lista</span>
+                                    <span class="status success">Listo para entregar</span>
+                                }
+                                else if (pedido.EstadoPedido == "entregado")
+                                {
+                                    <span class="status info">Entregado</span>
+                                }
+                                else if (pedido.EstadoPedido == "finalizado")
+                                {
+                                    <span class="status success">Finalizado</span>
                                 }
                                 else if (pedido.EstadoPedido == "cancelado")
                                 {
@@ -230,8 +261,25 @@
                                     <span class="status">@pedido.EstadoPedido</span>
                                 }
                             </td>
-                            <td>₡@total</td>
-                            <td><button class="btn btn-soft" onclick="accionDemo('Pedido #@pedido.IdPedido: @pedido.Observaciones')">Ver</button></td>
+                            <td><strong>₡@total.ToString("N2")</strong></td>
+                            <td>
+                                @if (pedido.EstadoPedido == "listo")
+                                {
+                                    using (Html.BeginForm("MarcarEntregado", "Pedidos", FormMethod.Post, new { style = "display:inline;" }))
+                                    {
+                                        <input type="hidden" name="idPedido" value="@pedido.IdPedido" />
+                                        <button type="submit" class="btn btn-primary btn-sm">Marcar Entregado</button>
+                                    }
+                                }
+                                else if (pedido.EstadoPedido == "entregado")
+                                {
+                                    <a href="@Url.Action("Index", "Cajero")" class="btn btn-soft btn-sm">Ir a Caja</a>
+                                }
+                                else
+                                {
+                                    <span style="color:#666;font-size:12px;">@(string.IsNullOrEmpty(pedido.Observaciones) ? "—" : pedido.Observaciones)</span>
+                                }
+                            </td>
                         </tr>
                     }
                 }
@@ -259,12 +307,13 @@
         foreach (var pedido in pedidos.Where(p => p.EstadoPedido == "abierto"))
         {
             var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
+            var nombreMesa = pedido.IdMesa.HasValue && nombresMesas.ContainsKey(pedido.IdMesa.Value)
+                ? nombresMesas[pedido.IdMesa.Value]
+                : ("Mesa " + pedido.IdMesa);
 
             <div class="quick-card" style="margin-bottom:20px;">
-                <h4>Pedido #@pedido.IdPedido</h4>
-                <p><strong>Mesa:</strong> @pedido.IdMesa</p>
-                <p><strong>Estado:</strong> @pedido.EstadoPedido</p>
-                <p><strong>Observaciones:</strong> @pedido.Observaciones</p>
+                <h4>Pedido #@pedido.IdPedido (@nombreMesa)</h4>
+                <p><strong>Estado:</strong> @pedido.EstadoPedido | <strong>Observaciones:</strong> @(string.IsNullOrEmpty(pedido.Observaciones) ? "Ninguna" : pedido.Observaciones)</p>
 
                 <table style="margin-top:15px;">
                     <thead>

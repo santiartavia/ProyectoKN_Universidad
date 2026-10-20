@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
@@ -50,14 +50,17 @@ namespace RestauranteVistas.Controllers
                     var uidSesion = Session["UsuarioId"];
                     var rolSesion = Session["RolNombre"]?.ToString();
                     int? idEmpleadoCajero = null;
-                    if (rolSesion == "Cajero" && uidSesion != null)
+                    if (uidSesion != null)
                     {
                         int uid = (int)uidSesion;
                         var emp = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == uid && e.Estado);
                         if (emp != null)
                         {
-                            idEmpleadoCajero = emp.IdEmpleado;
                             vm.IdCajero = emp.IdEmpleado;
+                            if (string.Equals(rolSesion, "Cajero", StringComparison.OrdinalIgnoreCase))
+                            {
+                                idEmpleadoCajero = emp.IdEmpleado;
+                            }
                         }
                     }
 
@@ -115,7 +118,8 @@ namespace RestauranteVistas.Controllers
                     vm.CierresPeriodo = _contabilidadService.ListarCierresPeriodo();
 
                     var empleados = ctx.Empleados.Where(e => e.Estado)
-                        .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                        .GroupBy(e => e.IdUsuario)
+                        .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
                     ViewBag.NombreEmpleados = empleados;
                 }
 
@@ -133,7 +137,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cajero" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult AbrirCaja(int idCaja, int idCajero, decimal montoInicial, string observaciones)
         {
             var idAdmin = ObtenerIdAdmin();
@@ -141,6 +145,15 @@ namespace RestauranteVistas.Controllers
 
             try
             {
+                if (idCajero <= 0)
+                {
+                    using (var ctx = new ColibriDbContext())
+                    {
+                        var emp = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idAdmin && e.Estado)
+                               ?? ctx.Empleados.FirstOrDefault(e => e.Estado);
+                        if (emp != null) idCajero = emp.IdEmpleado;
+                    }
+                }
                 var apertura = _contabilidadService.AbrirCaja(idCaja, idCajero, montoInicial, observaciones, idAdmin,
                     Request.UserHostAddress, Request.UserAgent);
                 TempData["Mensaje"] = $"Caja abierta. Apertura #{apertura.IdApertura}";
@@ -154,7 +167,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpGet]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cajero" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult DescargarResguardoApertura()
         {
             var data = TempData["ResguardoApertura"]?.ToString();
@@ -177,7 +190,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult CerrarCaja(int idApertura, decimal saldoReal)
         {
             var idAdmin = ObtenerIdAdmin();
@@ -241,7 +254,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult RegistrarEgreso(int idApertura, string categoriaGasto, string descripcion, decimal monto)
         {
             var idAdmin = ObtenerIdAdmin();
@@ -262,7 +275,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpGet]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult DescargarValeEgreso()
         {
             var data = TempData["ValeEgreso"]?.ToString();
@@ -284,7 +297,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
-        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
+        [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult AnularVenta(int idVenta, string motivo)
         {
             var idAdmin = ObtenerIdAdmin();
@@ -463,7 +476,8 @@ namespace RestauranteVistas.Controllers
             using (var ctx = new ColibriDbContext())
             {
                 var empleados = ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
                 ViewBag.NombreEmpleados = empleados;
             }
 
@@ -486,7 +500,8 @@ namespace RestauranteVistas.Controllers
             using (var ctx = new ColibriDbContext())
             {
                 var empleados = ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
                 var sb = new StringBuilder();
                 sb.AppendLine("ID;Usuario;Acción;Tabla;ID Afectado;Valor Anterior;Valor Nuevo;Detalle;Fecha/Hora");
                 foreach (var r in registros)
@@ -514,7 +529,8 @@ namespace RestauranteVistas.Controllers
             using (var ctx = new ColibriDbContext())
             {
                 var empleados = ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
                 var sb = new StringBuilder();
                 sb.AppendLine("ID;Tipo;Formato;Fecha;Usuario");
                 foreach (var r in registros)

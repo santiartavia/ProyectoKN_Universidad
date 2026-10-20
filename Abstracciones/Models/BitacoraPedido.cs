@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Abstracciones.Models
 {
@@ -12,8 +13,11 @@ namespace Abstracciones.Models
         public string EstadoAnterior { get; set; }
         public string EstadoNuevo { get; set; }
         public string Detalle { get; set; }
+
+        [NotMapped]
         public string IpOrigen { get; set; }
 
+        [NotMapped]
         [StringLength(500)]
         public string Dispositivo { get; set; }
 

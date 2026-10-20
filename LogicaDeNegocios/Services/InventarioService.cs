@@ -17,14 +17,105 @@ namespace LogicaDeNegocios.Services
             _fechas = fechas;
         }
 
+        /// <summary>
+        /// D-08: Descuenta automáticamente del inventario los insumos de la receta activa asociada al producto cuando se confirma/crea una orden.
+        /// </summary>
+        public static string DescontarStockPorReceta(ColibriDbContext ctx, int idProducto, decimal cantidadProducto, int idUsuario, string referenciaOrden)
+        {
+            if (cantidadProducto <= 0) return null;
+
+            var receta = ctx.Recetas.FirstOrDefault(r => r.IdProducto == idProducto && r.Estado);
+            if (receta == null) return null;
+
+            var ingredientes = ctx.RecetaInsumos.Include(ri => ri.Insumo)
+                .Where(ri => ri.IdReceta == receta.IdReceta)
+                .ToList();
+
+            if (!ingredientes.Any()) return null;
+
+            var descontados = new List<string>();
+            int uidValido = idUsuario > 0 ? idUsuario : (ctx.Usuarios.Where(u => u.Estado).Select(u => u.IdUsuario).FirstOrDefault());
+
+            foreach (var ri in ingredientes)
+            {
+                var insumo = ri.Insumo ?? ctx.Insumos.FirstOrDefault(i => i.IdInsumo == ri.IdInsumo);
+                if (insumo == null) continue;
+
+                decimal cantidadDescontar = ri.CantidadUsar * cantidadProducto;
+                decimal stockAnterior = insumo.StockActual;
+                insumo.StockActual = Math.Max(0m, insumo.StockActual - cantidadDescontar);
+
+                string alerta = insumo.StockActual < insumo.StockMinimo ? " [ALERTA: Stock bajo mínimo]" : "";
+
+                if (uidValido > 0)
+                {
+                    ctx.BitacoraInventario.Add(new BitacoraInventario
+                    {
+                        IdUsuario = uidValido,
+                        Accion = "salida",
+                        ValorAnterior = stockAnterior.ToString("F2"),
+                        ValorNuevo = insumo.StockActual.ToString("F2"),
+                        Detalle = $"Salida por receta ({referenciaOrden}): -{cantidadDescontar:F2} {insumo.UnidadMedida} de {insumo.NombreInsumo}{alerta}",
+                        FechaHora = DateTime.Now
+                    });
+                }
+
+                descontados.Add($"{insumo.NombreInsumo} (-{cantidadDescontar:F2} {insumo.UnidadMedida})");
+            }
+
+            return descontados.Any() ? string.Join(", ", descontados) : null;
+        }
+
+        /// <summary>
+        /// D-08: Restaura al inventario los insumos de la receta cuando se elimina un producto o se cancela una orden abierta.
+        /// </summary>
+        public static void RestaurarStockPorReceta(ColibriDbContext ctx, int idProducto, decimal cantidadProducto, int idUsuario, string referenciaOrden)
+        {
+            if (cantidadProducto <= 0) return;
+
+            var receta = ctx.Recetas.FirstOrDefault(r => r.IdProducto == idProducto && r.Estado);
+            if (receta == null) return;
+
+            var ingredientes = ctx.RecetaInsumos.Include(ri => ri.Insumo)
+                .Where(ri => ri.IdReceta == receta.IdReceta)
+                .ToList();
+
+            if (!ingredientes.Any()) return;
+
+            int uidValido = idUsuario > 0 ? idUsuario : (ctx.Usuarios.Where(u => u.Estado).Select(u => u.IdUsuario).FirstOrDefault());
+
+            foreach (var ri in ingredientes)
+            {
+                var insumo = ri.Insumo ?? ctx.Insumos.FirstOrDefault(i => i.IdInsumo == ri.IdInsumo);
+                if (insumo == null) continue;
+
+                decimal cantidadRestaurar = ri.CantidadUsar * cantidadProducto;
+                decimal stockAnterior = insumo.StockActual;
+                insumo.StockActual += cantidadRestaurar;
+
+                if (uidValido > 0)
+                {
+                    ctx.BitacoraInventario.Add(new BitacoraInventario
+                    {
+                        IdUsuario = uidValido,
+                        Accion = "entrada",
+                        ValorAnterior = stockAnterior.ToString("F2"),
+                        ValorNuevo = insumo.StockActual.ToString("F2"),
+                        Detalle = $"Reversión por receta ({referenciaOrden}): +{cantidadRestaurar:F2} {insumo.UnidadMedida} de {insumo.NombreInsumo}",
+                        FechaHora = DateTime.Now
+                    });
+                }
+            }
+        }
+
         public Insumo RegistrarInsumo(string nombreInsumo, int idCategoria, string unidadMedida, decimal stockMinimo, int idUsuario, int? idProveedor = null)
         {
             if (string.IsNullOrWhiteSpace(nombreInsumo))
                 throw new ArgumentException("El nombre del insumo es obligatorio");
             if (idCategoria <= 0)
                 throw new ArgumentException("La categoría es obligatoria");
-if (string.IsNullOrWhiteSpace(unidadMedida) || !new[] { "Kg", "L", "Unidad", "ml", "oz", "g" }.Contains(unidadMedida))
-    throw new ArgumentException("La unidad de medida debe ser Kg, L, Unidad, ml, oz o g");
+            if (string.IsNullOrWhiteSpace(unidadMedida) || !new[] { "Kg", "L", "Unidad", "ml", "oz", "g" }.Contains(unidadMedida))
+                throw new ArgumentException("La unidad de medida debe ser Kg, L, Unidad, ml, oz o g");
             if (stockMinimo < 0)
                 throw new ArgumentException("El stock mínimo no puede ser negativo");
 

@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
@@ -282,7 +282,8 @@ namespace RestauranteVistas.Controllers
                     .OrderBy(e => e.Nombre)
                     .ToDictionary(e => e.IdEmpleado, e => $"{e.Nombre} {e.Apellidos}");
                 ViewBag.NombreEmpleados = ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
                 ViewBag.CategoriasEgreso = new[] { "Servicios públicos", "Mantenimiento", "Limpieza", "Oficina", "Transporte", "Otros" };
             }
         }
@@ -292,7 +293,8 @@ namespace RestauranteVistas.Controllers
             using (var ctx = new ColibriDbContext())
             {
                 return ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
             }
         }
 

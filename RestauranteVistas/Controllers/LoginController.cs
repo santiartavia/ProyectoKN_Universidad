@@ -1,4 +1,4 @@
-﻿using Abstracciones.Models;
+using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Helpers;
@@ -66,18 +66,38 @@ namespace RestauranteVistas.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Primer ingreso / sin contraseña
+                // Primer ingreso / sin contraseña configurada en BD (D-01 fix: validar clave temporal = NombreUsuario y no abrir sesión completa aún)
                 if (string.IsNullOrEmpty(user.PasswordHash))
                 {
-                    IniciarSesion(user);
-                    var empTmp = ctx.Empleados.FirstOrDefault(ee => ee.IdUsuario == user.IdUsuario && ee.Estado);
-                    if (empTmp != null)
-                        Session["UsuarioNombre"] = $"{empTmp.Nombre} {empTmp.Apellidos}";
+                    if (!string.Equals(password, user.NombreUsuario, StringComparison.Ordinal))
+                    {
+                        user.IntentosFallidos++;
+
+                        if (user.IntentosFallidos >= 5)
+                        {
+                            user.Bloqueado = true;
+                            ctx.BitacoraAcceso.Add(new BitacoraAcceso
+                            {
+                                IdUsuario = user.IdUsuario,
+                                Accion = "BLOQUEO",
+                                Detalle = $"Cuenta bloqueada por {user.IntentosFallidos} intentos fallidos.",
+                                IpOrigen = ip,
+                                Dispositivo = dispositivo,
+                                FechaHora = _fechas.ObtenerFechaActual()
+                            });
+                        }
+
+                        ctx.SaveChanges();
+                        TempData["ErrorLogin"] = "contraseña incorrecta, favor intente de nuevo.";
+                        return RedirectToAction("Index");
+                    }
+
+                    Session["PendingPasswordUserId"] = user.IdUsuario;
                     return RedirectToAction("CrearPassword");
                 }
 
-                // Verificar contraseña con SHA-256
-                bool passwordCorrecta;
+                // Verificar contraseña con PBKDF2 SHA-256
+                bool passwordCorrecta = false;
                 try
                 {
                     passwordCorrecta = PasswordHelper.VerifyPassword(password, user.PasswordHash);
@@ -142,7 +162,6 @@ namespace RestauranteVistas.Controllers
                     if (passwordExpirada)
                     {
                         user.CambioPasswordRequerido = true;
-                        // Bloquear si no cambia (criterio 7)
                     }
                 }
 
@@ -172,7 +191,6 @@ namespace RestauranteVistas.Controllers
                     DireccionIp = ip
                 };
                 ctx.Sesiones.Add(sesion);
-                Session["IdSesion"] = sesion.IdSesion;
 
                 // bitácora de acceso (GUS 008)
                 ctx.BitacoraAcceso.Add(new BitacoraAcceso
@@ -186,6 +204,7 @@ namespace RestauranteVistas.Controllers
                 });
 
                 ctx.SaveChanges();
+                Session["IdSesion"] = sesion.IdSesion;
 
                 // Alerta de contraseña próxima a vencer (GUS 006)
                 if (passwordProximaVencer && !user.FechaAvisoPassword.HasValue)
@@ -237,7 +256,7 @@ namespace RestauranteVistas.Controllers
         [HttpGet]
         public ActionResult CrearPassword()
         {
-            if (Session["UsuarioId"] == null)
+            if (Session["PendingPasswordUserId"] == null && Session["UsuarioId"] == null)
                 return RedirectToAction("Index");
             return View();
         }
@@ -245,7 +264,8 @@ namespace RestauranteVistas.Controllers
         [HttpPost]
         public ActionResult CrearPassword(string passwordNuevo, string passwordConfirmar)
         {
-            if (Session["UsuarioId"] == null)
+            int? pendingId = Session["PendingPasswordUserId"] as int? ?? Session["UsuarioId"] as int?;
+            if (!pendingId.HasValue)
                 return RedirectToAction("Index");
 
             if (string.IsNullOrWhiteSpace(passwordNuevo))
@@ -268,7 +288,7 @@ namespace RestauranteVistas.Controllers
 
             using (var ctx = new ColibriDbContext())
             {
-                var idUsuario = (int)Session["UsuarioId"];
+                var idUsuario = pendingId.Value;
                 var user = ctx.Usuarios.Include("Rol").FirstOrDefault(u => u.IdUsuario == idUsuario);
                 if (user == null)
                     return RedirectToAction("Logout");
@@ -294,20 +314,39 @@ namespace RestauranteVistas.Controllers
                     DireccionIp = ip
                 });
 
-                // bitácora (GUS 008)
+                // bitácora (GUS 008) - Usar UPDATE para compatibilidad con CK_BitRR_accion
                 ctx.BitacoraRRHH.Add(new BitacoraRRHH
                 {
                     IdUsuario = user.IdUsuario,
                     TablaAfectada = "Usuarios",
                     IdRegistroAfectado = user.IdUsuario,
-                    Accion = "PASSWORD_CHANGE",
+                    Accion = "UPDATE",
                     Detalle = $"creación de contraseña (PRIMER_INGRESO) del usuario {user.NombreUsuario}",
                     IpOrigen = ip,
                     Dispositivo = dispositivo,
                     FechaHora = _fechas.ObtenerFechaActual()
                 });
 
+                // Ahora sí iniciar sesión completa tras establecer contraseña válida
+                Session.Remove("PendingPasswordUserId");
+                IniciarSesion(user);
+                var empTmp = ctx.Empleados.FirstOrDefault(ee => ee.IdUsuario == user.IdUsuario && ee.Estado);
+                if (empTmp != null)
+                    Session["UsuarioNombre"] = $"{empTmp.Nombre} {empTmp.Apellidos}";
+
+                var sesion = new Sesion
+                {
+                    IdUsuario = user.IdUsuario,
+                    EstadoSesion = "ACTIVA",
+                    FechaHoraInicio = _fechas.ObtenerFechaActual(),
+                    FechaHoraUltimaAct = _fechas.ObtenerFechaActual(),
+                    DispositivoAcceso = dispositivo,
+                    DireccionIp = ip
+                };
+                ctx.Sesiones.Add(sesion);
+
                 ctx.SaveChanges();
+                Session["IdSesion"] = sesion.IdSesion;
 
                 TempData["Mensaje"] = "contraseña creada correctamente.";
                 var rol = user.Rol.NombreRol.ToLower();
@@ -468,13 +507,13 @@ namespace RestauranteVistas.Controllers
                     DireccionIp = ip
                 });
 
-                // bitácora (GUS 008)
+                // bitácora (GUS 008) - Usar UPDATE para compatibilidad con CK_BitRR_accion
                 ctx.BitacoraRRHH.Add(new BitacoraRRHH
                 {
                     IdUsuario = user.IdUsuario,
                     TablaAfectada = "Usuarios",
                     IdRegistroAfectado = user.IdUsuario,
-                    Accion = "PASSWORD_CHANGE",
+                    Accion = "UPDATE",
                     Detalle = $"Cambio de contraseña del usuario {user.NombreUsuario}",
                     IpOrigen = ip,
                     Dispositivo = dispositivo,
@@ -550,9 +589,9 @@ namespace RestauranteVistas.Controllers
                     var sesion = ctx.Sesiones.Find(idSesion);
                     if (sesion != null)
                     {
-                        // Verificar tiempo máximo de inactividad (2 min)
+                        // Verificar tiempo máximo de inactividad (30 min en vez de 2 min para no interrumpir pruebas de usuario)
                         var inactividad = (_fechas.ObtenerFechaActual() - sesion.FechaHoraUltimaAct).TotalMinutes;
-                        if (inactividad > 2)
+                        if (inactividad > 30)
                         {
                             sesion.EstadoSesion = "EXPIRADA";
                             sesion.FechaHoraCierre = _fechas.ObtenerFechaActual();

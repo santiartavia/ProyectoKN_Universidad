@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
@@ -20,6 +20,23 @@ namespace RestauranteVistas.Controllers
         private readonly IFechasLN _fechas = new FechasLN();
         private readonly IUsuarioService _usuarioService = new UsuarioService(new FechasLN());
 
+        private List<Rol> ObtenerRolesLimpios(ColibriDbContext ctx)
+        {
+            var rolesPrincipales = new[] { "Administrador", "Cajero", "Mesero", "Cocinero", "Supervisor" };
+            var todos = ctx.Roles.Where(r => r.Estado).ToList();
+            var filtrados = todos
+                .Where(r => rolesPrincipales.Any(p => string.Equals(p, r.NombreRol, StringComparison.OrdinalIgnoreCase)))
+                .GroupBy(r => r.NombreRol.Trim().ToLowerInvariant())
+                .Select(g => g.OrderBy(r => r.IdRol).First())
+                .OrderBy(r => r.IdRol)
+                .ToList();
+
+            return filtrados.Any() ? filtrados : todos
+                .GroupBy(r => (r.NombreRol ?? "").Trim().ToLowerInvariant())
+                .Select(g => g.OrderBy(r => r.IdRol).First())
+                .ToList();
+        }
+
         public ActionResult Index()
         {
             using (var ctx = new ColibriDbContext())
@@ -30,16 +47,17 @@ namespace RestauranteVistas.Controllers
                     .ToList();
 
                 var empleados = ctx.Empleados.Where(e => e.Estado)
-                    .ToDictionary(e => e.IdUsuario, e => $"{e.Nombre} {e.Apellidos}");
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
 
-                var roles = ctx.Roles.Where(r => r.Estado).ToList();
+                var roles = ObtenerRolesLimpios(ctx);
 
                 var modelo = new UsuariosViewModel
                 {
                     Usuarios = usuarios,
                     Roles = roles,
                     UsuariosActivos = usuarios.Count,
-                    Administradores = usuarios.Count(u => u.Rol?.NombreRol == "Administrador"),
+                    Administradores = usuarios.Count(u => string.Equals(u.Rol?.NombreRol, "Administrador", StringComparison.OrdinalIgnoreCase)),
                     RolesDefinidos = roles.Count,
                     NombresEmpleados = empleados
                 };
@@ -130,8 +148,8 @@ namespace RestauranteVistas.Controllers
                 var usuario = new Usuario
                 {
                     IdRol = model.NuevoIdRol,
-                    NombreUsuario = model.NuevoNombreUsuario,
-                    Correo = model.NuevoCorreo,
+                    NombreUsuario = model.NuevoNombreUsuario.Trim(),
+                    Correo = model.NuevoCorreo.Trim(),
                     PasswordHash = passwordHash,
                     CambioPasswordRequerido = false,
                     IntentosFallidos = 0,
@@ -142,6 +160,29 @@ namespace RestauranteVistas.Controllers
                 };
                 ctx.Usuarios.Add(usuario);
                 ctx.SaveChanges();
+
+                // Crear registro de Empleado vinculado para que pueda operar Pedidos, Mesas, Caja, etc.
+                string cedulaGen = model.NuevoNombreUsuario.Trim();
+                if (cedulaGen.Length > 20) cedulaGen = cedulaGen.Substring(0, 20);
+                if (ctx.Empleados.Any(e => e.Cedula == cedulaGen))
+                {
+                    cedulaGen = $"U-{usuario.IdUsuario}-{DateTime.Now:mmss}";
+                }
+
+                var empleado = new Empleado
+                {
+                    IdUsuario = usuario.IdUsuario,
+                    Cedula = cedulaGen,
+                    Nombre = model.NuevoNombreUsuario.Trim(),
+                    Apellidos = $"({rol.NombreRol})",
+                    Telefono = "0000-0000",
+                    CorreoPersonal = model.NuevoCorreo.Trim(),
+                    SalarioHora = 2500m,
+                    DiasVacacionesDisponibles = 0,
+                    FechaIngreso = _fechas.ObtenerFechaActual().Date,
+                    Estado = true
+                };
+                ctx.Empleados.Add(empleado);
 
                 // Guardar en historial de contraseñas
                 ctx.PasswordHistorial.Add(new PasswordHistorial
@@ -198,7 +239,7 @@ namespace RestauranteVistas.Controllers
                 }
 
                 var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == id && e.Estado);
-                var roles = ctx.Roles.Where(r => r.Estado).ToList();
+                var roles = ObtenerRolesLimpios(ctx);
 
                 var modelo = new EditarUsuarioViewModel
                 {
@@ -288,7 +329,7 @@ namespace RestauranteVistas.Controllers
                     model.CorreoActual = usuario.Correo;
                     model.RolActual = usuario.Rol?.NombreRol ?? "";
                     model.Cedula = empleado?.Cedula ?? "";
-                    model.RolesDisponibles = ctx.Roles.Where(r => r.Estado).ToList();
+                    model.RolesDisponibles = ObtenerRolesLimpios(ctx);
                 }
             }
 
@@ -316,7 +357,7 @@ namespace RestauranteVistas.Controllers
                 }
 
                 var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == id && e.Estado);
-                var roles = ctx.Roles.Where(r => r.Estado).ToList();
+                var roles = ObtenerRolesLimpios(ctx);
 
                 var modelo = new AsignarRolViewModel
                 {
@@ -376,7 +417,7 @@ namespace RestauranteVistas.Controllers
                         IdUsuario = GetAdminId(),
                         TablaAfectada = "Usuarios",
                         IdRegistroAfectado = usuario.IdUsuario,
-                        Accion = "ROLE_ASSIGNMENT",
+                        Accion = "UPDATE",
                         ValorAnterior = $"Rol anterior: {rolAnterior}",
                         ValorNuevo = $"Rol nuevo: {rolNuevo.NombreRol}",
                         Detalle = $"Se asignó rol {rolNuevo.NombreRol} al usuario {usuario.NombreUsuario} en fecha {_fechas.ObtenerFechaActual():dd/MM/yyyy}",
@@ -429,7 +470,7 @@ namespace RestauranteVistas.Controllers
                 }
 
                 var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == model.IdUsuario && e.Estado);
-                var roles = ctx.Roles.Where(r => r.Estado).ToList();
+                var roles = ObtenerRolesLimpios(ctx);
 
                 var confirmacion = new AsignarRolViewModel
                 {
@@ -626,7 +667,8 @@ namespace RestauranteVistas.Controllers
                 string ip = Request.UserHostAddress;
                 string dispositivo = Request.UserAgent;
 
-                user.PasswordHash = "";
+                // Asignar contraseña temporal igual al nombre de usuario y requerir cambio inmediato
+                user.PasswordHash = PasswordHelper.HashPassword(user.NombreUsuario);
                 user.CambioPasswordRequerido = true;
 
                 ctx.BitacoraRRHH.Add(new BitacoraRRHH
@@ -634,8 +676,8 @@ namespace RestauranteVistas.Controllers
                     IdUsuario = GetAdminId(),
                     TablaAfectada = "Usuarios",
                     IdRegistroAfectado = user.IdUsuario,
-                    Accion = "PASSWORD_CHANGE",
-                    Detalle = $"Administrador restablecio la contrasena de {user.NombreUsuario}. Debera crear una nueva al iniciar sesion.",
+                    Accion = "UPDATE",
+                    Detalle = $"Administrador restableció la contraseña de {user.NombreUsuario}. Deberá cambiarla al iniciar sesión.",
                     IpOrigen = ip,
                     Dispositivo = dispositivo,
                     FechaHora = _fechas.ObtenerFechaActual()
@@ -643,7 +685,7 @@ namespace RestauranteVistas.Controllers
 
                 ctx.SaveChanges();
 
-                TempData["Mensaje"] = $"Contrasena restablecida. El usuario {user.NombreUsuario} debera crear una nueva al iniciar sesion.";
+                TempData["Mensaje"] = $"Contraseña restablecida. La clave temporal de {user.NombreUsuario} es '{user.NombreUsuario}' y deberá cambiarla al iniciar sesión.";
             }
             return RedirectToAction("Index");
         }
@@ -661,6 +703,8 @@ namespace RestauranteVistas.Controllers
                 }
 
                 user.Bloqueado = !user.Bloqueado;
+                if (!user.Bloqueado)
+                    user.IntentosFallidos = 0;
 
                 ctx.BitacoraRRHH.Add(new BitacoraRRHH
                 {
@@ -785,7 +829,25 @@ namespace RestauranteVistas.Controllers
 
                 var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario);
                 if (empleado == null)
-                    return Json(new { error = "El usuario no tiene un empleado asociado." }, JsonRequestBehavior.AllowGet);
+                {
+                    return Json(new
+                    {
+                        idEmpleado = 0,
+                        cedula = usuario.NombreUsuario,
+                        nombre = usuario.NombreUsuario,
+                        apellidos = "",
+                        telefono = "—",
+                        correo = usuario.Correo,
+                        direccion = usuario.Direccion ?? "—",
+                        nombreUsuario = usuario.NombreUsuario,
+                        rol = usuario.Rol?.NombreRol ?? "",
+                        salarioHora = "0.00",
+                        fechaIngreso = usuario.FechaCreacion.ToString("dd/MM/yyyy"),
+                        fechaModificacion = "—",
+                        vacacionesDisponibles = "0.0",
+                        estado = usuario.Estado ? "Activo" : "Inactivo"
+                    }, JsonRequestBehavior.AllowGet);
+                }
 
                 return Json(new
                 {

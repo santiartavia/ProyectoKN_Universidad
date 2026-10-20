@@ -1,4 +1,4 @@
-﻿using AccesoADatos;
+using AccesoADatos;
 using Abstracciones.Models;
 using System;
 using System.Linq;
@@ -34,6 +34,10 @@ namespace RestauranteVistas.Controllers
                 .OrderByDescending(p => p.FechaHora)
                 .ToList();
 
+            var mesas = db.Mesas.Where(m => m.Estado).OrderBy(m => m.NumeroMesa).ToList();
+            ViewBag.Mesas = mesas;
+            ViewBag.MesasOcupadasCount = mesas.Count(m => m.EstadoMesa == "ocupada");
+
             ViewBag.Detalles = db.DetallePedidos.Where(d => d.Estado == true).ToList();
             ViewBag.Productos = db.Productos.Where(p => p.Estado == true).ToList();
 
@@ -63,6 +67,17 @@ namespace RestauranteVistas.Controllers
             }
 
             string estadoAnterior = pedido.EstadoPedido;
+            int uid = Session["UsuarioId"] as int? ?? 0;
+            if (uid <= 0)
+            {
+                uid = db.Usuarios.Where(u => u.Estado).Select(u => u.IdUsuario).FirstOrDefault();
+            }
+
+            var detalles = db.DetallePedidos.Where(d => d.IdPedido == idPedido && d.Estado).ToList();
+            foreach (var d in detalles)
+            {
+                d.EstadoItem = "entregado";
+            }
 
             if (pedido.TipoServicio == "rapida")
             {
@@ -73,21 +88,23 @@ namespace RestauranteVistas.Controllers
                     pedido.IdPedido,
                     estadoAnterior,
                     "finalizado",
-                    "Mesero",
+                    Session["UsuarioNombre"]?.ToString() ?? "Mesero",
                     "Pedido rápido (venta ya pagada en PDV) entregado y finalizado directamente."
                 );
 
-                int uid2 = Session["UsuarioId"] as int? ?? 0;
-                db.BitacoraPedidos.Add(new BitacoraPedido
+                if (uid > 0)
                 {
-                    IdUsuario = uid2,
-                    IdPedido = idPedido,
-                    Accion = "ENTREGA",
-                    EstadoAnterior = estadoAnterior,
-                    EstadoNuevo = "finalizado",
-                    Detalle = "Pedido rápido entregado; ya fue cobrado en el Punto de Venta, por lo que se finaliza sin pasar por caja.",
-                    FechaHora = DateTime.Now
-                });
+                    db.BitacoraPedidos.Add(new BitacoraPedido
+                    {
+                        IdUsuario = uid,
+                        IdPedido = idPedido,
+                        Accion = "ENTREGA",
+                        EstadoAnterior = estadoAnterior,
+                        EstadoNuevo = "finalizado",
+                        Detalle = "Pedido rápido entregado; ya fue cobrado en el Punto de Venta, por lo que se finaliza sin pasar por caja.",
+                        FechaHora = DateTime.Now
+                    });
+                }
 
                 db.SaveChanges();
                 TempData["Mensaje"] = "Pedido rápido entregado. Como la venta ya fue pagada en PDV, quedó finalizado.";
@@ -101,25 +118,27 @@ namespace RestauranteVistas.Controllers
                 pedido.IdPedido,
                 estadoAnterior,
                 "entregado",
-                "Mesero",
-                "Mesero entrego el pedido al cliente"
+                Session["UsuarioNombre"]?.ToString() ?? "Mesero",
+                "Mesero entregó el pedido al cliente"
             );
 
-            int uid = Session["UsuarioId"] as int? ?? 0;
-            db.BitacoraPedidos.Add(new BitacoraPedido
+            if (uid > 0)
             {
-                IdUsuario = uid,
-                IdPedido = idPedido,
-                Accion = "ENTREGA",
-                EstadoAnterior = "listo",
-                EstadoNuevo = "entregado",
-                Detalle = "Pedido entregado por mesero.",
-                FechaHora = DateTime.Now
-            });
+                db.BitacoraPedidos.Add(new BitacoraPedido
+                {
+                    IdUsuario = uid,
+                    IdPedido = idPedido,
+                    Accion = "ENTREGA",
+                    EstadoAnterior = "listo",
+                    EstadoNuevo = "entregado",
+                    Detalle = "Pedido entregado por mesero.",
+                    FechaHora = DateTime.Now
+                });
+            }
 
             db.SaveChanges();
 
-            TempData["Mensaje"] = "Pedido entregado correctamente. Queda habilitado para pago.";
+            TempData["Mensaje"] = $"Pedido #{idPedido} entregado correctamente. Queda habilitado para pago en Caja.";
             return RedirectToAction("Index");
         }
 

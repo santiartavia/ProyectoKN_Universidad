@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.Helpers;
@@ -34,12 +34,16 @@ namespace LogicaDeNegocios.Services
             int idRegistroAfectado, string valorAnterior, string valorNuevo,
             string detalle, int idUsuario, string ip, string dispositivo)
         {
+            var accionValida = (accion == "ROLE_ASSIGNMENT" || accion == "PASSWORD_CHANGE" || accion == "ASIGNACION_MESA")
+                ? "UPDATE"
+                : accion;
+
             var bitacora = new BitacoraRRHH
             {
                 IdUsuario = idUsuario,
                 TablaAfectada = tabla,
                 IdRegistroAfectado = idRegistroAfectado,
-                Accion = accion,
+                Accion = accionValida,
                 ValorAnterior = valorAnterior,
                 ValorNuevo = valorNuevo,
                 Detalle = detalle,
@@ -48,6 +52,7 @@ namespace LogicaDeNegocios.Services
                 FechaHora = _fechas.ObtenerFechaActual()
             };
             ctx.BitacoraRRHH.Add(bitacora);
+            ctx.SaveChanges();
         }
 
         private void RegistrarBitacoraAcceso(ColibriDbContext ctx, int idUsuario, string accion,
@@ -63,6 +68,7 @@ namespace LogicaDeNegocios.Services
                 FechaHora = _fechas.ObtenerFechaActual()
             };
             ctx.BitacoraAcceso.Add(reg);
+            ctx.SaveChanges();
         }
 
         private void GuardarHistorialPassword(ColibriDbContext ctx, int idUsuario, string passwordHash,
@@ -78,6 +84,7 @@ namespace LogicaDeNegocios.Services
                 DireccionIp = ip
             };
             ctx.PasswordHistorial.Add(historial);
+            ctx.SaveChanges();
         }
 
         private bool PasswordUsadaAnteriormente(ColibriDbContext ctx, int idUsuario, string nuevaPassword)
@@ -284,7 +291,7 @@ namespace LogicaDeNegocios.Services
                 usuario.IdRol = idRolNuevo;
                 ctx.SaveChanges();
 
-                RegistrarAuditoria(ctx, "ROLE_ASSIGNMENT", "Usuarios", usuario.IdUsuario,
+                RegistrarAuditoria(ctx, "UPDATE", "Usuarios", usuario.IdUsuario,
                     $"Rol anterior: {rolAnteriorNombre}",
                     $"Rol nuevo: {rolNuevo.NombreRol}",
                     $"Se asignó rol {rolNuevo.NombreRol} al usuario {usuario.NombreUsuario} en fecha {_fechas.ObtenerFechaActual():dd/MM/yyyy}",
@@ -332,7 +339,7 @@ namespace LogicaDeNegocios.Services
 
                 GuardarHistorialPassword(ctx, idUsuario, nuevoHash, "MANUAL", ip, dispositivo);
 
-                RegistrarAuditoria(ctx, "PASSWORD_CHANGE", "Usuarios", idUsuario,
+                RegistrarAuditoria(ctx, "UPDATE", "Usuarios", idUsuario,
                     null, null,
                     $"Cambio de contraseña del usuario {usuario.NombreUsuario}",
                     idUsuario, ip, dispositivo);
@@ -372,7 +379,7 @@ namespace LogicaDeNegocios.Services
 
                 GuardarHistorialPassword(ctx, idUsuario, nuevoHash, metodoCambio, ip, dispositivo);
 
-                RegistrarAuditoria(ctx, "PASSWORD_CHANGE", "Usuarios", idUsuario,
+                RegistrarAuditoria(ctx, "UPDATE", "Usuarios", idUsuario,
                     null, null,
                     $"Cambio de contraseña ({metodoCambio}) del usuario {usuario.NombreUsuario}",
                     idUsuario, ip, dispositivo);

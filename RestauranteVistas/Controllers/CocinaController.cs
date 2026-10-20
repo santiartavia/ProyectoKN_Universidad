@@ -1,4 +1,4 @@
-﻿using AccesoADatos;
+using AccesoADatos;
 using Abstracciones.Models;
 using System;
 using System.Linq;
@@ -6,6 +6,7 @@ using System.Web.Mvc;
 
 namespace RestauranteVistas.Controllers
 {
+    [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cocinero", "Administrador" })]
     public class CocinaController : Controller
     {
         private ColibriDbContext db = new ColibriDbContext();
@@ -23,7 +24,7 @@ namespace RestauranteVistas.Controllers
             ViewBag.PedidosNuevos = pedidos.Count(p => p.EstadoPedido == "abierto");
             ViewBag.EnPreparacion = pedidos.Count(p => p.EstadoPedido == "en_proceso");
             ViewBag.PorEntregar = pedidos.Count(p => p.EstadoPedido == "listo");
-            ViewBag.Completados = pedidos.Count(p => p.EstadoPedido == "entregado");
+            ViewBag.Completados = db.Pedidos.Count(p => p.Estado == true && (p.EstadoPedido == "entregado" || p.EstadoPedido == "finalizado"));
 
             ViewBag.Mesas = db.Mesas.ToList();
             ViewBag.Detalles = db.DetallePedidos.Where(d => d.Estado == true).ToList();
@@ -56,13 +57,43 @@ namespace RestauranteVistas.Controllers
                     pedido.IdPedido,
                     estadoAnterior,
                     "en_proceso",
-                    "Cocinero",
+                    Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
                     "Cocina inició la preparación del pedido"
                 );
 
                 db.SaveChanges();
 
-                TempData["Mensaje"] = "El pedido pasó a preparación correctamente.";
+                TempData["Mensaje"] = $"El pedido #{idPedido} pasó a preparación correctamente.";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult MarcarPedidoListo(int idPedido)
+        {
+            var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
+            if (pedido != null)
+            {
+                string estadoAnterior = pedido.EstadoPedido;
+                pedido.EstadoPedido = "listo";
+
+                var detalles = db.DetallePedidos.Where(d => d.IdPedido == idPedido && d.Estado).ToList();
+                foreach (var item in detalles)
+                {
+                    item.EstadoItem = "listo";
+                }
+
+                RegistrarHistorial(
+                    pedido.IdPedido,
+                    estadoAnterior,
+                    "listo",
+                    Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
+                    "Todos los productos del pedido fueron marcados como listos por cocina"
+                );
+
+                db.SaveChanges();
+                TempData["Mensaje"] = $"El pedido #{idPedido} fue marcado como Listo para servir.";
             }
 
             return RedirectToAction("Index");
@@ -89,7 +120,7 @@ namespace RestauranteVistas.Controllers
                         pedido.IdPedido,
                         estadoPedidoAnterior,
                         "en_proceso",
-                        "Cocinero",
+                        Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
                         "Producto marcado en preparación y pedido pasó a en proceso"
                     );
                 }
@@ -99,7 +130,7 @@ namespace RestauranteVistas.Controllers
                         pedido.IdPedido,
                         estadoItemAnterior,
                         "preparando",
-                        "Cocinero",
+                        Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
                         "Producto marcado en preparación"
                     );
                 }
@@ -126,7 +157,7 @@ namespace RestauranteVistas.Controllers
                     detalle.IdPedido,
                     estadoItemAnterior,
                     "listo",
-                    "Cocinero",
+                    Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
                     "Producto marcado como listo"
                 );
 
@@ -147,7 +178,7 @@ namespace RestauranteVistas.Controllers
                             pedido.IdPedido,
                             estadoPedidoAnterior,
                             "listo",
-                            "Cocinero",
+                            Session["UsuarioNombre"]?.ToString() ?? "Cocinero",
                             "Todos los productos del pedido están listos"
                         );
                     }

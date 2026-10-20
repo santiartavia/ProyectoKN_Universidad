@@ -1,7 +1,9 @@
+using Abstracciones.Models;
 using AccesoADatos;
 using RestauranteVistas.Filters;
 using RestauranteVistas.Models.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -15,38 +17,60 @@ namespace RestauranteVistas.Controllers
         {
             using (var ctx = new ColibriDbContext())
             {
-                var query = ctx.BitacoraPedidos.AsQueryable();
+                var registros = new List<BitacoraPedido>();
+                var acciones = new List<string>();
+                var dicUsuarios = new Dictionary<int, string>();
 
-                if (idPedido.HasValue)
-                    query = query.Where(b => b.IdPedido == idPedido.Value);
-                if (idUsuario.HasValue)
-                    query = query.Where(b => b.IdUsuario == idUsuario.Value);
-
-                if (!string.IsNullOrWhiteSpace(fechaInicio))
+                try
                 {
-                    var fi = DateTime.Parse(fechaInicio);
-                    query = query.Where(b => b.FechaHora >= fi);
+                    var query = ctx.BitacoraPedidos.AsQueryable();
+
+                    if (idPedido.HasValue)
+                        query = query.Where(b => b.IdPedido == idPedido.Value);
+                    if (idUsuario.HasValue)
+                        query = query.Where(b => b.IdUsuario == idUsuario.Value);
+
+                    if (!string.IsNullOrWhiteSpace(fechaInicio) && DateTime.TryParse(fechaInicio, out var fi))
+                    {
+                        query = query.Where(b => b.FechaHora >= fi);
+                    }
+                    if (!string.IsNullOrWhiteSpace(fechaFin) && DateTime.TryParse(fechaFin, out var ff))
+                    {
+                        var ffEnd = ff.AddDays(1);
+                        query = query.Where(b => b.FechaHora < ffEnd);
+                    }
+                    if (!string.IsNullOrWhiteSpace(accion))
+                        query = query.Where(b => b.Accion == accion);
+
+                    registros = query.OrderByDescending(b => b.FechaHora).ToList();
+
+                    acciones = ctx.BitacoraPedidos
+                        .Select(b => b.Accion)
+                        .Distinct()
+                        .OrderBy(a => a)
+                        .ToList();
+
+                    var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
+                    dicUsuarios = ctx.Empleados
+                        .Where(e => idsUsuarios.Contains(e.IdUsuario))
+                        .GroupBy(e => e.IdUsuario)
+                        .ToDictionary(g => g.Key, g => g.First().Nombre + " " + g.First().Apellidos);
+
+                    // Completar con NombreUsuario si algún usuario no tenía registro en Empleados
+                    var usuariosFaltantes = idsUsuarios.Where(id => !dicUsuarios.ContainsKey(id)).ToList();
+                    if (usuariosFaltantes.Any())
+                    {
+                        var usrs = ctx.Usuarios.Where(u => usuariosFaltantes.Contains(u.IdUsuario)).ToList();
+                        foreach (var u in usrs)
+                        {
+                            dicUsuarios[u.IdUsuario] = u.NombreUsuario;
+                        }
+                    }
                 }
-                if (!string.IsNullOrWhiteSpace(fechaFin))
+                catch (Exception ex)
                 {
-                    var ff = DateTime.Parse(fechaFin).AddDays(1);
-                    query = query.Where(b => b.FechaHora < ff);
+                    ViewBag.Error = $"Aviso al consultar bitácora: {ex.Message}";
                 }
-                if (!string.IsNullOrWhiteSpace(accion))
-                    query = query.Where(b => b.Accion == accion);
-
-                var registros = query.OrderByDescending(b => b.FechaHora).ToList();
-
-                var acciones = ctx.BitacoraPedidos
-                    .Select(b => b.Accion)
-                    .Distinct()
-                    .OrderBy(a => a)
-                    .ToList();
-
-                var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
-                var dicUsuarios = ctx.Empleados
-                    .Where(e => idsUsuarios.Contains(e.IdUsuario))
-                    .ToDictionary(e => e.IdUsuario, e => e.Nombre + " " + e.Apellidos);
 
                 var modelo = new BitacoraPedidosViewModel
                 {
@@ -76,15 +100,14 @@ namespace RestauranteVistas.Controllers
                 if (idUsuario.HasValue)
                     query = query.Where(b => b.IdUsuario == idUsuario.Value);
 
-                if (!string.IsNullOrWhiteSpace(fechaInicio))
+                if (!string.IsNullOrWhiteSpace(fechaInicio) && DateTime.TryParse(fechaInicio, out var fi))
                 {
-                    var fi = DateTime.Parse(fechaInicio);
                     query = query.Where(b => b.FechaHora >= fi);
                 }
-                if (!string.IsNullOrWhiteSpace(fechaFin))
+                if (!string.IsNullOrWhiteSpace(fechaFin) && DateTime.TryParse(fechaFin, out var ff))
                 {
-                    var ff = DateTime.Parse(fechaFin).AddDays(1);
-                    query = query.Where(b => b.FechaHora < ff);
+                    var ffEnd = ff.AddDays(1);
+                    query = query.Where(b => b.FechaHora < ffEnd);
                 }
                 if (!string.IsNullOrWhiteSpace(accion))
                     query = query.Where(b => b.Accion == accion);
@@ -94,13 +117,14 @@ namespace RestauranteVistas.Controllers
                 var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
                 var dicUsuarios = ctx.Empleados
                     .Where(e => idsUsuarios.Contains(e.IdUsuario))
-                    .ToDictionary(e => e.IdUsuario, e => e.Nombre + " " + e.Apellidos);
+                    .GroupBy(e => e.IdUsuario)
+                    .ToDictionary(g => g.Key, g => g.First().Nombre + " " + g.First().Apellidos);
 
                 var sb = new System.Text.StringBuilder();
                 sb.AppendLine("ID;Usuario;Pedido;Accion;Estado Anterior;Estado Nuevo;Detalle;Fecha/Hora");
                 foreach (var r in registros)
                 {
-                    string nombreUsuario = dicUsuarios.ContainsKey(r.IdUsuario) ? dicUsuarios[r.IdUsuario] : "";
+                    string nombreUsuario = dicUsuarios.ContainsKey(r.IdUsuario) ? dicUsuarios[r.IdUsuario] : ("Usuario #" + r.IdUsuario);
                     sb.AppendLine(string.Format("{0};{1};{2};{3};{4};{5};{6};{7:yyyy-MM-dd HH:mm:ss}",
                         r.IdRegistro, EscapeCsv(nombreUsuario),
                         r.IdPedido, r.Accion,

@@ -1,26 +1,33 @@
-﻿@using System.Linq
+@using System.Linq
 @using System.Collections.Generic
 @{
     ViewBag.Title = "Panel de Cajero";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var pedidosEntregados = ViewBag.PedidosEntregados as List<Abstracciones.Models.Pedido>;
-    var pedidosFinalizados = ViewBag.PedidosFinalizados as List<Abstracciones.Models.Pedido>;
-    var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido>;
-    var productos = ViewBag.Productos as List<Abstracciones.Models.Producto>;
-    var ventas = ViewBag.Ventas as List<Abstracciones.Models.Venta>;
+    var pedidosEntregados = ViewBag.PedidosEntregados as List<Abstracciones.Models.Pedido> ?? new List<Abstracciones.Models.Pedido>();
+    var pedidosEnCurso = ViewBag.PedidosEnCurso as List<Abstracciones.Models.Pedido> ?? new List<Abstracciones.Models.Pedido>();
+    var pedidosActivos = ViewBag.PedidosActivos as List<Abstracciones.Models.Pedido> ?? new List<Abstracciones.Models.Pedido>();
+    var pedidosFinalizados = ViewBag.PedidosFinalizados as List<Abstracciones.Models.Pedido> ?? new List<Abstracciones.Models.Pedido>();
+    var detalles = ViewBag.Detalles as List<Abstracciones.Models.DetallePedido> ?? new List<Abstracciones.Models.DetallePedido>();
+    var productos = ViewBag.Productos as List<Abstracciones.Models.Producto> ?? new List<Abstracciones.Models.Producto>();
+    var mesas = ViewBag.Mesas as List<Abstracciones.Models.Mesa> ?? new List<Abstracciones.Models.Mesa>();
+    var ventas = ViewBag.Ventas as List<Abstracciones.Models.Venta> ?? new List<Abstracciones.Models.Venta>();
+    var subcuentasPedido = ViewBag.SubcuentasPedido as List<Abstracciones.Models.SubcuentaPedido> ?? new List<Abstracciones.Models.SubcuentaPedido>();
+    var detallesVenta = ViewBag.DetallesVenta as List<Abstracciones.Models.DetalleVenta> ?? new List<Abstracciones.Models.DetalleVenta>();
 
-    decimal ventasTurno = ventas != null ? ventas.Where(v => v.EstadoVenta == "completada").Sum(v => v.TotalCobrado) : 0;
-    int facturasCobradas = ventas != null ? ventas.Count(v => v.EstadoVenta == "completada") : 0;
-    int pendientes = pedidosEntregados != null ? pedidosEntregados.Count : 0;
-    int finalizados = pedidosFinalizados != null ? pedidosFinalizados.Count : 0;
+    int idPedidoDividir = ViewBag.IdPedidoDividir != null ? (int)ViewBag.IdPedidoDividir : 0;
+    var pedidoSeleccionado = pedidosActivos.FirstOrDefault(p => p.IdPedido == idPedidoDividir) ?? pedidosActivos.FirstOrDefault();
+
+    decimal ventasTurno = ventas.Where(v => v.EstadoVenta == "completada").Sum(v => v.TotalCobrado);
+    int facturasCobradas = ventas.Count(v => v.EstadoVenta == "completada");
+    int pendientes = pedidosEntregados.Count;
+    int finalizados = pedidosFinalizados.Count;
 }
 
 <div class="hero-card">
     <h2>Panel principal del cajero</h2>
     <p>
-        Acá podrás gestionar ventas rápidas, cobros, cierres de caja
-        y revisión de cuentas del día.
+        Gestiona el cobro de órdenes entregadas, cierre y liberación de mesas, división de cuentas en subcuentas, ventas rápidas y cierres de caja.
     </p>
 </div>
 
@@ -35,10 +42,10 @@
 }
 
 <div class="grid-4">
-    <div class="metric-card"><h3>Ventas del turno</h3><div class="value">₡@ventasTurno</div></div>
+    <div class="metric-card"><h3>Ventas del turno</h3><div class="value">₡@ventasTurno.ToString("N2")</div></div>
     <div class="metric-card alt-blue"><h3>Facturas cobradas</h3><div class="value">@facturasCobradas</div></div>
-    <div class="metric-card alt-orange"><h3>Pendientes</h3><div class="value">@pendientes</div></div>
-    <div class="metric-card alt-red"><h3>Finalizadas</h3><div class="value">@finalizados</div></div>
+    <div class="metric-card alt-orange"><h3>Entregadas por cobrar</h3><div class="value">@pendientes</div></div>
+    <div class="metric-card alt-teal"><h3>Órdenes finalizadas</h3><div class="value">@finalizados</div></div>
 </div>
 
 <div class="grid-3">
@@ -57,18 +64,71 @@
     </div>
 
     <div class="quick-card">
-        <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">receipt_long</span></div>
-        <h4>Cuentas</h4>
-        <p>Visualizar cuentas abiertas y cerradas.</p>
-        <button class="btn btn-warning" onclick="mostrarToast('Vista de cuentas cargada visualmente')">Abrir</button>
+        <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">call_split</span></div>
+        <h4>Cuentas y Subcuentas</h4>
+        <p>Dividir cuentas por mesa y cobrar subcuentas.</p>
+        <a class="btn btn-warning" href="#seccion-subcuentas">Abrir Subcuentas</a>
     </div>
 </div>
+
+@if (pedidosEnCurso.Any())
+{
+    <div class="table-card" style="margin-bottom:25px;">
+        <div class="section-title">
+            <div>
+                <h3>Órdenes activas en salón / cocina</h3>
+                <p>Si una orden ya fue servida al cliente, puede habilitarla directamente para cobro aquí</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mesa</th>
+                    <th>Pedido</th>
+                    <th>Platillos</th>
+                    <th>Estado actual</th>
+                    <th>Total</th>
+                    <th>Acción rápida</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in pedidosEnCurso)
+                {
+                    var dets = detalles.Where(d => d.IdPedido == p.IdPedido).ToList();
+                    decimal tot = dets.Sum(d => d.Cantidad * d.PrecioUnitario);
+                    var mesaObj = mesas.FirstOrDefault(m => m.IdMesa == p.IdMesa);
+                    <tr>
+                        <td>@(mesaObj != null ? mesaObj.NumeroMesa : ("Mesa " + p.IdMesa))</td>
+                        <td><strong>Pedido #@p.IdPedido</strong></td>
+                        <td>
+                            @foreach (var item in dets)
+                            {
+                                var pr = productos.FirstOrDefault(x => x.IdProducto == item.IdProducto);
+                                <div>@(pr != null ? pr.NombreProducto : "Producto") x @item.Cantidad (₡@((item.Cantidad * item.PrecioUnitario).ToString("N2")))</div>
+                            }
+                        </td>
+                        <td><span class="status warning">@p.EstadoPedido</span></td>
+                        <td><strong>₡@tot.ToString("N2")</strong></td>
+                        <td style="display:flex;gap:6px;flex-wrap:wrap;">
+                            @using (Html.BeginForm("HabilitarParaCobro", "Cajero", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                @Html.Hidden("idPedido", p.IdPedido)
+                                <button type="submit" class="btn btn-primary btn-sm">Marcar Entregado para Cobro</button>
+                            }
+                            <a href="@Url.Action("Index", "Cajero", new { idPedidoDividir = p.IdPedido })#seccion-subcuentas" class="btn btn-warning btn-sm">Dividir Cuenta</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
 
 <div class="table-card">
     <div class="section-title">
         <div>
             <h3>Órdenes entregadas pendientes de pago</h3>
-            <p>Registrar pago antes de finalizar la orden</p>
+            <p>Detalle de platillos consumidos, registro de pago y finalización de orden para liberar la mesa</p>
         </div>
     </div>
 
@@ -77,33 +137,36 @@
             <tr>
                 <th>Mesa</th>
                 <th>Pedido</th>
-                <th>Detalle</th>
-                <th>Total</th>
-                <th>Pago</th>
-                <th>Finalizar</th>
+                <th>Detalle de platillos consumidos</th>
+                <th>Monto Total</th>
+                <th>Registro de Pago</th>
+                <th>Finalizar / Cerrar Orden</th>
             </tr>
         </thead>
         <tbody>
-            @if (pedidosEntregados != null && pedidosEntregados.Any())
+            @if (pedidosEntregados.Any())
             {
                 foreach (var pedido in pedidosEntregados)
                 {
-                    var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
-                    decimal total = detallesPedido != null ? detallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) : 0;
-                    var venta = ventas != null ? ventas.FirstOrDefault(v => v.IdPedido == pedido.IdPedido && v.Estado == true && v.EstadoVenta == "completada") : null;
+                    var detallesPedido = detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList();
+                    decimal total = detallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario);
+                    var ventasCompletadas = ventas.Where(v => v.IdPedido == pedido.IdPedido && v.EstadoVenta == "completada").ToList();
+                    decimal totalPagado = ventasCompletadas.Sum(v => v.TotalCobrado);
+                    bool pagadoCompleto = totalPagado >= total && total > 0;
+                    var mesaObj = mesas.FirstOrDefault(m => m.IdMesa == pedido.IdMesa);
 
                     <tr>
-                        <td>Mesa @pedido.IdMesa</td>
-                        <td>Pedido #@pedido.IdPedido</td>
+                        <td><strong>@(mesaObj != null ? mesaObj.NumeroMesa : ("Mesa " + pedido.IdMesa))</strong></td>
+                        <td><strong>Pedido #@pedido.IdPedido</strong></td>
                         <td>
-                            @if (detallesPedido != null && detallesPedido.Any())
+                            @if (detallesPedido.Any())
                             {
                                 foreach (var item in detallesPedido)
                                 {
-                                    var prod = productos != null ? productos.FirstOrDefault(p => p.IdProducto == item.IdProducto) : null;
+                                    var prod = productos.FirstOrDefault(p => p.IdProducto == item.IdProducto);
                                     <div>
-                                        @(prod != null ? prod.NombreProducto : "Producto")
-                                        x @item.Cantidad
+                                        • @(prod != null ? prod.NombreProducto : "Producto")
+                                        x @item.Cantidad — ₡@((item.Cantidad * item.PrecioUnitario).ToString("N2"))
                                     </div>
                                 }
                             }
@@ -112,46 +175,51 @@
                                 <span>Sin productos</span>
                             }
                         </td>
-                        <td>₡@total</td>
+                        <td><strong style="font-size:1.05rem;">₡@total.ToString("N2")</strong></td>
                         <td>
-                            @if (venta == null)
+                            @if (!pagadoCompleto)
                             {
                                 using (Html.BeginForm("RegistrarPago", "Cajero", FormMethod.Post))
                                 {
                                     @Html.Hidden("idPedido", pedido.IdPedido)
 
-                                    <select name="metodoPago" required>
-                                        <option value="efectivo">Efectivo</option>
-                                        <option value="tarjeta">Tarjeta</option>
-                                        <option value="sinpe">SINPE</option>
-                                        <option value="mixto">Mixto</option>
-                                    </select>
+                                    <div style="display:flex;flex-direction:column;gap:6px;max-width:220px;">
+                                        <select name="metodoPago" required>
+                                            <option value="efectivo">Efectivo</option>
+                                            <option value="tarjeta">Tarjeta</option>
+                                            <option value="sinpe">SINPE</option>
+                                            <option value="mixto">Mixto</option>
+                                        </select>
 
-                                    <input type="number" name="montoRecibido" min="@total" value="@total" step="0.01" required />
+                                        <input type="number" name="montoRecibido" min="0" value="@total" step="0.01" placeholder="Monto recibido" required />
 
-                                    <button type="submit" class="btn btn-primary">Registrar pago</button>
+                                        <button type="submit" class="btn btn-primary btn-sm">Registrar pago</button>
+                                    </div>
                                 }
                             }
                             else
                             {
                                 <span class="status success">Pago registrado</span>
-                                <div>Total: ₡@venta.TotalCobrado</div>
-                                <div>Vuelto: ₡@venta.Vuelto</div>
+                                <div>Total cobrado: ₡@totalPagado.ToString("N2")</div>
+                                <div>Vuelto: ₡@ventasCompletadas.Sum(v => v.Vuelto).ToString("N2")</div>
                             }
                         </td>
                         <td>
-                            @if (venta != null)
-                            {
-                                using (Html.BeginForm("FinalizarOrden", "Cajero", FormMethod.Post))
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                @using (Html.BeginForm("FinalizarOrden", "Cajero", FormMethod.Post))
                                 {
                                     @Html.Hidden("idPedido", pedido.IdPedido)
-                                    <button type="submit" class="btn btn-secondary">Finalizar orden</button>
+                                    <button type="submit" class="btn @(pagadoCompleto ? "btn-success" : "btn-secondary") btn-sm">
+                                        Finalizar orden
+                                    </button>
                                 }
-                            }
-                            else
-                            {
-                                <button type="button" class="btn btn-warning" onclick="mostrarToast('Primero debe registrar el pago')">Finalizar orden</button>
-                            }
+                                @if (!pagadoCompleto)
+                                {
+                                    <a href="@Url.Action("Index", "Cajero", new { idPedidoDividir = pedido.IdPedido })#seccion-subcuentas" class="btn btn-warning btn-sm">
+                                        Dividir Cuenta
+                                    </a>
+                                }
+                            </div>
                         </td>
                     </tr>
                 }
@@ -159,11 +227,203 @@
             else
             {
                 <tr>
-                    <td colspan="6">No hay órdenes entregadas pendientes de pago.</td>
+                    <td colspan="6">No hay órdenes entregadas pendientes de pago en este momento.</td>
                 </tr>
             }
         </tbody>
     </table>
+</div>
+
+<!-- ========================================================================= -->
+<!-- SECCIÓN DE DIVISIÓN DE CUENTAS EN SUBCUENTAS (Caso de Prueba C8 / D-07)   -->
+<!-- ========================================================================= -->
+<div id="seccion-subcuentas" class="table-card" style="margin-top:25px;border-top:4px solid #ef6c00;">
+    <div class="section-title">
+        <div>
+            <h3>División de Cuentas (Subcuentas por Orden)</h3>
+            <p>Seleccione una orden activa con múltiples productos, divídala en subcuentas, asigne los platillos a cada subcuenta y procese el pago individual de cada una.</p>
+        </div>
+    </div>
+
+    <div class="form-grid" style="margin-bottom:20px;">
+        <div class="form-card" style="background:#fafafa;">
+            <h4>1. Seleccionar Orden y Crear Subcuentas</h4>
+            @using (Html.BeginForm("CrearDivisionSubcuentas", "Cajero", FormMethod.Post))
+            {
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Orden activa *</label>
+                        <select name="idPedido" required onchange="window.location.href='@Url.Action("Index", "Cajero")?idPedidoDividir=' + this.value + '#seccion-subcuentas'">
+                            <option value="">Seleccione orden...</option>
+                            @foreach (var p in pedidosActivos)
+                            {
+                                var dets = detalles.Where(d => d.IdPedido == p.IdPedido).ToList();
+                                decimal tot = dets.Sum(d => d.Cantidad * d.PrecioUnitario);
+                                var mesaObj = mesas.FirstOrDefault(m => m.IdMesa == p.IdMesa);
+                                <option value="@p.IdPedido" @(pedidoSeleccionado != null && pedidoSeleccionado.IdPedido == p.IdPedido ? "selected" : "")>
+                                    Pedido #@p.IdPedido - @(mesaObj != null ? mesaObj.NumeroMesa : ("Mesa " + p.IdMesa)) (₡@tot.ToString("N2") - @dets.Sum(d => d.Cantidad) prod.)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cantidad de subcuentas *</label>
+                        <input type="number" name="cantidadSubcuentas" min="2" max="10" value="2" required />
+                    </div>
+                </div>
+                <div class="form-actions" style="margin-top:12px;">
+                    <button type="submit" class="btn btn-primary">
+                        <span class="material-symbols-outlined">call_split</span> Dividir Cuenta
+                    </button>
+                </div>
+            }
+        </div>
+
+        @if (pedidoSeleccionado != null)
+        {
+            var subsOrden = subcuentasPedido.Where(s => s.IdPedido == pedidoSeleccionado.IdPedido && s.NombreSubcuenta != "Cuenta principal").ToList();
+            var ventasSubOrden = ventas.Where(v => v.IdPedido == pedidoSeleccionado.IdPedido && v.IdSubcuenta != null).ToList();
+            var idsVentasSubOrden = ventasSubOrden.Select(v => v.IdVenta).ToList();
+            var detsPedidoSel = detalles.Where(d => d.IdPedido == pedidoSeleccionado.IdPedido).ToList();
+
+            <div class="form-card" style="background:#fafafa;">
+                <h4>2. Asignar Productos de la Orden #@pedidoSeleccionado.IdPedido a Subcuentas</h4>
+                @if (subsOrden.Any())
+                {
+                    using (Html.BeginForm("AsignarProductoASubcuentaPedido", "Cajero", FormMethod.Post))
+                    {
+                        @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Producto de la orden *</label>
+                                <select name="idDetallePedido" required>
+                                    @foreach (var dp in detsPedidoSel)
+                                    {
+                                        var prod = productos.FirstOrDefault(p => p.IdProducto == dp.IdProducto);
+                                        int yaAsig = detallesVenta
+                                            .Where(dv => idsVentasSubOrden.Contains(dv.IdVenta) && dv.ObservacionesItem == ("DET:" + dp.IdDetalle))
+                                            .Sum(dv => (int?)dv.Cantidad) ?? 0;
+                                        int pend = Math.Max(0, (int)Math.Ceiling(dp.Cantidad) - yaAsig);
+                                        <option value="@dp.IdDetalle">
+                                            @(prod != null ? prod.NombreProducto : "Producto") (₡@dp.PrecioUnitario.ToString("N2")) - Pendientes: @pend de @dp.Cantidad
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subcuenta destino *</label>
+                                <select name="idSubcuenta" required>
+                                    @foreach (var s in subsOrden)
+                                    {
+                                        <option value="@s.IdSubcuenta">@s.NombreSubcuenta</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Cantidad a asignar *</label>
+                                <input type="number" name="cantidad" min="1" value="1" required />
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+                            <button type="submit" class="btn btn-secondary">
+                                <span class="material-symbols-outlined">playlist_add</span> Asignar producto a subcuenta
+                            </button>
+                        </div>
+                    }
+
+                    using (Html.BeginForm("ConfirmarDivisionSubcuentas", "Cajero", FormMethod.Post, new { style = "margin-top:10px;" }))
+                    {
+                        @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
+                        <button type="submit" class="btn btn-warning">
+                            <span class="material-symbols-outlined">fact_check</span> Confirmar división y validar subcuentas
+                        </button>
+                    }
+                }
+                else
+                {
+                    <p style="color:#666;margin-top:8px;">Haga clic en <strong>"Dividir Cuenta"</strong> a la izquierda para habilitar las subcuentas de la Orden #@pedidoSeleccionado.IdPedido.</p>
+                }
+            </div>
+        }
+    </div>
+
+    @if (pedidoSeleccionado != null)
+    {
+        var subsOrden = subcuentasPedido.Where(s => s.IdPedido == pedidoSeleccionado.IdPedido && s.NombreSubcuenta != "Cuenta principal").ToList();
+        var ventasSubOrden = ventas.Where(v => v.IdPedido == pedidoSeleccionado.IdPedido && v.IdSubcuenta != null).ToList();
+
+        if (subsOrden.Any())
+        {
+            <h4>3. Subcuentas Generadas para la Orden #@pedidoSeleccionado.IdPedido (Pago Individual)</h4>
+            <div class="grid-2" style="margin-top:12px;">
+                @foreach (var sub in subsOrden)
+                {
+                    var vSub = ventasSubOrden.FirstOrDefault(v => v.IdSubcuenta == sub.IdSubcuenta);
+                    var itemsSub = vSub != null ? detallesVenta.Where(dv => dv.IdVenta == vSub.IdVenta).ToList() : new List<Abstracciones.Models.DetalleVenta>();
+                    decimal subtotalSub = vSub?.TotalCobrado ?? 0m;
+                    bool pagada = vSub != null && vSub.EstadoVenta == "completada";
+
+                    <div class="quick-card" style="border:1px solid #ddd;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <h4>@sub.NombreSubcuenta</h4>
+                            <span class="status @(pagada ? "success" : "warning")">@(pagada ? "Pagado" : "Pendiente")</span>
+                        </div>
+
+                        <div style="margin:10px 0;">
+                            <strong>Productos asignados:</strong>
+                            @if (itemsSub.Any())
+                            {
+                                foreach (var it in itemsSub)
+                                {
+                                    var pr = productos.FirstOrDefault(p => p.IdProducto == it.IdProducto);
+                                    <div>• @(pr != null ? pr.NombreProducto : "Producto") x @it.Cantidad — ₡@it.SubtotalItem.ToString("N2")</div>
+                                }
+                            }
+                            else
+                            {
+                                <div style="color:#c62828;">Sin productos asignados (Subcuenta vacía)</div>
+                            }
+                        </div>
+
+                        <p style="font-size:1.1rem;"><strong>Subtotal: ₡@subtotalSub.ToString("N2")</strong></p>
+
+                        @if (!pagada)
+                        {
+                            using (Html.BeginForm("CobrarSubcuentaPedido", "Cajero", FormMethod.Post))
+                            {
+                                @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
+                                @Html.Hidden("idSubcuenta", sub.IdSubcuenta)
+                                <div class="form-grid" style="margin-top:8px;">
+                                    <div class="form-group">
+                                        <label>Método de pago</label>
+                                        <select name="metodoPago" required>
+                                            <option value="efectivo">Efectivo</option>
+                                            <option value="tarjeta">Tarjeta</option>
+                                            <option value="sinpe">SINPE</option>
+                                            <option value="mixto">Mixto</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Monto recibido</label>
+                                        <input type="number" name="montoRecibido" min="0" value="@subtotalSub" step="0.01" required />
+                                    </div>
+                                </div>
+                                <div class="form-actions" style="margin-top:8px;">
+                                    <button type="submit" class="btn btn-primary btn-sm">Pagar @sub.NombreSubcuenta</button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div style="color:#2e7d32;margin-top:8px;">
+                                <strong>Pagado con @(vSub.MetodoPago)</strong> | Recibido: ₡@vSub.MontoRecibido.ToString("N2") | Vuelto: ₡@vSub.Vuelto.ToString("N2")
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
 </div>
 
 <div class="table-card" style="margin-top:25px;">
@@ -184,14 +444,15 @@
             </tr>
         </thead>
         <tbody>
-            @if (pedidosFinalizados != null && pedidosFinalizados.Any())
+            @if (pedidosFinalizados.Any())
             {
                 foreach (var pedido in pedidosFinalizados)
                 {
+                    var mesaObj = mesas.FirstOrDefault(m => m.IdMesa == pedido.IdMesa);
                     <tr>
-                        <td>Mesa @pedido.IdMesa</td>
+                        <td>@(mesaObj != null ? mesaObj.NumeroMesa : ("Mesa " + pedido.IdMesa))</td>
                         <td>Pedido #@pedido.IdPedido</td>
-                        <td>@(pedido.FechaHoraFinalizacion.HasValue ? pedido.FechaHoraFinalizacion.Value.ToString("dd/MM/yyyy HH:mm") : "Sin fecha")</td>
+                        <td>@(pedido.FechaHoraFinalizacion.HasValue ? pedido.FechaHoraFinalizacion.Value.ToString("dd/MM/yyyy HH:mm") : pedido.FechaHora.ToString("dd/MM/yyyy HH:mm"))</td>
                         <td><span class="status success">Finalizado</span></td>
                     </tr>
                 }
@@ -210,7 +471,7 @@
     <div class="section-title">
         <div>
             <h3>Operaciones recientes</h3>
-            <p>Actividad del cajero</p>
+            <p>Actividad real registrada en caja</p>
         </div>
     </div>
 
@@ -219,42 +480,29 @@
             <tr>
                 <th>Hora</th>
                 <th>Operación</th>
+                <th>Método</th>
                 <th>Monto</th>
                 <th>Estado</th>
             </tr>
         </thead>
         <tbody>
-            @if (ventas != null && ventas.Any())
+            @if (ventas.Any())
             {
                 foreach (var venta in ventas.OrderByDescending(v => v.FechaHora).Take(10))
                 {
                     <tr>
-                        <td>@venta.FechaHora.ToString("hh:mm tt")</td>
-                        <td>Cobro pedido #@venta.IdPedido</td>
-                        <td>₡@venta.TotalCobrado</td>
-                        <td><span class="status success">@venta.EstadoVenta</span></td>
+                        <td>@venta.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@(venta.IdPedido.HasValue ? $"Cobro pedido #{venta.IdPedido}" : $"Venta rápida #{venta.IdVenta}")</td>
+                        <td>@venta.MetodoPago</td>
+                        <td>₡@venta.TotalCobrado.ToString("N2")</td>
+                        <td><span class="status @(venta.EstadoVenta == "completada" ? "success" : "warning")">@venta.EstadoVenta</span></td>
                     </tr>
                 }
             }
             else
             {
                 <tr>
-                    <td>10:05 AM</td>
-                    <td>Cobro mesa 8</td>
-                    <td>₡12 900</td>
-                    <td><span class="status success">Completado</span></td>
-                </tr>
-                <tr>
-                    <td>10:18 AM</td>
-                    <td>Venta rápida</td>
-                    <td>₡4 900</td>
-                    <td><span class="status info">Procesado</span></td>
-                </tr>
-                <tr>
-                    <td>10:30 AM</td>
-                    <td>Cierre parcial</td>
-                    <td>₡58 000</td>
-                    <td><span class="status warning">En revisión</span></td>
+                    <td colspan="5">No hay operaciones registradas en este turno.</td>
                 </tr>
             }
         </tbody>

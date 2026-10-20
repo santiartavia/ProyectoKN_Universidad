@@ -100,7 +100,19 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                return ctx.Roles.Where(r => r.Estado).ToList();
+                var rolesPrincipales = new[] { "Administrador", "Cajero", "Mesero", "Cocinero", "Supervisor" };
+                var todos = ctx.Roles.Where(r => r.Estado).ToList();
+                var filtrados = todos
+                    .Where(r => rolesPrincipales.Any(p => string.Equals(p, r.NombreRol, StringComparison.OrdinalIgnoreCase)))
+                    .GroupBy(r => r.NombreRol.Trim().ToLowerInvariant())
+                    .Select(g => g.OrderBy(r => r.IdRol).First())
+                    .OrderBy(r => r.IdRol)
+                    .ToList();
+
+                return filtrados.Any() ? filtrados : todos
+                    .GroupBy(r => (r.NombreRol ?? "").Trim().ToLowerInvariant())
+                    .Select(g => g.OrderBy(r => r.IdRol).First())
+                    .ToList();
             }
         }
 

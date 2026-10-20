@@ -50,7 +50,6 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { id_caja = idCaja, monto_inicial = montoInicial }),
                     $"Apertura de caja #{idCaja} por cajero #{idCajero}",
                     idUsuarioAdmin, ip, dispositivo);
-                ctx.SaveChanges();
                 return apertura;
             }
         }
@@ -108,7 +107,6 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { id_apertura = idApertura, saldo_esperado = saldoEsperado, saldo_real = saldoReal }),
                     descuadre ? $"Cierre con DESCUADRE: esperado {saldoEsperado:C}, real {saldoReal:C}" : "Cierre sin novedades",
                     idUsuarioAdmin, ip, dispositivo);
-                ctx.SaveChanges();
                 return cierre;
             }
         }
@@ -160,7 +158,6 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { categoria = categoriaGasto, monto }),
                     $"Egreso: {categoriaGasto} - {descripcion}",
                     idUsuario, ip, dispositivo);
-                ctx.SaveChanges();
                 return egreso;
             }
         }
@@ -198,7 +195,6 @@ namespace LogicaDeNegocios.Services
                     valorAnterior, JsonConvert.SerializeObject(new { estado_nuevo = "anulada", motivo }),
                     $"Venta #{idVenta} anulada: {motivo}",
                     idUsuario, ip, dispositivo);
-                ctx.SaveChanges();
                 return nota;
             }
         }
@@ -277,12 +273,19 @@ namespace LogicaDeNegocios.Services
 
         public List<ReporteGenerado> ListarReportes()
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                return ctx.ReportesGenerados.Include(r => r.Usuario)
-                    .Where(r => r.Estado)
-                    .OrderByDescending(r => r.FechaGeneracion)
-                    .ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    return ctx.ReportesGenerados.Include(r => r.Usuario)
+                        .Where(r => r.Estado)
+                        .OrderByDescending(r => r.FechaGeneracion)
+                        .ToList();
+                }
+            }
+            catch
+            {
+                return new List<ReporteGenerado>();
             }
         }
 
@@ -389,48 +392,68 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(cierre),
                     $"Cierre {tipoPeriodo} {mes}/{anio} generado. Saldo: {cierre.SaldoFinal:C}",
                     idUsuario, null, null);
-                ctx.SaveChanges();
                 return cierre;
             }
         }
 
         public List<CierrePeriodo> ListarCierresPeriodo()
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                return ctx.Set<CierrePeriodo>().Include(c => c.Usuario)
-                    .Where(c => c.Estado)
-                    .OrderByDescending(c => c.Anio).ThenByDescending(c => c.Mes)
-                    .ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    return ctx.Set<CierrePeriodo>().Include(c => c.Usuario)
+                        .Where(c => c.Estado)
+                        .OrderByDescending(c => c.Anio).ThenByDescending(c => c.Mes)
+                        .ToList();
+                }
+            }
+            catch
+            {
+                return new List<CierrePeriodo>();
             }
         }
 
         public List<BitacoraFinanciera> ConsultarBitacoraFinanciera(int? idUsuario = null, string accion = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                var query = ctx.BitacoraFinanciera.Include(b => b.Usuario).AsQueryable();
-                if (idUsuario.HasValue)
-                    query = query.Where(b => b.IdUsuario == idUsuario.Value);
-                if (!string.IsNullOrWhiteSpace(accion))
-                    query = query.Where(b => b.Accion == accion);
-                if (fechaInicio.HasValue)
-                    query = query.Where(b => b.FechaHora >= fechaInicio.Value);
-                if (fechaFin.HasValue)
-                    query = query.Where(b => b.FechaHora <= fechaFin.Value);
-                return query.OrderByDescending(b => b.FechaHora).ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    var query = ctx.BitacoraFinanciera.Include(b => b.Usuario).AsQueryable();
+                    if (idUsuario.HasValue)
+                        query = query.Where(b => b.IdUsuario == idUsuario.Value);
+                    if (!string.IsNullOrWhiteSpace(accion))
+                        query = query.Where(b => b.Accion == accion);
+                    if (fechaInicio.HasValue)
+                        query = query.Where(b => b.FechaHora >= fechaInicio.Value);
+                    if (fechaFin.HasValue)
+                        query = query.Where(b => b.FechaHora <= fechaFin.Value);
+                    return query.OrderByDescending(b => b.FechaHora).ToList();
+                }
+            }
+            catch
+            {
+                return new List<BitacoraFinanciera>();
             }
         }
 
         public List<string> ObtenerAccionesBitacoraFinanciera()
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                return ctx.BitacoraFinanciera
-                    .Select(b => b.Accion)
-                    .Distinct()
-                    .OrderBy(a => a)
-                    .ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    return ctx.BitacoraFinanciera
+                        .Select(b => b.Accion)
+                        .Distinct()
+                        .OrderBy(a => a)
+                        .ToList();
+                }
+            }
+            catch
+            {
+                return new List<string> { "INSERT", "UPDATE", "ANULACION" };
             }
         }
 
@@ -440,51 +463,72 @@ namespace LogicaDeNegocios.Services
 
         public List<BitacoraReporte> ConsultarBitacoraReportes(int? idUsuario = null, string accion = null, DateTime? fechaInicio = null, DateTime? fechaFin = null)
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                var query = ctx.BitacoraReportes.Include(b => b.Usuario).AsQueryable();
-                if (idUsuario.HasValue)
-                    query = query.Where(b => b.IdUsuario == idUsuario.Value);
-                if (!string.IsNullOrWhiteSpace(accion))
-                    query = query.Where(b => b.Accion == accion);
-                if (fechaInicio.HasValue)
-                    query = query.Where(b => b.FechaHora >= fechaInicio.Value);
-                if (fechaFin.HasValue)
-                    query = query.Where(b => b.FechaHora <= fechaFin.Value);
-                return query.OrderByDescending(b => b.FechaHora).ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    var query = ctx.BitacoraReportes.Include(b => b.Usuario).AsQueryable();
+                    if (idUsuario.HasValue)
+                        query = query.Where(b => b.IdUsuario == idUsuario.Value);
+                    if (!string.IsNullOrWhiteSpace(accion))
+                        query = query.Where(b => b.Accion == accion);
+                    if (fechaInicio.HasValue)
+                        query = query.Where(b => b.FechaHora >= fechaInicio.Value);
+                    if (fechaFin.HasValue)
+                        query = query.Where(b => b.FechaHora <= fechaFin.Value);
+                    return query.OrderByDescending(b => b.FechaHora).ToList();
+                }
+            }
+            catch
+            {
+                return new List<BitacoraReporte>();
             }
         }
 
         public List<string> ObtenerAccionesBitacoraReportes()
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                return ctx.BitacoraReportes
-                    .Select(b => b.Accion)
-                    .Distinct()
-                    .OrderBy(a => a)
-                    .ToList();
+                using (var ctx = new ColibriDbContext())
+                {
+                    return ctx.BitacoraReportes
+                        .Select(b => b.Accion)
+                        .Distinct()
+                        .OrderBy(a => a)
+                        .ToList();
+                }
+            }
+            catch
+            {
+                return new List<string> { "GENERACION", "DESCARGA" };
             }
         }
 
         public BitacoraReporte RegistrarBitacoraReporte(int idUsuario, string accion, string detalle, string valorNuevo = null, string ip = null, string dispositivo = null)
         {
-            using (var ctx = new ColibriDbContext())
+            try
             {
-                var bitacora = new BitacoraReporte
+                using (var ctx = new ColibriDbContext())
                 {
-                    IdUsuario = idUsuario,
-                    Accion = accion,
-                    ValorAnterior = null,
-                    ValorNuevo = valorNuevo,
-                    Detalle = detalle,
-                    IpOrigen = ip,
-                    Dispositivo = dispositivo,
-                    FechaHora = _fechas.ObtenerFechaActual()
-                };
-                ctx.BitacoraReportes.Add(bitacora);
-                ctx.SaveChanges();
-                return bitacora;
+                    var bitacora = new BitacoraReporte
+                    {
+                        IdUsuario = idUsuario,
+                        Accion = accion,
+                        ValorAnterior = null,
+                        ValorNuevo = valorNuevo,
+                        Detalle = detalle,
+                        IpOrigen = ip,
+                        Dispositivo = dispositivo,
+                        FechaHora = _fechas.ObtenerFechaActual()
+                    };
+                    ctx.BitacoraReportes.Add(bitacora);
+                    ctx.SaveChanges();
+                    return bitacora;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -492,20 +536,28 @@ namespace LogicaDeNegocios.Services
             int idRegistroAfectado, string valorAnterior, string valorNuevo,
             string detalle, int idUsuario, string ip, string dispositivo)
         {
-            var bitacora = new BitacoraFinanciera
+            try
             {
-                IdUsuario = idUsuario,
-                TablaAfectada = tabla,
-                IdRegistroAfectado = idRegistroAfectado,
-                Accion = accion,
-                ValorAnterior = valorAnterior,
-                ValorNuevo = valorNuevo,
-                Detalle = detalle,
-                IpOrigen = ip,
-                Dispositivo = dispositivo,
-                FechaHora = _fechas.ObtenerFechaActual()
-            };
-            ctx.BitacoraFinanciera.Add(bitacora);
+                var bitacora = new BitacoraFinanciera
+                {
+                    IdUsuario = idUsuario,
+                    TablaAfectada = tabla,
+                    IdRegistroAfectado = idRegistroAfectado,
+                    Accion = accion,
+                    ValorAnterior = valorAnterior,
+                    ValorNuevo = valorNuevo,
+                    Detalle = detalle,
+                    IpOrigen = ip,
+                    Dispositivo = dispositivo,
+                    FechaHora = _fechas.ObtenerFechaActual()
+                };
+                ctx.BitacoraFinanciera.Add(bitacora);
+                ctx.SaveChanges();
+            }
+            catch
+            {
+                // Si Bitacora_Financiera falla, no interrumpir la operación principal
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿using AccesoADatos;
+using AccesoADatos;
 using Abstracciones.Models;
+using LogicaDeNegocios.Services;
 using RestauranteVistas.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -33,11 +34,7 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            var apertura = db.AperturasCaja
-                .Include(a => a.Caja)
-                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta")
-                .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
+            var apertura = ObtenerOCrearApertura(idEmpleado);
 
             if (apertura == null)
             {
@@ -199,6 +196,7 @@ namespace RestauranteVistas.Controllers
 
             if (venta.IdPedido.HasValue)
             {
+                int uid = Session["UsuarioId"] as int? ?? 1;
                 var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == venta.IdPedido.Value);
                 if (pedido != null && pedido.EstadoPedido != "cancelado")
                 {
@@ -207,12 +205,13 @@ namespace RestauranteVistas.Controllers
                     var itemsPedido = db.DetallePedidos.Where(d => d.IdPedido == pedido.IdPedido && d.Estado).ToList();
                     foreach (var item in itemsPedido)
                     {
+                        InventarioService.RestaurarStockPorReceta(db, item.IdProducto, item.Cantidad, uid, $"Cancelación Venta Rápida #{idVenta}");
                         item.EstadoItem = "cancelado";
                         item.Estado = false;
                     }
                     db.BitacoraPedidos.Add(new BitacoraPedido
                     {
-                        IdUsuario = Session["UsuarioId"] as int? ?? 0,
+                        IdUsuario = uid,
                         IdPedido = pedido.IdPedido,
                         Accion = "CANCELACION",
                         EstadoAnterior = pedido.EstadoPedido,
@@ -279,6 +278,16 @@ namespace RestauranteVistas.Controllers
             {
                 TempData["Error"] = "El monto recibido no puede ser menor al total de la venta.";
                 return RedirectToAction("Index");
+            }
+
+            // D-08: Si la venta rápida aún no había enviado pedido a cocina, descontar insumos al confirmar cobro
+            if (!venta.IdPedido.HasValue)
+            {
+                int uid = Session["UsuarioId"] as int? ?? 1;
+                foreach (var d in detalles)
+                {
+                    InventarioService.DescontarStockPorReceta(db, d.IdProducto, d.Cantidad, uid, $"Venta Rápida #{venta.IdVenta}");
+                }
             }
 
             venta.TotalCobrado = total;
@@ -421,7 +430,7 @@ namespace RestauranteVistas.Controllers
 
             destino = destino == "Bar" ? "Bar" : destino == "Caja" ? "Caja" : "Cocina";
             prioridad = prioridad == "Urgente" ? "Urgente" : "Normal";
-            int idUsuario = Session["UsuarioId"] as int? ?? 0;
+            int idUsuario = Session["UsuarioId"] as int? ?? 1;
 
             var enviosPrevios = db.EnviosPdv.Where(e => e.IdVenta == venta.IdVenta).OrderBy(e => e.FechaHoraEnvio).ToList();
             var ultimo = enviosPrevios.OrderByDescending(e => e.FechaHoraEnvio).FirstOrDefault();
@@ -437,7 +446,6 @@ namespace RestauranteVistas.Controllers
             {
                 foreach (var prev in enviosPrevios.Where(e => e.EstadoEnvio == "Fallido" || e.EstadoEnvio == "Pendiente"))
                 {
-                    string estadoAnterior = prev.EstadoEnvio;
                     prev.EstadoEnvio = "Reenviado";
                     RegistrarBitacoraPdv("Reenvio", ObtenerIdCaja(venta), venta.IdEmpleado, venta.IdVenta,
                         "Envío previo #" + prev.IdEnvio + " de la venta #" + venta.IdVenta + " resuelto mediante reenvío exitoso.");
@@ -501,7 +509,6 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            string anterior = envio.EstadoEnvio;
             envio.EstadoEnvio = estado;
             RegistrarBitacoraPdv(accion, ObtenerIdCaja(venta), venta.IdEmpleado, venta.IdVenta,
                 "Envío #" + envio.IdEnvio + " de la venta #" + venta.IdVenta + " marcado como " + estado + " por " + ObtenerNombreCajero());
@@ -664,7 +671,7 @@ namespace RestauranteVistas.Controllers
                 "Subcuenta #" + subcuenta.IdSubcuenta + " (" + subcuenta.NombreSubcuenta + ") recibe " + cantidad + " unidad(es) del producto del detalle #" + idDetalleVenta);
             db.SaveChanges();
 
-            TempData["Mensaje"] = "Producto asignado a " + subcuenta.NombreSubcuenta + ". Quedan " + pendiente + " unidades pendientes.";
+            TempData["Mensaje"] = "Producto asignado a " + subcuenta.NombreSubcuenta + ". Quedan " + (pendiente - cantidad) + " unidades pendientes.";
             return RedirectToAction("Index");
         }
 
@@ -767,6 +774,15 @@ namespace RestauranteVistas.Controllers
             var pendientes = db.SubcuentasVenta.Where(s => s.IdVenta == venta.IdVenta && s.Estado && !s.Pagada).ToList();
             if (!pendientes.Any() && totalProductos == asignados)
             {
+                if (!venta.IdPedido.HasValue)
+                {
+                    int uid = Session["UsuarioId"] as int? ?? 1;
+                    foreach (var d in detalles)
+                    {
+                        InventarioService.DescontarStockPorReceta(db, d.IdProducto, d.Cantidad, uid, $"Venta Rápida #{venta.IdVenta}");
+                    }
+                }
+
                 venta.EstadoVenta = "completada";
                 venta.TotalCobrado = db.SubcuentasVenta.Where(s => s.IdVenta == venta.IdVenta && s.Estado).Sum(s => s.Subtotal);
                 venta.MetodoPago = NormalizarMetodoPago(metodoPago);
@@ -807,7 +823,8 @@ namespace RestauranteVistas.Controllers
 
             var productoNombres = db.Productos
                 .Where(p => p.Estado)
-                .ToDictionary(p => p.IdProducto, p => p.NombreProducto);
+                .GroupBy(p => p.IdProducto)
+                .ToDictionary(g => g.Key, g => g.First().NombreProducto);
 
             var idsVentas = ventas.Select(v => v.IdVenta).ToList();
             var edicionesPorVenta = db.BitacoraPdv
@@ -820,7 +837,7 @@ namespace RestauranteVistas.Controllers
             {
                 TieneAperturaActiva = db.AperturasCaja
                     .Include(a => a.Caja)
-                    .Any(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta"),
+                    .Any(a => a.Estado && a.Caja.EstadoCaja == "abierta"),
                 NombreCajero = ObtenerNombreCajero(),
                 Productos = db.Productos.Where(p => p.Estado && p.Disponible).OrderBy(p => p.NombreProducto).ToList(),
                 VentasActivas = ventas.Select(v =>
@@ -938,19 +955,69 @@ namespace RestauranteVistas.Controllers
             });
         }
 
+        private AperturaCaja ObtenerOCrearApertura(int idEmpleado)
+        {
+            var apertura = db.AperturasCaja
+                .Include(a => a.Caja)
+                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta")
+                .OrderByDescending(a => a.FechaApertura)
+                .FirstOrDefault();
+
+            if (apertura != null) return apertura;
+
+            apertura = db.AperturasCaja
+                .Include(a => a.Caja)
+                .Where(a => a.Estado && a.Caja.EstadoCaja == "abierta")
+                .OrderByDescending(a => a.FechaApertura)
+                .FirstOrDefault();
+
+            if (apertura != null) return apertura;
+
+            var caja = db.Cajas.FirstOrDefault(c => c.Estado);
+            if (caja == null)
+            {
+                caja = new Caja
+                {
+                    NombreCaja = "Caja Principal",
+                    EstadoCaja = "abierta",
+                    Estado = true
+                };
+                db.Cajas.Add(caja);
+                db.SaveChanges();
+            }
+            else
+            {
+                caja.EstadoCaja = "abierta";
+            }
+
+            apertura = new AperturaCaja
+            {
+                IdCaja = caja.IdCaja,
+                IdCajero = idEmpleado,
+                MontoInicial = 50000m,
+                Observaciones = "Apertura automática desde Punto de Venta",
+                FechaApertura = DateTime.Now,
+                Estado = true
+            };
+            db.AperturasCaja.Add(apertura);
+            db.SaveChanges();
+            return apertura;
+        }
+
         private AperturaCaja ObtenerApertura(int idEmpleado)
         {
             return db.AperturasCaja
                 .Include(a => a.Caja)
                 .Where(a => a.IdCajero == idEmpleado && a.Estado)
                 .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
+                .FirstOrDefault()
+                ?? db.AperturasCaja.Include(a => a.Caja).Where(a => a.Estado).OrderByDescending(a => a.FechaApertura).FirstOrDefault();
         }
 
         private int ObtenerIdCaja(Venta venta)
         {
             var apertura = ObtenerApertura(venta.IdEmpleado);
-            return apertura?.IdCaja ?? 0;
+            return apertura?.IdCaja ?? (db.Cajas.Where(c => c.Estado).Select(c => c.IdCaja).FirstOrDefault());
         }
 
         private string ProcesarTransmision(string destino, string prioridad)
@@ -989,6 +1056,9 @@ namespace RestauranteVistas.Controllers
                     EstadoItem = "pendiente",
                     Estado = true
                 });
+
+                // D-08: Descontar insumos de la receta asociada al producto
+                InventarioService.DescontarStockPorReceta(db, detalle.IdProducto, detalle.Cantidad, idUsuario, $"Pedido Rápido #{pedido.IdPedido}");
             }
 
             venta.IdPedido = pedido.IdPedido;
@@ -1019,19 +1089,25 @@ namespace RestauranteVistas.Controllers
         private int ObtenerIdEmpleado()
         {
             var idUsuario = Session["UsuarioId"] as int?;
-            if (idUsuario == null || idUsuario.Value == 0) return 0;
+            if (idUsuario != null && idUsuario.Value > 0)
+            {
+                var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario.Value && e.Estado);
+                if (empleado != null) return empleado.IdEmpleado;
+            }
 
-            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario.Value && e.Estado);
-            return empleado?.IdEmpleado ?? 0;
+            var fallback = db.Empleados.FirstOrDefault(e => e.Estado);
+            return fallback?.IdEmpleado ?? 1;
         }
 
         private string ObtenerNombreCajero()
         {
             var idUsuario = Session["UsuarioId"] as int?;
-            if (idUsuario == null || idUsuario.Value == 0) return "";
-
-            var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario.Value && e.Estado);
-            return empleado == null ? "" : (empleado.Nombre + " " + empleado.Apellidos).Trim();
+            if (idUsuario != null && idUsuario.Value > 0)
+            {
+                var empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == idUsuario.Value && e.Estado);
+                if (empleado != null) return (empleado.Nombre + " " + empleado.Apellidos).Trim();
+            }
+            return Session["UsuarioNombre"]?.ToString() ?? "Cajero";
         }
 
         protected override void Dispose(bool disposing)

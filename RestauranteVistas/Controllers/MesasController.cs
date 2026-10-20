@@ -1,20 +1,165 @@
 using AccesoADatos;
 using Abstracciones.Models;
 using System;
+using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
 namespace RestauranteVistas.Controllers
 {
-    [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador" })]
+    [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador", "Cajero" })]
     public class MesasController : Controller
     {
         private ColibriDbContext db = new ColibriDbContext();
 
         public ActionResult Index()
         {
-            var mesas = db.Mesas.OrderBy(m => m.NumeroMesa).ToList();
+            var mesas = db.Mesas.Where(m => m.Estado).OrderBy(m => m.NumeroMesa).ToList();
+
+            var empleados = db.Empleados.Include(e => e.Usuario).Include(e => e.Usuario.Rol)
+                .Where(e => e.Estado)
+                .OrderByDescending(e => e.Usuario != null && e.Usuario.Rol != null && e.Usuario.Rol.NombreRol == "Mesero")
+                .ThenBy(e => e.Nombre)
+                .ToList();
+            ViewBag.Meseros = empleados;
+
+            // Obtener mesero asignado por mesa (desde pedido activo o última asignación en bitácora)
+            var asignaciones = new Dictionary<int, string>();
+            var pedidosActivos = db.Pedidos
+                .Where(p => p.Estado && p.IdMesa.HasValue &&
+                            (p.EstadoPedido == "abierto" || p.EstadoPedido == "en_proceso" ||
+                             p.EstadoPedido == "listo" || p.EstadoPedido == "entregado"))
+                .OrderByDescending(p => p.FechaHora)
+                .ToList();
+
+            var empDict = empleados.GroupBy(e => e.IdEmpleado)
+                .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
+
+            foreach (var p in pedidosActivos)
+            {
+                if (p.IdMesa.HasValue && !asignaciones.ContainsKey(p.IdMesa.Value))
+                {
+                    asignaciones[p.IdMesa.Value] = empDict.ContainsKey(p.IdEmpleado)
+                        ? empDict[p.IdEmpleado]
+                        : $"Empleado #{p.IdEmpleado}";
+                }
+            }
+
+            var bitacorasMesas = db.BitacoraRRHH
+                .Where(b => b.TablaAfectada == "Mesas" && b.IdRegistroAfectado > 0)
+                .OrderByDescending(b => b.FechaHora)
+                .ToList();
+
+            foreach (var m in mesas.Where(m => m.EstadoMesa == "ocupada"))
+            {
+                if (!asignaciones.ContainsKey(m.IdMesa))
+                {
+                    var ultAsig = bitacorasMesas.FirstOrDefault(b => b.IdRegistroAfectado == m.IdMesa && !string.IsNullOrEmpty(b.ValorNuevo));
+                    if (ultAsig != null && ultAsig.ValorNuevo != "disponible")
+                    {
+                        asignaciones[m.IdMesa] = ultAsig.ValorNuevo;
+                    }
+                }
+            }
+
+            ViewBag.Asignaciones = asignaciones;
             return View(mesas);
+        }
+
+        [HttpPost]
+        public ActionResult AsignarMesero(int idMesa, int idEmpleado)
+        {
+            if (idMesa <= 0 || idEmpleado <= 0)
+            {
+                TempData["Error"] = "Debe seleccionar una mesa y un mesero.";
+                return RedirectToAction("Index");
+            }
+
+            var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == idMesa && m.Estado);
+            if (mesa == null)
+            {
+                TempData["Error"] = "La mesa seleccionada no existe.";
+                return RedirectToAction("Index");
+            }
+
+            // C5 Paso 3: Intentar asignar una mesa ocupada a un nuevo mesero -> error indicando que no está disponible
+            if (mesa.EstadoMesa == "ocupada")
+            {
+                TempData["Error"] = $"La mesa {mesa.NumeroMesa} ya se encuentra en uso (ocupada) y no está disponible para asignarse a otro mesero.";
+                return RedirectToAction("Index");
+            }
+
+            var empleado = db.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado && e.Estado);
+            if (empleado == null)
+            {
+                TempData["Error"] = "El mesero seleccionado no existe o está inactivo.";
+                return RedirectToAction("Index");
+            }
+
+            string estadoAnterior = mesa.EstadoMesa;
+            mesa.EstadoMesa = "ocupada";
+
+            int uid = Session["UsuarioId"] as int? ?? empleado.IdUsuario;
+            db.BitacoraRRHH.Add(new BitacoraRRHH
+            {
+                IdUsuario = uid,
+                TablaAfectada = "Mesas",
+                IdRegistroAfectado = mesa.IdMesa,
+                Accion = "UPDATE",
+                ValorAnterior = estadoAnterior,
+                ValorNuevo = $"{empleado.Nombre} {empleado.Apellidos}",
+                Detalle = $"Mesa {mesa.NumeroMesa} asignada al mesero {empleado.Nombre} {empleado.Apellidos}",
+                IpOrigen = Request.UserHostAddress,
+                Dispositivo = Request.UserAgent,
+                FechaHora = DateTime.Now
+            });
+
+            db.SaveChanges();
+
+            TempData["Mensaje"] = $"Mesa {mesa.NumeroMesa} asignada al mesero {empleado.Nombre} {empleado.Apellidos}. Estado cambiado a En Uso (ocupada).";
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult LiberarMesa(int id)
+        {
+            var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == id && m.Estado);
+            if (mesa == null)
+            {
+                TempData["Error"] = "La mesa no existe.";
+                return RedirectToAction("Index");
+            }
+
+            bool tienePedidoEnCocina = db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
+                (p.EstadoPedido == "en_proceso" || p.EstadoPedido == "listo"));
+            if (tienePedidoEnCocina)
+            {
+                TempData["Error"] = $"La mesa {mesa.NumeroMesa} tiene un pedido en preparación/listo en cocina. Finalice o cancele el pedido antes de liberarla.";
+                return RedirectToAction("Index");
+            }
+
+            string estadoAnterior = mesa.EstadoMesa;
+            mesa.EstadoMesa = "disponible";
+
+            int uid = Session["UsuarioId"] as int? ?? 1;
+            db.BitacoraRRHH.Add(new BitacoraRRHH
+            {
+                IdUsuario = uid,
+                TablaAfectada = "Mesas",
+                IdRegistroAfectado = mesa.IdMesa,
+                Accion = "UPDATE",
+                ValorAnterior = estadoAnterior,
+                ValorNuevo = "disponible",
+                Detalle = $"Mesa {mesa.NumeroMesa} liberada y marcada como disponible.",
+                IpOrigen = Request.UserHostAddress,
+                Dispositivo = Request.UserAgent,
+                FechaHora = DateTime.Now
+            });
+
+            db.SaveChanges();
+            TempData["Mensaje"] = $"Mesa {mesa.NumeroMesa} liberada correctamente. Ahora se encuentra Disponible.";
+            return RedirectToAction("Index");
         }
 
         public ActionResult Create()
@@ -123,7 +268,7 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            bool enUso = db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
+            bool enUso = mesa.EstadoMesa == "ocupada" || db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
                 (p.EstadoPedido == "abierto" || p.EstadoPedido == "en_proceso" ||
                  p.EstadoPedido == "listo" || p.EstadoPedido == "entregado"));
             ViewBag.TienePedidosActivos = enUso;
@@ -141,18 +286,18 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            bool enUso = db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
+            bool enUso = mesa.EstadoMesa == "ocupada" || db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
                 (p.EstadoPedido == "abierto" || p.EstadoPedido == "en_proceso" ||
                  p.EstadoPedido == "listo" || p.EstadoPedido == "entregado"));
             if (enUso)
             {
-                TempData["Error"] = "No se puede eliminar la mesa porque tiene pedidos activos.";
+                TempData["Error"] = $"No se puede eliminar la mesa {mesa.NumeroMesa} porque se encuentra en uso (ocupada) o tiene pedidos activos. Libere la mesa primero.";
                 return RedirectToAction("Index");
             }
 
             mesa.Estado = false;
             db.SaveChanges();
-            TempData["Mensaje"] = "Mesa eliminada correctamente.";
+            TempData["Mensaje"] = $"Mesa {mesa.NumeroMesa} eliminada correctamente.";
             return RedirectToAction("Index");
         }
 

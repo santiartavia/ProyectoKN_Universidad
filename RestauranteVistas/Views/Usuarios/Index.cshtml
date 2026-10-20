@@ -1,4 +1,4 @@
-﻿@model RestauranteVistas.Models.ViewModels.UsuariosViewModel
+@model RestauranteVistas.Models.ViewModels.UsuariosViewModel
 
 @{
     ViewBag.Title = "Gestion de Usuarios";
@@ -47,6 +47,7 @@
             <tr>
                 <th>ID</th>
                 <th>Usuario</th>
+                <th>Nombre / Empleado</th>
                 <th>Rol</th>
                 <th>Correo</th>
                 <th>Estado</th>
@@ -60,6 +61,7 @@
                 {
                     <tr>
                         <td>@u.IdUsuario</td>
+                        <td><strong>@u.NombreUsuario</strong></td>
                         <td>@(Model.NombresEmpleados.ContainsKey(u.IdUsuario) ? Model.NombresEmpleados[u.IdUsuario] : u.NombreUsuario)</td>
                         <td>@(u.Rol != null ? u.Rol.NombreRol : "")</td>
                         <td>@u.Correo</td>
@@ -88,7 +90,7 @@
                             {
                                 <input type="hidden" name="id" value="@u.IdUsuario" />
                                 <button type="submit" class="btn btn-sm btn-info" title="Resetear contrasena"
-                                        onclick="return confirm('¿Resetear contrasena de @(Model.NombresEmpleados.ContainsKey(u.IdUsuario) ? Model.NombresEmpleados[u.IdUsuario] : u.NombreUsuario)? El usuario debera crear una nueva al iniciar sesion.');">
+                                        onclick="return confirm('¿Resetear contrasena de @u.NombreUsuario? Su clave temporal sera su nombre de usuario y debera cambiarla al iniciar sesion.');">
                                     <span class="material-symbols-outlined" style="font-size:16px;">lock_reset</span>
                                 </button>
                             }
@@ -105,7 +107,7 @@
             }
             else
             {
-                <tr><td colspan="6">No hay usuarios registrados.</td></tr>
+                <tr><td colspan="7">No hay usuarios registrados.</td></tr>
             }
         </tbody>
     </table>

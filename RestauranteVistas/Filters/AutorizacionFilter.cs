@@ -1,5 +1,6 @@
-using System.Web.Mvc;
+using System;
 using System.Linq;
+using System.Web.Mvc;
 
 namespace RestauranteVistas.Filters
 {
@@ -14,8 +15,8 @@ namespace RestauranteVistas.Filters
 
             if (RolesPermitidos != null && RolesPermitidos.Length > 0)
             {
-                var rol = httpContext.Session["RolNombre"]?.ToString();
-                return RolesPermitidos.Contains(rol);
+                var rol = (httpContext.Session["RolNombre"]?.ToString() ?? "").Trim();
+                return RolesPermitidos.Any(r => string.Equals(r?.Trim(), rol, StringComparison.OrdinalIgnoreCase));
             }
 
             return true;

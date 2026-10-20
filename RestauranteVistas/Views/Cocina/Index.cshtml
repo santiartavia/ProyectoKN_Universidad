@@ -1,4 +1,4 @@
-﻿@model List<Abstracciones.Models.Pedido>
+@model List<Abstracciones.Models.Pedido>
 @using System.Linq;
 @{
     ViewBag.Title = "Panel de Cocina";
@@ -12,41 +12,16 @@
 <div class="hero-card">
     <h2>Panel principal de cocina</h2>
     <p>
-        Visualiza la cola de preparación,
-        los pedidos en proceso, los tiempos estimados y los platos listos.
+        Visualiza la cola de preparación en tiempo real, cambia el estado de los pedidos a En Preparación y márcalos como Listos para que el mesero los entregue.
     </p>
 </div>
 
 <div class="grid-4">
-    <div class="metric-card"><h3>Pedidos nuevos</h3><div class="value">5</div></div>
-    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">8</div></div>
-    <div class="metric-card alt-orange"><h3>Por entregar</h3><div class="value">3</div></div>
-    <div class="metric-card alt-teal"><h3>Completados</h3><div class="value">17</div></div>
+    <div class="metric-card"><h3>Pedidos nuevos</h3><div class="value">@(ViewBag.PedidosNuevos ?? 0)</div></div>
+    <div class="metric-card alt-blue"><h3>En preparación</h3><div class="value">@(ViewBag.EnPreparacion ?? 0)</div></div>
+    <div class="metric-card alt-orange"><h3>Listos por entregar</h3><div class="value">@(ViewBag.PorEntregar ?? 0)</div></div>
+    <div class="metric-card alt-teal"><h3>Completados</h3><div class="value">@(ViewBag.Completados ?? 0)</div></div>
 </div>
-
-<div class="grid-3">
-    <div class="quick-card">
-        <div class="quick-icon bg-ruby"><span class="material-symbols-outlined">restaurant</span></div>
-        <h4>Preparación</h4>
-        <p>Pedidos que están activos en cocina.</p>
-        <button class="btn btn-primary" onclick="mostrarToast('Vista de preparación cargada')">Abrir</button>
-    </div>
-
-    <div class="quick-card">
-        <div class="quick-icon bg-mandarin"><span class="material-symbols-outlined">schedule</span></div>
-        <h4>Tiempos</h4>
-        <p>Control visual de tiempos estimados.</p>
-        <button class="btn btn-warning" onclick="mostrarToast('Tiempos estimados consultados')">Ver</button>
-    </div>
-
-    <div class="quick-card">
-        <div class="quick-icon bg-emerald"><span class="material-symbols-outlined">check_circle</span></div>
-        <h4>Pedidos listos</h4>
-        <p>Pedidos listos para entregar a salón.</p>
-        <a class="btn btn-secondary" href="@Url.Action("Index","Pedidos")">Ir</a>
-    </div>
-</div>
-
 
 @if (TempData["Mensaje"] != null)
 {
@@ -54,12 +29,18 @@
         @TempData["Mensaje"]
     </div>
 }
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" style="margin-top:20px;">
+        @TempData["Error"]
+    </div>
+}
 
-<div class="table-card" style="margin-top:25px;">
+<div id="cola-cocina" class="table-card" style="margin-top:25px;">
     <div class="section-title">
         <div>
-            <h3>Cola de cocina funcional</h3>
-            <p>Pedidos reales cargados desde base de datos</p>
+            <h3>Cola de cocina en tiempo real</h3>
+            <p>Pedidos activos pendientes de preparación o entrega a salón</p>
         </div>
     </div>
 
@@ -75,19 +56,30 @@
             var detallesPedido = detalles != null ? detalles.Where(d => d.IdPedido == pedido.IdPedido).ToList() : null;
 
             <div class="quick-card" style="margin-bottom:20px;">
-                <h4>Pedido #@pedido.IdPedido</h4>
-                <p><strong>Mesa:</strong> @(mesa != null ? mesa.NumeroMesa : "Sin mesa")</p>
-                <p><strong>Estado:</strong> @pedido.EstadoPedido</p>
-                <p><strong>Observaciones:</strong> @pedido.Observaciones</p>
-
-                @if (pedido.EstadoPedido == "abierto")
-                {
-                    using (Html.BeginForm("IniciarPreparacion", "Cocina", FormMethod.Post))
-                    {
-                        @Html.Hidden("idPedido", pedido.IdPedido)
-                        <button type="submit" class="btn btn-primary">Iniciar preparación</button>
-                    }
-                }
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                    <div>
+                        <h4>Pedido #@pedido.IdPedido — @(mesa != null ? mesa.NumeroMesa : "Sin mesa")</h4>
+                        <p><strong>Estado actual:</strong> <span class="status @(pedido.EstadoPedido == "listo" ? "success" : pedido.EstadoPedido == "en_proceso" ? "info" : "warning")">@pedido.EstadoPedido</span> | <strong>Observaciones:</strong> @(string.IsNullOrEmpty(pedido.Observaciones) ? "Ninguna" : pedido.Observaciones)</p>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        @if (pedido.EstadoPedido == "abierto")
+                        {
+                            using (Html.BeginForm("IniciarPreparacion", "Cocina", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                @Html.Hidden("idPedido", pedido.IdPedido)
+                                <button type="submit" class="btn btn-primary">Iniciar preparación</button>
+                            }
+                        }
+                        @if (pedido.EstadoPedido == "abierto" || pedido.EstadoPedido == "en_proceso")
+                        {
+                            using (Html.BeginForm("MarcarPedidoListo", "Cocina", FormMethod.Post, new { style = "display:inline;" }))
+                            {
+                                @Html.Hidden("idPedido", pedido.IdPedido)
+                                <button type="submit" class="btn btn-success">Marcar pedido como Listo</button>
+                            }
+                        }
+                    </div>
+                </div>
 
                 <table style="margin-top:15px;">
                     <thead>
@@ -96,7 +88,7 @@
                             <th>Cantidad</th>
                             <th>Observación</th>
                             <th>Estado item</th>
-                            <th>Acciones</th>
+                            <th>Acciones por plato</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -110,23 +102,23 @@
                                     <td>@(producto != null ? producto.NombreProducto : "Producto no encontrado")</td>
                                     <td>@item.Cantidad</td>
                                     <td>@item.ObservacionesItem</td>
-                                    <td>@item.EstadoItem</td>
-                                    <td>
+                                    <td><span class="status @(item.EstadoItem == "listo" ? "success" : item.EstadoItem == "preparando" ? "info" : "warning")">@item.EstadoItem</span></td>
+                                    <td style="display:flex;gap:6px;flex-wrap:wrap;">
                                         @if (item.EstadoItem == "pendiente")
                                         {
-                                            using (Html.BeginForm("MarcarItemPreparando", "Cocina", FormMethod.Post))
+                                            using (Html.BeginForm("MarcarItemPreparando", "Cocina", FormMethod.Post, new { style = "display:inline;" }))
                                             {
                                                 @Html.Hidden("idDetalle", item.IdDetalle)
-                                                <button type="submit" class="btn btn-warning">Marcar preparando</button>
+                                                <button type="submit" class="btn btn-warning btn-sm">Marcar preparando</button>
                                             }
                                         }
 
                                         @if (item.EstadoItem == "pendiente" || item.EstadoItem == "preparando")
                                         {
-                                            using (Html.BeginForm("MarcarItemListo", "Cocina", FormMethod.Post))
+                                            using (Html.BeginForm("MarcarItemListo", "Cocina", FormMethod.Post, new { style = "display:inline;" }))
                                             {
                                                 @Html.Hidden("idDetalle", item.IdDetalle)
-                                                <button type="submit" class="btn btn-secondary">Marcar listo</button>
+                                                <button type="submit" class="btn btn-secondary btn-sm">Marcar listo</button>
                                             }
                                         }
                                     </td>
