@@ -21,7 +21,6 @@ namespace LogicaDeNegocios.Services
                                string valorAnterior, string valorNuevo, string detalle,
                                int idUsuario, string ipOrigen = null, string dispositivo = null)
         {
-            try
             {
                 using (var ctx = new ColibriDbContext())
                 {
@@ -42,17 +41,13 @@ namespace LogicaDeNegocios.Services
                     ctx.SaveChanges();
                 }
             }
-            catch
-            {
-                // Resguardo seguro si ocurre discrepancia en restricción CK de bitácora
-            }
+
         }
 
         public List<BitacoraRRHH> Consultar(int? idRegistroAfectado = null, int? idUsuario = null,
                                               DateTime? fechaInicio = null, DateTime? fechaFin = null,
                                               string accion = null)
         {
-            try
             {
                 using (var ctx = new ColibriDbContext())
                 {
@@ -72,15 +67,11 @@ namespace LogicaDeNegocios.Services
                     return query.OrderByDescending(b => b.FechaHora).ToList();
                 }
             }
-            catch
-            {
-                return new List<BitacoraRRHH>();
-            }
+
         }
 
         public List<string> ObtenerAccionesDistinct()
         {
-            try
             {
                 using (var ctx = new ColibriDbContext())
                 {
@@ -91,10 +82,7 @@ namespace LogicaDeNegocios.Services
                         .ToList();
                 }
             }
-            catch
-            {
-                return new List<string> { "INSERT", "UPDATE", "INACTIVACION", "REACTIVACION" };
-            }
+
         }
     }
 }

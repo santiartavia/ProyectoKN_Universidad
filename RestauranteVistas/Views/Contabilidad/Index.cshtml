@@ -1,4 +1,4 @@
-﻿@model RestauranteVistas.Models.ViewModels.ContabilidadViewModel
+@model RestauranteVistas.Models.ViewModels.ContabilidadViewModel
 @{
     ViewBag.Title = "Contabilidad";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -44,6 +44,7 @@
         <div class="section-title"><h3>Abrir caja</h3></div>
         <p>Inicie un nuevo turno</p>
         <form method="post" action="@Url.Action("AbrirCaja")" class="form-grid">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Caja</label>
                 <select name="idCaja" required>
@@ -126,6 +127,7 @@
         @if (Model.AperturasActivas != null && Model.AperturasActivas.Any())
         {
             <form method="post" action="@Url.Action("CerrarCaja")" class="form-grid">
+            @Html.AntiForgeryToken()
                 <div class="form-group">
                     <label>Apertura activa</label>
                     <select name="idApertura" required>
@@ -199,6 +201,7 @@
             <small>Apertura #@Model.AperturaActiva.IdApertura</small>
         </div>
         <form method="post" action="@Url.Action("RegistrarEgreso")" class="form-grid">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idApertura" value="@Model.AperturaActiva.IdApertura" />
             <div class="form-group">
                 <label>Categoría</label>
@@ -294,6 +297,7 @@
                     <p>Nota de crédito por anulación</p>
                 </div>
                 <form method="post" action="@Url.Action("AnularVenta")" class="form-grid">
+            @Html.AntiForgeryToken()
                     <div class="form-group">
                         <label>Venta</label>
                         <select name="idVenta" required>
@@ -326,6 +330,7 @@
             <h3>Generar reporte</h3>
         </div>
         <form method="post" action="@Url.Action("GenerarReporte")" class="form-grid">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Tipo de reporte</label>
                 <select name="tipoReporte" id="tipoReporte" required onchange="actualizarFiltros()">
@@ -562,6 +567,7 @@ else if (TempData["ReporteVacio"] != null)
             <p>Generar cierre contable mensual o anual</p>
         </div>
         <form method="post" action="@Url.Action("GenerarCierrePeriodo")" class="form-grid">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Tipo de período</label>
                 <select name="tipoPeriodo" required>

@@ -34,6 +34,7 @@
         @using (Html.BeginForm("DeleteConfirmed", "Mesas", new { id = Model.IdMesa }, FormMethod.Post))
         {
             @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
             <button type="submit" class="btn btn-danger" @(ViewBag.TienePedidosActivos == true ? "disabled" : "")>Eliminar mesa</button>
             <a href="@Url.Action("Index")" class="btn btn-secondary">Cancelar</a>
         }

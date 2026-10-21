@@ -10,9 +10,9 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador", "Cajero" })]
-    public class PedidosController : Controller
+    public class PedidosController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+
 
         public ActionResult Index()
         {
@@ -47,7 +47,7 @@ namespace RestauranteVistas.Controllers
             ViewBag.NombresMesas = todasMesas.GroupBy(m => m.IdMesa).ToDictionary(g => g.Key, g => g.First().NumeroMesa);
 
             var empleados = db.Empleados.Include(e => e.Usuario).Include(e => e.Usuario.Rol)
-                .Where(e => e.Estado)
+                .Where(e => e.Estado && e.Usuario.Estado && e.Usuario.Rol.Estado && e.Usuario.Rol.NombreRol == "Mesero")
                 .OrderByDescending(e => e.Usuario != null && e.Usuario.Rol != null && e.Usuario.Rol.NombreRol == "Mesero")
                 .ThenBy(e => e.Nombre)
                 .ToList();
@@ -55,7 +55,7 @@ namespace RestauranteVistas.Controllers
             ViewBag.NombresEmpleados = empleados.GroupBy(e => e.IdEmpleado).ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
 
             var uid = Session["UsuarioId"] as int? ?? 0;
-            var empleado = empleados.FirstOrDefault(e => e.IdUsuario == uid) ?? empleados.FirstOrDefault();
+            var empleado = empleados.FirstOrDefault(e => e.IdUsuario == uid);
             ViewBag.MeseroId = empleado?.IdEmpleado ?? 0;
             ViewBag.MeseroNombre = empleado != null ? empleado.Nombre + " " + empleado.Apellidos : (Session["UsuarioNombre"]?.ToString() ?? "");
 
@@ -69,45 +69,23 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearOrden(int idMesa, int? idEmpleado, byte comensales, int idProducto, decimal cantidad, string tipoServicio, string observaciones)
         {
             int uid = Session["UsuarioId"] as int? ?? 0;
             if (uid == 0)
                 return RedirectToAction("Index", "Login");
 
-            Empleado empleado = null;
-            if (idEmpleado.HasValue && idEmpleado.Value > 0)
-            {
-                empleado = db.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado.Value && e.Estado);
-            }
+            var empleado = db.Empleados.Include(e => e.Usuario.Rol).FirstOrDefault(e =>
+                e.IdEmpleado == idEmpleado && e.Estado && e.Usuario.Estado &&
+                e.Usuario.Rol.Estado && e.Usuario.Rol.NombreRol == "Mesero");
             if (empleado == null)
             {
-                empleado = db.Empleados.FirstOrDefault(e => e.IdUsuario == uid && e.Estado)
-                        ?? db.Empleados.FirstOrDefault(e => e.Estado);
+                TempData["Error"] = "Debe seleccionar un mesero activo autorizado.";
+                return RedirectToAction("Index");
             }
 
-            if (empleado == null)
-            {
-                // Auto-crear perfil de empleado para el usuario actual si no existe ninguno
-                var usuarioActual = db.Usuarios.FirstOrDefault(u => u.IdUsuario == uid);
-                empleado = new Empleado
-                {
-                    IdUsuario = uid,
-                    Cedula = $"U-{uid}",
-                    Nombre = usuarioActual?.NombreUsuario ?? "Mesero",
-                    Apellidos = "General",
-                    Telefono = "0000-0000",
-                    CorreoPersonal = usuarioActual?.Correo ?? "mesero@colibri.com",
-                    SalarioHora = 2500m,
-                    DiasVacacionesDisponibles = 0,
-                    FechaIngreso = DateTime.Today,
-                    Estado = true
-                };
-                db.Empleados.Add(empleado);
-                db.SaveChanges();
-            }
-
-            if (idMesa <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0)
+            if (idMesa <= 0 || comensales <= 0 || idProducto <= 0 || cantidad <= 0 || cantidad != decimal.Truncate(cantidad))
             {
                 TempData["Error"] = "Debe completar todos los campos obligatorios.";
                 return RedirectToAction("Index");
@@ -119,6 +97,15 @@ namespace RestauranteVistas.Controllers
                 TempData["Error"] = "La mesa seleccionada no está disponible.";
                 return RedirectToAction("Index");
             }
+
+            if (mesa.IdEmpleadoAsignado.HasValue && mesa.IdEmpleadoAsignado != empleado.IdEmpleado)
+                throw new ArgumentException("Seleccione el mesero asignado a la mesa o cambie primero la asignación.");
+            if (string.Equals(Session["RolNombre"] as string, "Mesero", StringComparison.OrdinalIgnoreCase) && empleado.IdUsuario != uid)
+                throw new ArgumentException("Solo puede registrar pedidos para sus propias mesas.");
+            if (cantidad > int.MaxValue || cantidad != decimal.Truncate(cantidad))
+                throw new ArgumentException("La cantidad de productos debe ser un número entero.");
+            if (comensales > mesa.Capacidad)
+                throw new ArgumentException("La cantidad de comensales supera la capacidad de la mesa.");
 
             var producto = db.Productos.FirstOrDefault(p => p.IdProducto == idProducto && p.Estado == true && p.Disponible == true);
             if (producto == null)
@@ -142,6 +129,8 @@ namespace RestauranteVistas.Controllers
                 tipoServicio = "para_llevar";
             else if (tipoServicio == "Delivery")
                 tipoServicio = "delivery";
+            if (!new[] { "mesa", "para_llevar", "delivery" }.Contains(tipoServicio))
+                throw new ArgumentException("Tipo de servicio inválido.");
 
             string origenMesa = tipoServicio;
 
@@ -164,7 +153,7 @@ namespace RestauranteVistas.Controllers
             {
                 IdPedido = pedido.IdPedido,
                 IdProducto = idProducto,
-                Cantidad = cantidad,
+                Cantidad = checked((int)cantidad),
                 PrecioUnitario = producto.PrecioVenta,
                 ObservacionesItem = observaciones,
                 EstadoItem = "pendiente",
@@ -187,6 +176,7 @@ namespace RestauranteVistas.Controllers
             });
 
             mesa.EstadoMesa = "ocupada";
+            mesa.IdEmpleadoAsignado = empleado.IdEmpleado;
 
             // Usar Accion = "UPDATE" para cumplir con CK_BitRR_accion en Bitacora_RRHH
             db.BitacoraRRHH.Add(new BitacoraRRHH
@@ -215,9 +205,10 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AgregarProducto(int idPedido, int idProducto, decimal cantidad, string observacionesItem)
         {
-            if (idPedido <= 0 || idProducto <= 0 || cantidad <= 0)
+            if (idPedido <= 0 || idProducto <= 0 || cantidad <= 0 || cantidad > int.MaxValue || cantidad != decimal.Truncate(cantidad))
             {
                 TempData["Error"] = "Debe seleccionar un pedido, un producto y una cantidad válida.";
                 return RedirectToAction("Index");
@@ -242,7 +233,7 @@ namespace RestauranteVistas.Controllers
             {
                 IdPedido = idPedido,
                 IdProducto = idProducto,
-                Cantidad = cantidad,
+                Cantidad = checked((int)cantidad),
                 PrecioUnitario = producto.PrecioVenta,
                 ObservacionesItem = observacionesItem,
                 EstadoItem = "pendiente",
@@ -273,6 +264,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EditarProducto(int idDetalle, decimal cantidad, string observacionesItem)
         {
             var detalle = db.DetallePedidos.FirstOrDefault(d => d.IdDetalle == idDetalle && d.Estado == true);
@@ -297,7 +289,7 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (cantidad <= 0)
+            if (cantidad <= 0 || cantidad > int.MaxValue || cantidad != decimal.Truncate(cantidad))
             {
                 TempData["Error"] = "La cantidad debe ser mayor a cero.";
                 return RedirectToAction("Index");
@@ -314,7 +306,7 @@ namespace RestauranteVistas.Controllers
                 InventarioService.RestaurarStockPorReceta(db, detalle.IdProducto, Math.Abs(diferencia), uid, $"Edición Pedido #{detalle.IdPedido}");
             }
 
-            detalle.Cantidad = cantidad;
+            detalle.Cantidad = checked((int)cantidad);
             detalle.ObservacionesItem = observacionesItem;
 
             db.BitacoraPedidos.Add(new BitacoraPedido
@@ -333,6 +325,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EliminarProducto(int idDetalle)
         {
             var detalle = db.DetallePedidos.FirstOrDefault(d => d.IdDetalle == idDetalle && d.Estado == true);
@@ -387,6 +380,7 @@ namespace RestauranteVistas.Controllers
                     if (mesa != null)
                     {
                         mesa.EstadoMesa = "disponible";
+                        mesa.IdEmpleadoAsignado = null;
                     }
                 }
 
@@ -412,6 +406,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CancelarPedido(int idPedido, string motivoCancelacion)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado == true);
@@ -449,6 +444,7 @@ namespace RestauranteVistas.Controllers
                 if (mesa != null)
                 {
                     mesa.EstadoMesa = "disponible";
+                        mesa.IdEmpleadoAsignado = null;
                 }
             }
 
@@ -470,6 +466,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarEntregado(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
@@ -479,7 +476,12 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            int usuarioActual = (int)Session["UsuarioId"];
+            if (string.Equals(Session["RolNombre"] as string, "Mesero", StringComparison.OrdinalIgnoreCase) &&
+                !db.Empleados.Any(e => e.IdEmpleado == pedido.IdEmpleado && e.IdUsuario == usuarioActual && e.Estado))
+                throw new ArgumentException("Solo el mesero asignado puede entregar el pedido.");
             pedido.EstadoPedido = "entregado";
+            pedido.FechaHoraEntrega = DateTime.Now;
             var detalles = db.DetallePedidos.Where(d => d.IdPedido == idPedido && d.Estado).ToList();
             foreach (var d in detalles)
             {
@@ -491,7 +493,7 @@ namespace RestauranteVistas.Controllers
             {
                 IdUsuario = uid,
                 IdPedido = idPedido,
-                Accion = "CAMBIO_ESTADO",
+                Accion = "ENTREGA",
                 EstadoAnterior = "listo",
                 EstadoNuevo = "entregado",
                 Detalle = "Pedido entregado al cliente en mesa",

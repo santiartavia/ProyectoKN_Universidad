@@ -1,0 +1,202 @@
+
+## Página 1
+ 
+ 
+Informe de Ejecución 
+de Pruebas 
+Restaurante El Colibrí 
+Versión 1.0 
+13 de octubre de 2026 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+## Página 2
+Implantación de Sistemas | SC-830   
+2 
+ 
+ 
+Tabla de Contenidos 
+Tabla de Contenidos ................................ ................................ ................................ ............. 2 
+Introducción ................................ ................................ ................................ .......................... 3 
+Objetivos ................................ ................................ ................................ ...............................  3 
+Descripción del Informe ................................ ................................ ................................ ........ 3 
+Resumen de las Pruebas ................................ ................................ ................................ .. 4 
+Defectos ................................ ................................ ................................ ............................ 5 
+Conclusión ................................ ................................ ................................ ............................ 6 
+ 
+ 
+ 
+ 
+ 
+
+## Página 3
+Implantación de Sistemas | SC-830   
+3 
+ 
+Introducción  
+El presente informe documenta los resultados de la ejecución de pruebas realizada 
+sobre el sistema del Restaurante El Colibrí, en el marco del curso Implantación de 
+Sistemas (SC-830). Las pruebas se diseñaron a partir de las 14 historias de usuario 
+(HU-01 a HU-14) que conforman el alcance del proyecto y se ejecutaron según lo 
+establecido en el Plan de QA y Casos de Prueba del equipo. 
+Los casos cubren los módulos de autenticación y seguridad, empleados y personal, 
+mesas, pedidos y punto de venta, inventario, caja, reportería, nómina y auditoría. En 
+total se ejecutaron 14 casos de prueba con 91 pasos; 7 casos fueron aceptados y 7 
+no fueron aceptados. En las secciones siguientes se detallan los objetivos, la forma 
+en que se realizaron las pruebas, el resumen de resultados, los defectos detectados 
+y las conclusiones. 
+Objetivos 
+Objetivo general. Verificar que el sistema del Restaurante El Colibrí cumpla con los 
+requerimientos definidos en las historias de usuario HU-01 a HU-14 y documentar los 
+resultados de la ejecución de las pruebas. 
+Objetivos específicos: 
+• Comprobar que los flujos de cada historia de usuario funcionen conforme a los 
+resultados esperados definidos en cada caso de prueba. 
+• Validar la seguridad del acceso al sistema, tanto en el inicio de sesión como 
+en el control de acceso por roles. 
+• Verificar la integración entre los módulos del sistema (turnos, pedidos, 
+inventario, caja y nómina). 
+• Identificar y clasificar los defectos encontrados para su corrección y posterior 
+reprueba. 
+• Determinar la aceptación o no aceptación de cada caso de prueba. 
+Descripción del Informe 
+Cada caso de prueba corresponde a una historia de usuario y está documentado en 
+el Plan de QA con su módulo y submódulo, tipo de prueba, alcance y objetivo, 
+
+## Página 4
+Implantación de Sistemas | SC-830   
+4 
+ 
+condiciones previas y una secuencia de pasos. Para cada paso se registran el 
+resultado esperado, el estado (Aprobado o No aprobado) y el resultado obtenido; 
+además, cada caso incluye observaciones, fecha de ejecución y su aceptación. 
+Los casos se clasificaron según su prioridad (Alta, Media o Baja) y por tipo de prueba: 
+seguridad, sistemas, integración, desempeño, unitarias, aceptación de usuario y 
+regresión. Cada caso tiene un responsable y un revisor asignados dentro del equipo 
+de desarrollo y pruebas, y la ejecución estuvo a cargo de Jeremy Acuña Brenes como 
+responsable de la prueba. Los casos C1 y C2 se ejecutaron el 11 de octubre de 2026 
+y los casos C3 a C14 el 12 de octubre de 2026. 
+Un caso se considera aceptado cuando todos sus pasos resultan aprobados; si al 
+menos un paso no se aprueba, el caso no se acepta. Los pasos que no pudieron 
+ejecutarse porque dependían de un paso previo fallido se registraron como No 
+aprobados. 
+Resumen de las Pruebas 
+• Casos de prueba ejecutados: 14 de 14 planificados (91 pasos en total). 
+• Casos de prueba pasados: 7 (C2, C3, C4, C10, C11, C12 y C13). 
+• Casos de prueba fallidos: 7 (C1, C5, C6, C7, C8, C9 y C14). 
+• Porcentaje de casos pasados: 50 %. 
+• Porcentaje de casos fallidos: 50 %. 
+• Comentarios: a nivel de pasos, 66 de 91 fueron aprobados (72,5 %) y 25 no 
+fueron aprobados (27,5 %); de estos últimos, 13 corresponden a fallas directas 
+y 12 no pudieron ejecutarse por depender de un paso previo fallido. De los 7 
+casos no aceptados, 6 son de prioridad Alta y 1 de prioridad Media. Los casos 
+C3 (empleados) y C4 (turnos, asistencia y vacaciones) fueron aceptados, pero 
+con observaciones de usabilidad: en C3 se muestran más de 15 roles al crear 
+un empleado y la edición resulta poco clara, y en C4 se recomienda una interfaz 
+más sencilla. 
+Tabla 1. Resultados por caso de prueba 
+ID Historia de usuario Tipo de prueba Prioridad Pasos aprobados Resultado 
+C1 HU-01 – Inicio de sesión y seguridad Seguridad Alta 6 de 7 No aceptado 
+C2 HU-02 – Control de acceso por roles (RBAC) Seguridad Alta 7 de 7 Aceptado 
+
+## Página 5
+Implantación de Sistemas | SC-830   
+5 
+ 
+ID Historia de usuario Tipo de prueba Prioridad Pasos aprobados Resultado 
+C3 HU-03 – Gestión de empleados Sistemas Alta 7 de 7 Aceptado 
+C4 HU-04 – Turnos, asistencia y vacaciones Integración Alta 7 de 7 Aceptado 
+C5 HU-05 – Gestión de mesas y asignación de mesero Unitarias Alta 2 de 7 No aceptado 
+C6 HU-06 – Creación de pedido y comanda a cocina Integración Alta 2 de 6 No aceptado 
+C7 HU-07 – Punto de venta y métodos de pago Desempeño Alta 2 de 5 No aceptado 
+C8 HU-08 – División de cuenta mediante subcuentas Desempeño Media 0 de 5 No aceptado 
+C9 HU-09 – Inventario, recetas y rebajo de existencias Integración Alta 4 de 6 No aceptado 
+C10 HU-10 – Control de stock mínimo y desabastecimiento Desempeño Alta 6 de 6 Aceptado 
+C11 HU-11 – Apertura, egresos y cierre de caja Integración Alta 7 de 7 Aceptado 
+C12 HU-12 – Reportería y exportación Aceptación de usuario Media 7 de 7 Aceptado 
+C13 HU-13 – Cálculo paramétrico de nómina Integración Alta 7 de 7 Aceptado 
+C14 HU-14 – Auditoría, bitácoras y regresión Regresión Alta 2 de 7 No aceptado 
+ 
+Defectos 
+Los defectos se obtuvieron a partir de los pasos con estado No aprobado registrados 
+en los casos de prueba. Los pasos bloqueados por una falla previa no se contabilizan 
+como defectos adicionales. La severidad fue asignada según el impacto sobre el 
+funcionamiento del sistema y la prioridad corresponde a la del caso de prueba. 
+• Número total de errores detectados: 9. 
+• Estado de los errores: todos se encuentran Abiertos, ya que no se registra 
+corrección ni reprueba. 
+• Número de errores por estado: Abierto: 9; Corregido: 0; Cerrado: 0. 
+• Severidad: Crítica: 2 (D-01 y D-03); Alta: 6; Media: 1 (D-07). 
+• Prioridad: Alta: 8; Media: 1. 
+
+## Página 6
+Implantación de Sistemas | SC-830   
+6 
+ 
+Tabla 2. Detalle de los defectos detectados 
+ID Caso / paso Descripción del defecto Severidad Prioridad Estado 
+D-01 C1 / paso 4 
+Se logra ingresar con el usuario administrador 
+recién creado utilizando cualquier contraseña; el 
+sistema no valida correctamente las 
+credenciales. 
+Crítica Alta Abierto 
+D-02 C5 / pasos 3–4 
+No existe la opción de asignar un mesero a una 
+mesa; el sistema muestra por defecto al usuario 
+registrado como mesero. Impide ejecutar los 
+pasos 5 a 7. 
+Alta Alta Abierto 
+D-03 C6 / pasos 1–2 El sistema no logra crear correctamente la orden con los datos ingresados por el mesero. Crítica Alta Abierto 
+D-04 C6 / paso 6 Al registrar el pedido como “Entregado” aparece el mensaje “Error al procesar la solicitud.” Alta Alta Abierto 
+D-05 C7 / pasos 2–3 El sistema no muestra los detalles de la orden (platillo y monto) ni el monto total a pagar; no aparece el módulo de órdenes con sus detalles. Alta Alta Abierto 
+D-06 C7 / paso 5 No existe la vista en el usuario cajero para registrar la orden como pagada. Alta Alta Abierto 
+D-07 C8 / paso 1 
+No existe la página de subcuentas (ni desde el 
+usuario administrador ni desde el cajero), por lo 
+que no se puede dividir la cuenta. Impide 
+ejecutar los pasos 2 a 5. 
+Media Media Abierto 
+D-08 C9 / paso 5 
+Al procesar el pedido no se rebajan las 
+existencias de los insumos según la receta 
+(probado con el insumo Leche en el producto 
+Vaso de Leche). Impide ejecutar el paso 6. 
+Alta Alta Abierto 
+D-09 C14 / paso 3 No se permite el ingreso a las bitácoras; aparece el mensaje “Error al procesar la solicitud.” Impide ejecutar los pasos 4 a 7. Alta Alta Abierto 
+ 
+Adicionalmente, el paso 4 del caso C6 (pedido en estado “en proceso”) quedó como 
+No aprobado porque no se logró comprender el paso; se recomienda revisar su 
+redacción antes de la reprueba. 
+Conclusión 
+La ejecución de los 14 casos de prueba arrojó 7 casos aceptados (50 %) y 7 no 
+aceptados (50 %), con 66 de 91 pasos aprobados. Con base en estos resultados, el 
+sistema aún no cumple en su totalidad con los requerimientos definidos en las 
+historias de usuario y no está en condiciones de ser aceptado de forma completa. 
+Los módulos de control de acceso por roles, gestión de empleados, turnos, asistencia 
+y vacaciones, control de stock, gestión de caja, reportería y nómina funcionaron según 
+lo esperado. En cambio, se detectaron fallas en el inicio de sesión (HU-01), en el flujo 
+
+## Página 7
+Implantación de Sistemas | SC-830   
+7 
+ 
+de pedidos y cobro (HU -05 a HU -08), en el rebajo de inventario (HU -09) y en las 
+bitácoras de auditoría (HU -14). Destacan dos defectos críticos: la validación de 
+credenciales, que permite el ingreso sin la contraseña correcta, y la creación de 
+pedidos, que impide completar el flujo de venta. 
+Se recomienda corregir primero los defectos críticos (D -01 y D -03) y luego los 
+restantes, repetir los casos no aceptados una vez corregidos y ejecutar pruebas de 
+regresión sobre los módulos aprobados. También se sugiere atender las 
+observaciones de usabilidad de los módulos de empleados y de turnos, asistencia y 
+vacaciones. 
+ 
+ 
+ 
+ 

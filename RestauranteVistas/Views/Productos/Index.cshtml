@@ -39,6 +39,7 @@
         </div>
 
         <form method="post" action="@Url.Action("RegistrarProducto")">
+            @Html.AntiForgeryToken()
             <div class="form-grid">
                 <div class="form-group">
                     <label>Nombre del producto *</label>
@@ -158,6 +159,7 @@
                                 {
                                     using (Html.BeginForm("ReactivarProducto", "Productos", FormMethod.Post, new { style = "display:inline" }))
                                     {
+            @Html.AntiForgeryToken()
                                         <input type="hidden" name="idProducto" value="@prod.IdProducto" />
                                         <button type="submit" class="btn btn-success" title="Reactivar">
                                             <span class="material-symbols-outlined">toggle_on</span>
@@ -195,6 +197,7 @@
             <button class="icon-btn" onclick="cerrarModal('modalEditar')"><span class="material-symbols-outlined">close</span></button>
         </div>
         <form method="post" action="@Url.Action("ActualizarProducto")">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idProducto" id="editIdProducto" />
             <div class="form-grid">
                 <div class="form-group">
@@ -247,6 +250,7 @@
         </p>
         <p style="color:#666;font-size:14px;">Se ocultará del catálogo activo y se desactivará su receta.</p>
         <form method="post" action="@Url.Action("DesactivarProducto")">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idProducto" id="desactivarIdProducto" />
             <div class="modal-actions" style="gap:10px;">
                 <button type="submit" class="btn btn-danger">
@@ -283,6 +287,7 @@
                     <span class="status danger">Inactiva</span>
                 }
                 <form method="post" action="@Url.Action("AlternarEstadoReceta")" style="display:inline;">
+            @Html.AntiForgeryToken()
                     <input type="hidden" name="idReceta" value="@idRecetaStr" />
                     <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
                     <button type="submit" class="btn btn-soft">
@@ -322,6 +327,7 @@
             <hr style="margin:12px 0;border-color:#eee;" />
             <h4 style="margin-bottom:8px;">Agregar insumo a la receta</h4>
             <form method="post" action="@Url.Action("AgregarInsumoReceta")" style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
+            @Html.AntiForgeryToken()
                 <input type="hidden" name="idReceta" value="@idRecetaStr" />
                 <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
                 <div class="form-group" style="flex:1;min-width:200px;">
@@ -357,6 +363,7 @@
             <p style="margin:12px 0;color:#888;">Este producto no tiene receta. Cree una nueva receta con los insumos necesarios.</p>
 
             <form id="formNuevaReceta" method="post" action="@Url.Action("CrearReceta")">
+            @Html.AntiForgeryToken()
                 <input type="hidden" name="idProducto" value="@Model.ProductoSeleccionado.IdProducto" />
 
                 <div style="display:flex;gap:12px;align-items:end;flex-wrap:wrap;">
@@ -412,6 +419,7 @@
         </div>
         <p style="margin:16px 0;font-size:15px;line-height:1.6;" id="confirmRecetaMsg"></p>
         <form id="confirmRecetaForm" method="post" action="">
+            @Html.AntiForgeryToken()
             <div class="modal-actions" style="gap:10px;">
                 <button type="submit" class="btn btn-danger" id="confirmRecetaBtn">
                     <span class="material-symbols-outlined">check</span> Confirmar

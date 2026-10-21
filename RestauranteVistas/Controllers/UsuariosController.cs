@@ -47,6 +47,7 @@ namespace RestauranteVistas.Controllers
                     .ToList();
 
                 var empleados = ctx.Empleados.Where(e => e.Estado)
+                    .ToList()
                     .GroupBy(e => e.IdUsuario)
                     .ToDictionary(g => g.Key, g => $"{g.First().Nombre} {g.First().Apellidos}");
 
@@ -73,6 +74,7 @@ namespace RestauranteVistas.Controllers
 
         // ========== GUS 001: AGREGAR USUARIO ==========
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearUsuario(UsuariosViewModel model)
         {
             bool todosVacios = string.IsNullOrWhiteSpace(model.NuevoNombreUsuario) &&
@@ -265,6 +267,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Editar(EditarUsuarioViewModel model)
         {
             if (model.IdUsuario <= 0)
@@ -379,6 +382,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AsignarRol(AsignarRolViewModel model)
         {
             if (model.MostrarConfirmacion)
@@ -524,6 +528,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Eliminar(EliminarUsuarioViewModel model)
         {
             if (model.IdUsuario <= 0)
@@ -602,6 +607,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CancelarEliminacion(int id)
         {
             TempData["Mensaje"] = "Eliminación cancelada.";
@@ -609,6 +615,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DepurarUsuarios(List<int> idsDepurar)
         {
             if (idsDepurar == null || idsDepurar.Count == 0)
@@ -653,6 +660,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ResetearPassword(int id)
         {
             using (var ctx = new ColibriDbContext())
@@ -691,6 +699,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult BloquearUsuario(int id)
         {
             using (var ctx = new ColibriDbContext())

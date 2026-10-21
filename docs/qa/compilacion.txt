@@ -1,0 +1,7 @@
+
+  Abstracciones -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\Abstracciones\bin\Debug\net48\Abstracciones.dll
+  AccesoADatos -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\AccesoADatos\bin\Debug\net48\AccesoADatos.dll
+  LogicaDeNegocios -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\LogicaDeNegocios\bin\Debug\net48\LogicaDeNegocios.dll
+  UI -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\RestauranteVistas\bin\RestauranteVistas.dll
+  BD -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\BD\bin\Debug\BD.dll
+  BD -> D:\Usuario\Documents\GitHub\ProyectoKN_Universidad\BD\bin\Debug\BD.dacpac

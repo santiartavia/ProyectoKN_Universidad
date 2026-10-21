@@ -1,0 +1,26 @@
+APROBADA D-01 administrador creado: contraseña incorrecta rechazada
+APROBADA D-01 administrador creado: contraseña correcta aceptada
+APROBADA GUS 006 no permite omitir cambio seguro por CrearPassword
+APROBADA D-01 administrador registrado por el servicio real
+APROBADA C1 expiración de sesión validada en backend
+APROBADA D-02 asignación persistente
+APROBADA D-03 pedido, detalle, mesa y receta atómicos
+APROBADA D-03 reintento no duplica pedido ni rebajo
+APROBADA D-08 falta de stock revierte detalle y solicitud
+APROBADA C6 preparación y listo
+APROBADA D-04 entrega persiste y audita
+APROBADA D-06 monto insuficiente no registra pago
+APROBADA D-06 cobro y reintento sin duplicación
+APROBADA Finalización libera mesa con pago completo
+APROBADA D-09 consulta y filtro de bitácora
+APROBADA D-05 cobro conserva productos para reportería
+APROBADA D-07 división, pagos individuales y cierre
+APROBADA C2 sesión revocada y rol comprobados en backend
+APROBADA C3 edición de empleado conserva historial
+APROBADA C4 turno y asistencia persistentes
+APROBADA C10 alerta en stock igual al mínimo
+APROBADA C11 apertura real, egreso y cierre
+APROBADA C12 reporte y exportación contienen la venta
+APROBADA C13 nómina calcula con salario registrado
+APROBADA C14 bitácora inmutable en base de datos
+RESULTADO: 25 aprobadas, 0 fallidas.

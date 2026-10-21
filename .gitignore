@@ -405,6 +405,8 @@ FodyWeavers.xsd
 !.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
+.qa-tools/
+.qa-runtime/
 .history/
 
 # Built Visual Studio Code Extensions

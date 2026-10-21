@@ -1,0 +1,78 @@
+[
+  {
+    "route": "/Mesero",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Mesero",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Mesas",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Mesas",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Pedidos",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Pedidos",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/MiAsistencia",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/MiAsistencia",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/MisVacaciones",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/MisVacaciones",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Login/CambiarPassword",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Login/CambiarPassword",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Usuarios acceso restringido",
+    "status": 403,
+    "ok": true
+  },
+  {
+    "route": "Acceso tras cerrar sesión",
+    "status": 302,
+    "ok": true
+  }
+]

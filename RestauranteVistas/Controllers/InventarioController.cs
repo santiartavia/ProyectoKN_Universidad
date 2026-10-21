@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using Abstracciones.Models;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
@@ -66,6 +66,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarInsumo(string nombreInsumo, int idCategoria, string unidadMedida, decimal stockMinimo, int? idProveedor)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -84,6 +85,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ActualizarInsumo(int idInsumo, string nombreInsumo, int idCategoria, string unidadMedida, decimal stockMinimo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -102,6 +104,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DesactivarInsumo(int idInsumo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -120,6 +123,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ReactivarInsumo(int idInsumo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -161,6 +165,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AjustarStock(int idInsumo, decimal cantidad, string tipoAjuste, string motivo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();

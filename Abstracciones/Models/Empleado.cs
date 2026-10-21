@@ -20,6 +20,9 @@ namespace Abstracciones.Models
         public string MotivoInactivacion { get; set; }
         public bool Estado { get; set; }
 
+        [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+        public string ClaveTemporal { get; set; }
+
         public Usuario Usuario { get; set; }
     }
 }

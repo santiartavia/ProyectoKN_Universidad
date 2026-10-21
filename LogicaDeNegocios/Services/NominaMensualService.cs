@@ -24,7 +24,7 @@ namespace LogicaDeNegocios.Services
         {
             using (var ctx = new ColibriDbContext())
             {
-                var empleados = ctx.Empleados.Where(e => e.Estado && e.IdEmpleado != 1).ToList();
+                var empleados = ctx.Empleados.Where(e => e.Estado).ToList();
                 var resultado = new List<NominaMensual>();
 
                 var primerDia = new DateTime(anio, mes, 1);

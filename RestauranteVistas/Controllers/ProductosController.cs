@@ -80,6 +80,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarProducto(string nombreProducto, string descripcion, decimal precioVenta, int idCategoriaProd, bool disponible)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -98,6 +99,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ActualizarProducto(int idProducto, string nombreProducto, string descripcion, decimal precioVenta, int idCategoriaProd, bool disponible)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -116,6 +118,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DesactivarProducto(int idProducto)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -134,6 +137,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ReactivarProducto(int idProducto)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -157,6 +161,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearReceta(int idProducto, int[] idInsumo, decimal[] cantidadUsar)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -175,6 +180,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AgregarInsumoReceta(int idReceta, int idProducto, int idInsumo, decimal cantidadUsar)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -193,6 +199,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EliminarInsumoReceta(int idReceta, int idProducto, int idInsumo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -211,6 +218,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AlternarEstadoReceta(int idReceta, int idProducto)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -229,6 +237,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EliminarReceta(int idReceta, int idProducto)
         {
             var idAdmin = ObtenerIdUsuarioSesion();

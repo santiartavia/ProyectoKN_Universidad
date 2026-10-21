@@ -7,9 +7,9 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cocinero", "Administrador" })]
-    public class CocinaController : Controller
+    public class CocinaController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+
 
         public ActionResult Index()
         {
@@ -34,10 +34,13 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult IniciarPreparacion(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido);
 
+            if (pedido == null || !pedido.Estado || pedido.EstadoPedido != "abierto")
+                throw new ArgumentException("El pedido no permite esta transición de estado.");
             if (pedido != null)
             {
                 string estadoAnterior = pedido.EstadoPedido;
@@ -70,9 +73,12 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarPedidoListo(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
+            if (pedido == null || !pedido.Estado || pedido.EstadoPedido != "en_proceso")
+                throw new ArgumentException("El pedido no permite esta transición de estado.");
             if (pedido != null)
             {
                 string estadoAnterior = pedido.EstadoPedido;
@@ -100,10 +106,15 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarItemPreparando(int idDetalle)
         {
             var detalle = db.DetallePedidos.FirstOrDefault(d => d.IdDetalle == idDetalle);
 
+            var orden = detalle == null ? null : db.Pedidos.Find(detalle.IdPedido);
+            if (detalle == null || !detalle.Estado || orden == null || !orden.Estado ||
+                (orden.EstadoPedido != "abierto" && orden.EstadoPedido != "en_proceso") || detalle.EstadoItem == "listo")
+                throw new ArgumentException("El producto no permite esta transición de estado.");
             if (detalle != null)
             {
                 string estadoItemAnterior = detalle.EstadoItem;
@@ -144,10 +155,15 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarItemListo(int idDetalle)
         {
             var detalle = db.DetallePedidos.FirstOrDefault(d => d.IdDetalle == idDetalle);
 
+            var orden = detalle == null ? null : db.Pedidos.Find(detalle.IdPedido);
+            if (detalle == null || !detalle.Estado || orden == null || !orden.Estado ||
+                (orden.EstadoPedido != "abierto" && orden.EstadoPedido != "en_proceso") || detalle.EstadoItem == "listo")
+                throw new ArgumentException("El producto no permite esta transición de estado.");
             if (detalle != null)
             {
                 string estadoItemAnterior = detalle.EstadoItem;
@@ -194,6 +210,11 @@ namespace RestauranteVistas.Controllers
 
         private void RegistrarHistorial(int idPedido, string estadoAnterior, string estadoNuevo, string usuarioResponsable, string detalle)
         {
+            db.BitacoraPedidos.Add(new BitacoraPedido {
+                IdUsuario = (int)Session["UsuarioId"], IdPedido = idPedido, Accion = "MODIFICACION",
+                EstadoAnterior = estadoAnterior, EstadoNuevo = estadoNuevo,
+                Detalle = detalle, FechaHora = DateTime.Now
+            });
             db.HistorialEstadosPedido.Add(new HistorialEstadoPedido
             {
                 IdPedido = idPedido,

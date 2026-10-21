@@ -38,6 +38,7 @@
         {
             using (Html.BeginForm("RegistrarEntrada", "MiAsistencia", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-actions">
                     <button type="submit" class="btn btn-success btn-full" style="padding:18px;font-size:18px;">
                         <span class="material-symbols-outlined" style="font-size:24px;">login</span> Marcar Entrada
@@ -64,6 +65,7 @@
         {
             using (Html.BeginForm("RegistrarSalida", "MiAsistencia", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-actions">
                     <button type="submit" class="btn btn-danger btn-full" style="padding:18px;font-size:18px;">
                         <span class="material-symbols-outlined" style="font-size:24px;">logout</span> Marcar Salida

@@ -9,16 +9,16 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador", "Cajero" })]
-    public class MesasController : Controller
+    public class MesasController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+
 
         public ActionResult Index()
         {
             var mesas = db.Mesas.Where(m => m.Estado).OrderBy(m => m.NumeroMesa).ToList();
 
             var empleados = db.Empleados.Include(e => e.Usuario).Include(e => e.Usuario.Rol)
-                .Where(e => e.Estado)
+                .Where(e => e.Estado && e.Usuario.Estado && e.Usuario.Rol.Estado && e.Usuario.Rol.NombreRol == "Mesero")
                 .OrderByDescending(e => e.Usuario != null && e.Usuario.Rol != null && e.Usuario.Rol.NombreRol == "Mesero")
                 .ThenBy(e => e.Nombre)
                 .ToList();
@@ -46,29 +46,17 @@ namespace RestauranteVistas.Controllers
                 }
             }
 
-            var bitacorasMesas = db.BitacoraRRHH
-                .Where(b => b.TablaAfectada == "Mesas" && b.IdRegistroAfectado > 0)
-                .OrderByDescending(b => b.FechaHora)
-                .ToList();
-
-            foreach (var m in mesas.Where(m => m.EstadoMesa == "ocupada"))
-            {
-                if (!asignaciones.ContainsKey(m.IdMesa))
-                {
-                    var ultAsig = bitacorasMesas.FirstOrDefault(b => b.IdRegistroAfectado == m.IdMesa && !string.IsNullOrEmpty(b.ValorNuevo));
-                    if (ultAsig != null && ultAsig.ValorNuevo != "disponible")
-                    {
-                        asignaciones[m.IdMesa] = ultAsig.ValorNuevo;
-                    }
-                }
-            }
+            foreach (var mesa in mesas.Where(m => m.IdEmpleadoAsignado.HasValue))
+                asignaciones[mesa.IdMesa] = empDict.ContainsKey(mesa.IdEmpleadoAsignado.Value)
+                    ? empDict[mesa.IdEmpleadoAsignado.Value] : "Mesero no disponible";
 
             ViewBag.Asignaciones = asignaciones;
             return View(mesas);
         }
 
         [HttpPost]
-        public ActionResult AsignarMesero(int idMesa, int idEmpleado)
+        [ValidateAntiForgeryToken]
+        public ActionResult AsignarMesero(int idMesa, int idEmpleado, bool reasignar = false)
         {
             if (idMesa <= 0 || idEmpleado <= 0)
             {
@@ -84,21 +72,26 @@ namespace RestauranteVistas.Controllers
             }
 
             // C5 Paso 3: Intentar asignar una mesa ocupada a un nuevo mesero -> error indicando que no está disponible
-            if (mesa.EstadoMesa == "ocupada")
+            if (mesa.EstadoMesa == "ocupada" && !reasignar)
             {
                 TempData["Error"] = $"La mesa {mesa.NumeroMesa} ya se encuentra en uso (ocupada) y no está disponible para asignarse a otro mesero.";
                 return RedirectToAction("Index");
             }
 
-            var empleado = db.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado && e.Estado);
+            var empleado = db.Empleados.FirstOrDefault(e => e.IdEmpleado == idEmpleado && e.Estado && e.Usuario.Estado && e.Usuario.Rol.Estado && e.Usuario.Rol.NombreRol == "Mesero");
             if (empleado == null)
             {
                 TempData["Error"] = "El mesero seleccionado no existe o está inactivo.";
                 return RedirectToAction("Index");
             }
 
+            if (mesa.EstadoMesa != "disponible" && mesa.EstadoMesa != "ocupada")
+                throw new ArgumentException("La mesa no está disponible para asignación.");
             string estadoAnterior = mesa.EstadoMesa;
             mesa.EstadoMesa = "ocupada";
+            mesa.IdEmpleadoAsignado = empleado.IdEmpleado;
+            foreach (var pedido in db.Pedidos.Where(p => p.IdMesa == idMesa && p.Estado && p.EstadoPedido != "cancelado" && p.EstadoPedido != "finalizado"))
+                pedido.IdEmpleado = empleado.IdEmpleado;
 
             int uid = Session["UsuarioId"] as int? ?? empleado.IdUsuario;
             db.BitacoraRRHH.Add(new BitacoraRRHH
@@ -108,7 +101,7 @@ namespace RestauranteVistas.Controllers
                 IdRegistroAfectado = mesa.IdMesa,
                 Accion = "UPDATE",
                 ValorAnterior = estadoAnterior,
-                ValorNuevo = $"{empleado.Nombre} {empleado.Apellidos}",
+                ValorNuevo = "mesero:" + empleado.IdEmpleado,
                 Detalle = $"Mesa {mesa.NumeroMesa} asignada al mesero {empleado.Nombre} {empleado.Apellidos}",
                 IpOrigen = Request.UserHostAddress,
                 Dispositivo = Request.UserAgent,
@@ -122,6 +115,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult LiberarMesa(int id)
         {
             var mesa = db.Mesas.FirstOrDefault(m => m.IdMesa == id && m.Estado);
@@ -132,7 +126,7 @@ namespace RestauranteVistas.Controllers
             }
 
             bool tienePedidoEnCocina = db.Pedidos.Any(p => p.IdMesa == id && p.Estado &&
-                (p.EstadoPedido == "en_proceso" || p.EstadoPedido == "listo"));
+                (p.EstadoPedido != "cancelado" && p.EstadoPedido != "finalizado"));
             if (tienePedidoEnCocina)
             {
                 TempData["Error"] = $"La mesa {mesa.NumeroMesa} tiene un pedido en preparación/listo en cocina. Finalice o cancele el pedido antes de liberarla.";
@@ -141,6 +135,7 @@ namespace RestauranteVistas.Controllers
 
             string estadoAnterior = mesa.EstadoMesa;
             mesa.EstadoMesa = "disponible";
+            mesa.IdEmpleadoAsignado = null;
 
             int uid = Session["UsuarioId"] as int? ?? 1;
             db.BitacoraRRHH.Add(new BitacoraRRHH

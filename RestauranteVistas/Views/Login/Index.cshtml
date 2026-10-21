@@ -1,4 +1,4 @@
-﻿@model RestauranteVistas.Models.ViewModels.LoginViewModel
+@model RestauranteVistas.Models.ViewModels.LoginViewModel
 
 @{
     Layout = null;
@@ -58,6 +58,7 @@
 
                 @using (Html.BeginForm("Entrar", "Login", FormMethod.Post))
                 {
+            @Html.AntiForgeryToken()
                     <div class="form-group">
                         <label>Usuario</label>
                         <input type="text" name="usuario" placeholder="Nombre de usuario" required />

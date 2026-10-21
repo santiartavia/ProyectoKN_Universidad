@@ -87,6 +87,7 @@
         </p>
         <p style="color:#666;font-size:14px;">Volverá a estar disponible en el catálogo activo.</p>
         <form method="post" action="@Url.Action("ReactivarInsumo")">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idInsumo" id="reactivarIdInsumo" />
             <div class="modal-actions" style="gap:10px;">
                 <button type="submit" class="btn btn-primary">

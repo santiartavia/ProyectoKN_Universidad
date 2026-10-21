@@ -53,6 +53,7 @@ namespace RestauranteVistas.Controllers
                     var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
                     dicUsuarios = ctx.Empleados
                         .Where(e => idsUsuarios.Contains(e.IdUsuario))
+                    .ToList()
                         .GroupBy(e => e.IdUsuario)
                         .ToDictionary(g => g.Key, g => g.First().Nombre + " " + g.First().Apellidos);
 
@@ -69,7 +70,8 @@ namespace RestauranteVistas.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Error = $"Aviso al consultar bitácora: {ex.Message}";
+                    System.Diagnostics.Trace.TraceError("Consulta de bitácora: {0}", ex);
+                    ViewBag.Error = "No fue posible consultar la bitácora. Contacte al administrador.";
                 }
 
                 var modelo = new BitacoraPedidosViewModel
@@ -117,6 +119,7 @@ namespace RestauranteVistas.Controllers
                 var idsUsuarios = registros.Select(r => r.IdUsuario).Distinct().ToList();
                 var dicUsuarios = ctx.Empleados
                     .Where(e => idsUsuarios.Contains(e.IdUsuario))
+                    .ToList()
                     .GroupBy(e => e.IdUsuario)
                     .ToDictionary(g => g.Key, g => g.First().Nombre + " " + g.First().Apellidos);
 

@@ -1,0 +1,48 @@
+OK Roles
+OK Usuarios
+OK Empleados
+OK TurnosTrabajo
+OK Asistencias
+OK Vacaciones
+OK HorasExtra
+OK BitacoraRRHH
+OK Mesas
+OK Pedidos
+OK Productos
+OK DetallePedidos
+OK BitacoraPedidos
+OK Cajas
+OK AperturasCaja
+OK CierresCaja
+OK EgresosCaja
+OK NotasCredito
+OK BitacoraFinanciera
+OK ReportesGenerados
+OK Ventas
+OK SubcuentasPedido
+OK DetallesVenta
+OK BitacoraPdv
+OK HistorialEstadosPedido
+OK NominasMensuales
+OK PasswordHistorial
+OK Sesiones
+OK BitacoraAcceso
+OK CategoriasInsumo
+OK Insumos
+OK Proveedores
+OK InsumosProveedores
+OK BitacoraInventario
+OK Recetas
+OK RecetaInsumos
+OK CategoriasProducto
+OK CierresPeriodo
+OK BitacoraReportes
+COLIBRI: 39 mapeos correctos, 0 errores. Solo lectura.
+OK datos de HomeController
+OK datos de MesasController
+OK datos de PedidosController
+OK datos de CocinaController
+OK datos de CajeroController
+OK datos de PuntoVentaController
+OK datos de InventarioController
+OK crear, leer, editar y cancelar pedido; transacción revertida

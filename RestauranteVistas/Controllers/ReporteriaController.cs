@@ -34,6 +34,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult GenerarReporte(string tipoReporte, string formato, string fechaInicio, string fechaFin,
             int? categoriaProducto, int? categoriaInsumo, string metodoPago, int? idMesero, int? topN,
             bool? stockBajo, string terminoBusqueda, string categoriaEgreso)

@@ -47,6 +47,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarEntrada()
         {
             var empleado = ObtenerEmpleadoSesion();
@@ -72,6 +73,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarSalida()
         {
             var empleado = ObtenerEmpleadoSesion();

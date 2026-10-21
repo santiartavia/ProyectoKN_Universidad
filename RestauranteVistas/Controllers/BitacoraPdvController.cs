@@ -52,6 +52,7 @@ namespace RestauranteVistas.Controllers
                 var idsUsuarios = registros.Select(r => r.IdUsuarioCajero).Distinct().ToList();
                 cajeros = db.Empleados
                     .Where(e => idsUsuarios.Contains(e.IdEmpleado))
+                    .ToList()
                     .GroupBy(e => e.IdEmpleado)
                     .ToDictionary(g => g.Key, g => g.First().Nombre + " " + g.First().Apellidos);
 

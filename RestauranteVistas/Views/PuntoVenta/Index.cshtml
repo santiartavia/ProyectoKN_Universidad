@@ -1,4 +1,4 @@
-﻿@model RestauranteVistas.Models.ViewModels.PuntoVentaViewModel
+@model RestauranteVistas.Models.ViewModels.PuntoVentaViewModel
 @{ ViewBag.Title = "Punto de Venta"; Layout = "~/Views/Shared/_Layout.cshtml"; }
 
 @if (!string.IsNullOrEmpty(Model.Mensaje))
@@ -32,6 +32,8 @@
         <div class="section-title"><div><h3>Apertura de venta rápida</h3><p>Inicia sin productos y queda asociada al cajero</p></div></div>
         @using (Html.BeginForm("AbrirVentaRapida", "PuntoVenta", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
             <div class="form-actions" style="justify-content:flex-start;margin-top:10px;">
                 <button type="submit" class="btn btn-primary" @(Model.TieneAperturaActiva ? "" : "disabled")>
                     <span class="material-symbols-outlined">add_business</span> Abrir venta rápida
@@ -44,6 +46,8 @@
         <div class="section-title"><div><h3>Agregar producto a una venta</h3><p>Elija la venta activa, el producto y la cantidad</p></div></div>
         @using (Html.BeginForm("AgregarProducto", "PuntoVenta", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
             <div class="form-grid">
                 <div class="form-group">
                     <label>Venta rápida activa</label>
@@ -114,6 +118,8 @@
                             <td>
                                 @using (Html.BeginForm("QuitarProducto", "PuntoVenta", FormMethod.Post))
                                 {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                     <input type="hidden" name="idDetalle" value="@d.IdDetalleVenta" />
                                     <button class="btn btn-danger btn-sm">Quitar</button>
                                 }
@@ -136,6 +142,8 @@
                 <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;">
                     @using (Html.BeginForm("ValidarVentaRapida", "PuntoVenta", FormMethod.Post))
                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                         <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
                         <button class="btn btn-primary">Validar y confirmar detalle</button>
                     }
@@ -151,6 +159,8 @@
                     {
                         using (Html.BeginForm("CobrarVentaRapida", "PuntoVenta", FormMethod.Post))
                         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                             <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
                             <div class="form-grid">
                                 <div class="form-group">
@@ -168,18 +178,25 @@
             }
 
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;">
-                @using (Html.BeginForm("EnviarVenta", "PuntoVenta", FormMethod.Post))
+                @if (ViewBag.PermiteEnviosPdv == true)
                 {
+                using (Html.BeginForm("EnviarVenta", "PuntoVenta", FormMethod.Post))
+                {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                     <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
                     <select name="destino"><option value="Cocina">Cocina</option><option value="Bar">Bar</option><option value="Caja">Caja</option></select>
                     <select name="prioridad"><option value="Normal">Normal</option><option value="Urgente">Urgente</option></select>
                     <input type="text" name="observaciones" placeholder="Observaciones envío" />
                     <button class="btn btn-secondary">Enviar</button>
                 }
-                @if (!venta.Subcuentas.Any())
+                }
+                @if (ViewBag.PermiteSubcuentasVenta == true && !venta.Subcuentas.Any())
                 {
                     using (Html.BeginForm("DividirCuenta", "PuntoVenta", FormMethod.Post))
                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                         <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
                         <input type="number" name="cantidadSubcuentas" min="2" placeholder="Nº subcuentas" style="width:120px;" />
                         <button class="btn btn-secondary">Dividir cuenta</button>
@@ -187,6 +204,8 @@
                 }
                 @using (Html.BeginForm("CancelarVentaRapida", "PuntoVenta", FormMethod.Post))
                 {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                     <input type="hidden" name="idVenta" value="@venta.Venta.IdVenta" />
                     <button class="btn btn-danger">Cancelar venta</button>
                 }
@@ -209,6 +228,8 @@
                         </p>
                         @using (Html.BeginForm("AsignarProductoSubcuenta", "PuntoVenta", FormMethod.Post))
                         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                             <div class="form-grid">
                                 <div class="form-group">
                                     <label>Subcuenta destino</label>
@@ -261,6 +282,8 @@
                                                     {
                                                         using (Html.BeginForm("QuitarProductoSubcuenta", "PuntoVenta", FormMethod.Post))
                                                         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                                             <input type="hidden" name="idSubcuentaDetalle" value="@it.IdSubcuentaDetalle" />
                                                             <button class="btn btn-danger btn-sm">Quitar</button>
                                                         }
@@ -280,6 +303,8 @@
                                 <div style="margin-top:10px;">
                                     @using (Html.BeginForm("CobrarSubcuenta", "PuntoVenta", FormMethod.Post))
                                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                         <input type="hidden" name="idSubcuenta" value="@sc.IdSubcuenta" />
                                         <select name="metodoPago">
                                             <option>Efectivo</option><option>Tarjeta</option><option>SINPE</option><option>Mixto</option>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,8 +10,16 @@ namespace LogicaDeNegocios.Helpers
     {
         private const int SALT_SIZE = 16;
         private const int HASH_SIZE = 32;
-        private const int ITERATIONS = 10000;
+        private const int ITERATIONS = 600000;
+        private const string PREFIX = "pbkdf2-sha256$600000$";
         private const int MIN_LENGTH = 12;
+
+        public static string GenerateTemporaryPassword()
+        {
+            var bytes = new byte[18];
+            using (var rng = RandomNumberGenerator.Create()) rng.GetBytes(bytes);
+            return Convert.ToBase64String(bytes) + "Aa1!";
+        }
 
         public static string HashPassword(string password)
         {
@@ -31,28 +39,26 @@ namespace LogicaDeNegocios.Helpers
             Array.Copy(salt, 0, hashBytes, 0, SALT_SIZE);
             Array.Copy(hash, 0, hashBytes, SALT_SIZE, HASH_SIZE);
 
-            return Convert.ToBase64String(hashBytes);
+            return PREFIX + Convert.ToBase64String(hashBytes);
         }
 
         public static bool VerifyPassword(string password, string storedHash)
         {
-            byte[] hashBytes = Convert.FromBase64String(storedHash);
-            byte[] salt = new byte[SALT_SIZE];
-            Array.Copy(hashBytes, 0, salt, 0, SALT_SIZE);
-
-            byte[] hash;
-            using (var pbkdf2 = new Rfc2898DeriveBytes(password, salt, ITERATIONS, HashAlgorithmName.SHA256))
+            if (password == null || string.IsNullOrEmpty(storedHash)) return false;
+            bool current = storedHash.StartsWith(PREFIX, StringComparison.Ordinal);
+            byte[] bytes;
+            try { bytes = Convert.FromBase64String(current ? storedHash.Substring(PREFIX.Length) : storedHash); }
+            catch (FormatException) { return false; }
+            if (bytes.Length != SALT_SIZE + HASH_SIZE) return false;
+            var salt = new byte[SALT_SIZE];
+            Array.Copy(bytes, salt, SALT_SIZE);
+            using (var kdf = new Rfc2898DeriveBytes(password, salt, current ? ITERATIONS : 10000, HashAlgorithmName.SHA256))
             {
-                hash = pbkdf2.GetBytes(HASH_SIZE);
+                var actual = kdf.GetBytes(HASH_SIZE);
+                int difference = 0;
+                for (int i = 0; i < HASH_SIZE; i++) difference |= bytes[SALT_SIZE + i] ^ actual[i];
+                return difference == 0;
             }
-
-            for (int i = 0; i < HASH_SIZE; i++)
-            {
-                if (hashBytes[i + SALT_SIZE] != hash[i])
-                    return false;
-            }
-
-            return true;
         }
 
         public static bool CumplePoliticaSeguridad(string password, out string mensaje)

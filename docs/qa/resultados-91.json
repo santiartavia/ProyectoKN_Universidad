@@ -1,0 +1,548 @@
+[
+  {
+    "caso": "C1",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C1",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C2",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C3",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C4",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C5",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C6",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C7",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C7",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C7",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C7",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C7",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C8",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C8",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C8",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C8",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C8",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C9",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C9",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C9",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C9",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C9",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Leche: 7.25 → 7 L, receta 0.25 L por vaso"
+  },
+  {
+    "caso": "C9",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C10",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C11",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C12",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C13",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 1,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 2,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 3,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 4,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 5,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 6,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  },
+  {
+    "caso": "C14",
+    "paso": 7,
+    "estado": "APROBADA",
+    "obtenido": "Resultado comprobado en la página MVC real"
+  }
+]

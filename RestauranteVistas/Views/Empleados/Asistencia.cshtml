@@ -39,6 +39,7 @@
         </div>
         @using (Html.BeginForm("RegistrarEntrada", "Empleados", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             <div class="form-grid" style="grid-template-columns:1fr auto;">
                 <div class="form-group">
                     <label>ID Empleado *</label>
@@ -59,6 +60,7 @@
         </div>
         @using (Html.BeginForm("RegistrarSalidaPorEmpleado", "Empleados", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             <div class="form-grid" style="grid-template-columns:1fr auto;">
                 <div class="form-group">
                     <label>ID Empleado *</label>
@@ -74,6 +76,7 @@
         <hr style="margin:16px 0;border-color:var(--border);" />
         @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             <div class="form-grid" style="grid-template-columns:1fr auto;">
                 <div class="form-group">
                     <label>ID Asistencia</label>
@@ -178,6 +181,7 @@
                         <td>
                             @using (Html.BeginForm("RegistrarSalida", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
                             {
+            @Html.AntiForgeryToken()
                                 <input type="hidden" name="idAsistencia" value="@a.IdAsistencia" />
                                 <button type="submit" class="btn btn-sm btn-danger">
                                     <span class="material-symbols-outlined" style="font-size:14px;">logout</span> Registrar salida

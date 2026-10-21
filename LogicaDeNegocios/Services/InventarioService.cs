@@ -22,7 +22,7 @@ namespace LogicaDeNegocios.Services
         /// </summary>
         public static string DescontarStockPorReceta(ColibriDbContext ctx, int idProducto, decimal cantidadProducto, int idUsuario, string referenciaOrden)
         {
-            if (cantidadProducto <= 0) return null;
+            if (cantidadProducto <= 0) throw new ArgumentException("La cantidad debe ser mayor a cero.");
 
             var receta = ctx.Recetas.FirstOrDefault(r => r.IdProducto == idProducto && r.Estado);
             if (receta == null) return null;
@@ -34,18 +34,21 @@ namespace LogicaDeNegocios.Services
             if (!ingredientes.Any()) return null;
 
             var descontados = new List<string>();
-            int uidValido = idUsuario > 0 ? idUsuario : (ctx.Usuarios.Where(u => u.Estado).Select(u => u.IdUsuario).FirstOrDefault());
+            if (idUsuario <= 0) throw new ArgumentException("Se requiere un usuario autenticado.");
+            int uidValido = idUsuario;
 
             foreach (var ri in ingredientes)
             {
                 var insumo = ri.Insumo ?? ctx.Insumos.FirstOrDefault(i => i.IdInsumo == ri.IdInsumo);
-                if (insumo == null) continue;
+                if (insumo == null || !insumo.Estado) throw new ArgumentException("La receta contiene insumos inexistentes o inactivos.");
 
                 decimal cantidadDescontar = ri.CantidadUsar * cantidadProducto;
                 decimal stockAnterior = insumo.StockActual;
-                insumo.StockActual = Math.Max(0m, insumo.StockActual - cantidadDescontar);
+                if (cantidadDescontar <= 0 || insumo.StockActual < cantidadDescontar)
+                    throw new ArgumentException("Existencias insuficientes o receta inválida para " + insumo.NombreInsumo + ".");
+                insumo.StockActual -= cantidadDescontar;
 
-                string alerta = insumo.StockActual < insumo.StockMinimo ? " [ALERTA: Stock bajo mínimo]" : "";
+                string alerta = insumo.StockActual <= insumo.StockMinimo ? " [ALERTA: Stock bajo mínimo]" : "";
 
                 if (uidValido > 0)
                 {
@@ -82,12 +85,13 @@ namespace LogicaDeNegocios.Services
 
             if (!ingredientes.Any()) return;
 
-            int uidValido = idUsuario > 0 ? idUsuario : (ctx.Usuarios.Where(u => u.Estado).Select(u => u.IdUsuario).FirstOrDefault());
+            if (idUsuario <= 0) throw new ArgumentException("Se requiere un usuario autenticado.");
+            int uidValido = idUsuario;
 
             foreach (var ri in ingredientes)
             {
                 var insumo = ri.Insumo ?? ctx.Insumos.FirstOrDefault(i => i.IdInsumo == ri.IdInsumo);
-                if (insumo == null) continue;
+                if (insumo == null || !insumo.Estado) throw new ArgumentException("La receta contiene insumos inexistentes o inactivos.");
 
                 decimal cantidadRestaurar = ri.CantidadUsar * cantidadProducto;
                 decimal stockAnterior = insumo.StockActual;
@@ -208,6 +212,13 @@ namespace LogicaDeNegocios.Services
                 if (string.IsNullOrWhiteSpace(nombreInsumo))
                     throw new ArgumentException("El nombre del insumo no puede estar vacío");
 
+                if (stockMinimo < 0) throw new ArgumentException("El stock mínimo no puede ser negativo");
+                if (!new[] { "Kg", "L", "Unidad", "ml", "oz", "g" }.Contains(unidadMedida))
+                    throw new ArgumentException("Unidad de medida inválida");
+                if (unidadMedida != insumo.UnidadMedida && insumo.StockActual > 0)
+                    throw new ArgumentException("No se puede cambiar la unidad con stock mayor a cero");
+                insumo.UnidadMedida = unidadMedida;
+
                 var valorAnterior = $"Nombre:{insumo.NombreInsumo}, Cat:{insumo.IdCategoria}, UDM:{insumo.UnidadMedida}, StkMin:{insumo.StockMinimo}";
 
                 insumo.NombreInsumo = nombreInsumo;
@@ -303,10 +314,12 @@ namespace LogicaDeNegocios.Services
 
         public void AjustarStock(int idInsumo, decimal cantidad, string tipoAjuste, string motivo, int idUsuario)
         {
+            if (cantidad <= 0) throw new ArgumentException("La cantidad del ajuste debe ser mayor a cero");
             if (string.IsNullOrWhiteSpace(motivo))
                 throw new ArgumentException("Debe escribir un motivo para el ajuste");
 
             using (var ctx = new ColibriDbContext())
+            using (var tx = ctx.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 var insumo = ctx.Set<Insumo>().FirstOrDefault(i => i.IdInsumo == idInsumo);
                 if (insumo == null)
@@ -328,7 +341,7 @@ namespace LogicaDeNegocios.Services
                     insumo.StockActual -= cantidad;
                     detalleBitacora = $"Salida: -{cantidad} {insumo.UnidadMedida}. Motivo: {motivo}";
 
-                    if (insumo.StockActual < insumo.StockMinimo)
+                    if (insumo.StockActual <= insumo.StockMinimo)
                         detalleBitacora += " [ALERTA: Stock por debajo del mínimo]";
                 }
                 else
@@ -349,6 +362,7 @@ namespace LogicaDeNegocios.Services
                 };
                 ctx.Set<BitacoraInventario>().Add(bitacora);
                 ctx.SaveChanges();
+                tx.Commit();
             }
         }
 
@@ -408,7 +422,7 @@ namespace LogicaDeNegocios.Services
             using (var ctx = new ColibriDbContext())
             {
                 return ctx.Set<Insumo>().Include(i => i.Categoria)
-                    .Where(i => i.Estado && i.StockActual < i.StockMinimo)
+                    .Where(i => i.Estado && i.StockActual <= i.StockMinimo)
                     .OrderBy(i => i.NombreInsumo)
                     .ToList();
             }

@@ -17,6 +17,8 @@ namespace RestauranteVistas
         {
             // Desactiva la inicialización/recreación automática de EF6 para Azure SQL
             Database.SetInitializer<ColibriDbContext>(null);
+            ModelBinders.Binders.Add(typeof(decimal), new Models.DecimalModelBinder());
+            ModelBinders.Binders.Add(typeof(decimal?), new Models.DecimalModelBinder());
 
             AreaRegistration.RegisterAllAreas();
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

@@ -1,0 +1,33 @@
+{
+  "results": [
+    {
+      "route": "/Pedidos",
+      "ok": true
+    },
+    {
+      "route": "/Mesero",
+      "ok": true
+    },
+    {
+      "route": "/Cocina",
+      "ok": true
+    },
+    {
+      "route": "/Cajero",
+      "ok": true
+    },
+    {
+      "route": "/Mesas",
+      "ok": true
+    },
+    {
+      "route": "/Inventario",
+      "ok": true
+    },
+    {
+      "route": "Menú móvil",
+      "ok": true
+    }
+  ],
+  "errors": []
+}

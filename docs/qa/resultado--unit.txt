@@ -1,0 +1,16 @@
+APROBADA Excepción GET no redirige a la misma página
+APROBADA Contraseña correcta
+APROBADA Contraseña incorrecta
+APROBADA Salt aleatorio
+APROBADA Hash vacío
+APROBADA Hash nulo
+APROBADA Hash corrupto
+APROBADA Base64 reversible rechazado
+APROBADA Hash truncado
+APROBADA Política de contraseña
+APROBADA Compatibilidad PBKDF2 anterior
+APROBADA Correo inválido
+APROBADA Ruta privada sin sesión
+APROBADA Decimal HTML con punto en cultura es-CR
+APROBADA Credencial temporal aleatoria y con política
+RESULTADO: 15 aprobadas, 0 fallidas.

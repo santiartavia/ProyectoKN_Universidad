@@ -1,0 +1,207 @@
+[
+  {
+    "prueba": "Inicio de sesión admin",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Home"
+  },
+  {
+    "prueba": "admin /Home",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Home"
+  },
+  {
+    "prueba": "admin /Usuarios",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Usuarios"
+  },
+  {
+    "prueba": "admin /Empleados",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Empleados"
+  },
+  {
+    "prueba": "admin /Empleados/Asistencia",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Empleados/Asistencia"
+  },
+  {
+    "prueba": "admin /Mesas",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Mesas"
+  },
+  {
+    "prueba": "admin /Pedidos",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Pedidos"
+  },
+  {
+    "prueba": "admin /Mesero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Mesero"
+  },
+  {
+    "prueba": "admin /Cocina",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cocina"
+  },
+  {
+    "prueba": "admin /Cajero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cajero"
+  },
+  {
+    "prueba": "admin /Productos",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Productos"
+  },
+  {
+    "prueba": "admin /Inventario",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Inventario"
+  },
+  {
+    "prueba": "admin /Contabilidad",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Contabilidad"
+  },
+  {
+    "prueba": "admin /Reporteria",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Reporteria"
+  },
+  {
+    "prueba": "admin /NominaMensual",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/NominaMensual"
+  },
+  {
+    "prueba": "admin /PuntoVenta",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/PuntoVenta"
+  },
+  {
+    "prueba": "admin /OperacionPdv",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/OperacionPdv"
+  },
+  {
+    "prueba": "admin /BitacoraPedidos",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/BitacoraPedidos"
+  },
+  {
+    "prueba": "admin /BitacoraPdv",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/BitacoraPdv"
+  },
+  {
+    "prueba": "admin /Usuarios/BitacoraAcceso",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Usuarios/BitacoraAcceso"
+  },
+  {
+    "prueba": "admin /Inventario/Bitacora",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Inventario/Bitacora"
+  },
+  {
+    "prueba": "admin /Contabilidad/Bitacora",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Contabilidad/Bitacora"
+  },
+  {
+    "prueba": "admin /Reporteria/BitacoraReportes",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Reporteria/BitacoraReportes"
+  },
+  {
+    "prueba": "Navegación móvil",
+    "estado": "APROBADA"
+  },
+  {
+    "prueba": "Cierre de sesión admin",
+    "estado": "APROBADA"
+  },
+  {
+    "prueba": "Inicio de sesión mesero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Mesero"
+  },
+  {
+    "prueba": "mesero /Mesas",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Mesas"
+  },
+  {
+    "prueba": "mesero /Pedidos",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Pedidos"
+  },
+  {
+    "prueba": "mesero /Mesero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Mesero"
+  },
+  {
+    "prueba": "mesero /MiAsistencia",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/MiAsistencia"
+  },
+  {
+    "prueba": "mesero /MisVacaciones",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/MisVacaciones"
+  },
+  {
+    "prueba": "C2 acceso directo restringido",
+    "estado": "APROBADA",
+    "obtenido": "HTTP 403"
+  },
+  {
+    "prueba": "Cierre de sesión mesero",
+    "estado": "APROBADA"
+  },
+  {
+    "prueba": "Inicio de sesión cocinero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cocina"
+  },
+  {
+    "prueba": "cocinero /Cocina",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cocina"
+  },
+  {
+    "prueba": "Cierre de sesión cocinero",
+    "estado": "APROBADA"
+  },
+  {
+    "prueba": "Inicio de sesión cajero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cajero"
+  },
+  {
+    "prueba": "cajero /Cajero",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Cajero"
+  },
+  {
+    "prueba": "cajero /PuntoVenta",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/PuntoVenta"
+  },
+  {
+    "prueba": "cajero /OperacionPdv",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/OperacionPdv"
+  },
+  {
+    "prueba": "cajero /Contabilidad",
+    "estado": "APROBADA",
+    "url": "http://localhost:51235/Contabilidad"
+  },
+  {
+    "prueba": "Cierre de sesión cajero",
+    "estado": "APROBADA"
+  }
+]

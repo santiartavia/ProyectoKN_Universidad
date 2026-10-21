@@ -42,6 +42,7 @@
 
     @using (Html.BeginForm("Editar", "Usuarios", FormMethod.Post))
     {
+            @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.IdUsuario)
 
         <div class="form-grid">

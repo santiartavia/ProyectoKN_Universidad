@@ -7,5 +7,6 @@ namespace Abstracciones.Models
         public byte Capacidad { get; set; }
         public string EstadoMesa { get; set; }
         public bool Estado { get; set; }
+        public int? IdEmpleadoAsignado { get; set; }
     }
 }

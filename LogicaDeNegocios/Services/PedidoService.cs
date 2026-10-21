@@ -16,10 +16,18 @@ namespace LogicaDeNegocios.Services
             _fechas = fechas;
         }
 
+        private static int CantidadEntera(decimal cantidad)
+        {
+            if (cantidad <= 0 || cantidad > int.MaxValue || cantidad != decimal.Truncate(cantidad))
+                throw new ArgumentException("La cantidad debe ser un número entero positivo válido.");
+            return (int)cantidad;
+        }
+
         public Pedido CrearPedido(int idMesa, int idEmpleado, byte comensales,
                                   int idProducto, decimal cantidad, string tipoServicio,
                                   string observaciones, int idUsuario)
         {
+            int unidades = CantidadEntera(cantidad);
             using (var ctx = new ColibriDbContext())
             {
                 string servicio = NormalizarTipoServicio(tipoServicio);
@@ -48,7 +56,7 @@ namespace LogicaDeNegocios.Services
                 {
                     IdPedido = pedido.IdPedido,
                     IdProducto = idProducto,
-                    Cantidad = cantidad,
+                    Cantidad = unidades,
                     PrecioUnitario = producto.PrecioVenta,
                     ObservacionesItem = observaciones,
                     EstadoItem = "pendiente",
@@ -77,6 +85,7 @@ namespace LogicaDeNegocios.Services
         public void AgregarProducto(int idPedido, int idProducto, decimal cantidad,
                                     string observacionesItem, int idUsuario)
         {
+            int unidades = CantidadEntera(cantidad);
             using (var ctx = new ColibriDbContext())
             {
                 ValidarPedidoEditable(ctx, idPedido);
@@ -90,7 +99,7 @@ namespace LogicaDeNegocios.Services
                 {
                     IdPedido = idPedido,
                     IdProducto = idProducto,
-                    Cantidad = cantidad,
+                    Cantidad = unidades,
                     PrecioUnitario = producto.PrecioVenta,
                     ObservacionesItem = observacionesItem,
                     EstadoItem = "pendiente",
@@ -117,6 +126,7 @@ namespace LogicaDeNegocios.Services
         public void ModificarProducto(int idDetalle, decimal cantidad,
                                       string observacionesItem, int idUsuario)
         {
+            int unidades = CantidadEntera(cantidad);
             using (var ctx = new ColibriDbContext())
             {
                 var detalle = ctx.DetallePedidos.FirstOrDefault(d => d.IdDetalle == idDetalle && d.Estado);
@@ -125,7 +135,7 @@ namespace LogicaDeNegocios.Services
 
                 ValidarPedidoEditable(ctx, detalle.IdPedido);
 
-                detalle.Cantidad = cantidad;
+                detalle.Cantidad = unidades;
                 detalle.ObservacionesItem = observacionesItem;
 
                 if (idUsuario > 0)

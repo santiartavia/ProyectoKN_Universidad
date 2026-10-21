@@ -112,6 +112,8 @@
                         <td style="display:flex;gap:6px;flex-wrap:wrap;">
                             @using (Html.BeginForm("HabilitarParaCobro", "Cajero", FormMethod.Post, new { style = "display:inline;" }))
                             {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                 @Html.Hidden("idPedido", p.IdPedido)
                                 <button type="submit" class="btn btn-primary btn-sm">Marcar Entregado para Cobro</button>
                             }
@@ -166,7 +168,7 @@
                                     var prod = productos.FirstOrDefault(p => p.IdProducto == item.IdProducto);
                                     <div>
                                         • @(prod != null ? prod.NombreProducto : "Producto")
-                                        x @item.Cantidad — ₡@((item.Cantidad * item.PrecioUnitario).ToString("N2"))
+                                        x @item.Cantidad · ₡@item.PrecioUnitario.ToString("N2") c/u — ₡@((item.Cantidad * item.PrecioUnitario).ToString("N2"))
                                     </div>
                                 }
                             }
@@ -181,6 +183,8 @@
                             {
                                 using (Html.BeginForm("RegistrarPago", "Cajero", FormMethod.Post))
                                 {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                     @Html.Hidden("idPedido", pedido.IdPedido)
 
                                     <div style="display:flex;flex-direction:column;gap:6px;max-width:220px;">
@@ -191,7 +195,7 @@
                                             <option value="mixto">Mixto</option>
                                         </select>
 
-                                        <input type="number" name="montoRecibido" min="0" value="@total" step="0.01" placeholder="Monto recibido" required />
+                                        <input type="number" name="montoRecibido" min="0" value="@total.ToString(System.Globalization.CultureInfo.InvariantCulture)" step="0.01" placeholder="Monto recibido" required />
 
                                         <button type="submit" class="btn btn-primary btn-sm">Registrar pago</button>
                                     </div>
@@ -208,6 +212,8 @@
                             <div style="display:flex;flex-direction:column;gap:6px;">
                                 @using (Html.BeginForm("FinalizarOrden", "Cajero", FormMethod.Post))
                                 {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                     @Html.Hidden("idPedido", pedido.IdPedido)
                                     <button type="submit" class="btn @(pagadoCompleto ? "btn-success" : "btn-secondary") btn-sm">
                                         Finalizar orden
@@ -250,6 +256,8 @@
             <h4>1. Seleccionar Orden y Crear Subcuentas</h4>
             @using (Html.BeginForm("CrearDivisionSubcuentas", "Cajero", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Orden activa *</label>
@@ -292,6 +300,8 @@
                 {
                     using (Html.BeginForm("AsignarProductoASubcuentaPedido", "Cajero", FormMethod.Post))
                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                         @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
                         <div class="form-grid">
                             <div class="form-group">
@@ -303,7 +313,7 @@
                                         int yaAsig = detallesVenta
                                             .Where(dv => idsVentasSubOrden.Contains(dv.IdVenta) && dv.ObservacionesItem == ("DET:" + dp.IdDetalle))
                                             .Sum(dv => (int?)dv.Cantidad) ?? 0;
-                                        int pend = Math.Max(0, (int)Math.Ceiling(dp.Cantidad) - yaAsig);
+                                        int pend = Math.Max(0, dp.Cantidad - yaAsig);
                                         <option value="@dp.IdDetalle">
                                             @(prod != null ? prod.NombreProducto : "Producto") (₡@dp.PrecioUnitario.ToString("N2")) - Pendientes: @pend de @dp.Cantidad
                                         </option>
@@ -333,6 +343,8 @@
 
                     using (Html.BeginForm("ConfirmarDivisionSubcuentas", "Cajero", FormMethod.Post, new { style = "margin-top:10px;" }))
                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                         @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
                         <button type="submit" class="btn btn-warning">
                             <span class="material-symbols-outlined">fact_check</span> Confirmar división y validar subcuentas
@@ -391,6 +403,8 @@
                         {
                             using (Html.BeginForm("CobrarSubcuentaPedido", "Cajero", FormMethod.Post))
                             {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                 @Html.Hidden("idPedido", pedidoSeleccionado.IdPedido)
                                 @Html.Hidden("idSubcuenta", sub.IdSubcuenta)
                                 <div class="form-grid" style="margin-top:8px;">
@@ -405,7 +419,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Monto recibido</label>
-                                        <input type="number" name="montoRecibido" min="0" value="@subtotalSub" step="0.01" required />
+                                        <input type="number" name="montoRecibido" min="0" value="@subtotalSub.ToString(System.Globalization.CultureInfo.InvariantCulture)" step="0.01" required />
                                     </div>
                                 </div>
                                 <div class="form-actions" style="margin-top:8px;">

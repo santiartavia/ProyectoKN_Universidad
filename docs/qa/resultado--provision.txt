@@ -1,0 +1,1 @@
+Base aislada QA creada desde el modelo EF, sin modificar bases existentes.

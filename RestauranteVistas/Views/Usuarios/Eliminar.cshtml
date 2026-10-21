@@ -40,6 +40,7 @@
     <div class="form-actions" style="justify-content:space-between;">
         @using (Html.BeginForm("CancelarEliminacion", "Usuarios", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             <input type="hidden" name="id" value="@Model.IdUsuario" />
             <button type="submit" class="btn btn-secondary">
                 Cancelar
@@ -47,6 +48,7 @@
         }
         @using (Html.BeginForm("Eliminar", "Usuarios", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             @Html.Hidden("IdUsuario", Model.IdUsuario)
             @Html.Hidden("MostrarConfirmacion", true)
             <button type="submit" class="btn btn-danger">

@@ -64,13 +64,6 @@ namespace RestauranteVistas.Controllers
                         }
                     }
 
-                    foreach (var ap in vm.AperturasActivas)
-                    {
-                        bool enDb = ctx.Cajas.Any(c => c.IdCaja == ap.IdCaja && c.EstadoCaja == "abierta");
-                        if (!enDb)
-                            ctx.Database.ExecuteSqlCommand("UPDATE Cajas SET estado_caja = 'abierta' WHERE id_caja = {0}", ap.IdCaja);
-                    }
-
                     if (idEmpleadoCajero.HasValue)
                     {
                         vm.AperturasActivas = vm.AperturasActivas
@@ -137,6 +130,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult AbrirCaja(int idCaja, int idCajero, decimal montoInicial, string observaciones)
         {
@@ -145,14 +139,13 @@ namespace RestauranteVistas.Controllers
 
             try
             {
-                if (idCajero <= 0)
+                using (var ctx = new ColibriDbContext())
                 {
-                    using (var ctx = new ColibriDbContext())
-                    {
-                        var emp = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idAdmin && e.Estado)
-                               ?? ctx.Empleados.FirstOrDefault(e => e.Estado);
-                        if (emp != null) idCajero = emp.IdEmpleado;
-                    }
+                    var empleado = ctx.Empleados.FirstOrDefault(e => e.IdUsuario == idAdmin && e.Estado);
+                    if (empleado == null) throw new ArgumentException("El usuario no tiene un empleado activo asociado.");
+                    if (string.Equals(Session["RolNombre"] as string, "Cajero", StringComparison.OrdinalIgnoreCase))
+                        idCajero = empleado.IdEmpleado;
+                    else if (idCajero <= 0) idCajero = empleado.IdEmpleado;
                 }
                 var apertura = _contabilidadService.AbrirCaja(idCaja, idCajero, montoInicial, observaciones, idAdmin,
                     Request.UserHostAddress, Request.UserAgent);
@@ -190,6 +183,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult CerrarCaja(int idApertura, decimal saldoReal)
         {
@@ -254,6 +248,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult RegistrarEgreso(int idApertura, string categoriaGasto, string descripcion, decimal monto)
         {
@@ -297,6 +292,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador", "Cajero" })]
         public ActionResult AnularVenta(int idVenta, string motivo)
         {
@@ -317,6 +313,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
         public ActionResult GenerarReporte(string tipoReporte, string formato, string fechaInicio, string fechaFin,
             int? categoriaProducto, int? categoriaInsumo, string metodoPago, int? idMesero, int? topN,
@@ -411,6 +408,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Administrador" })]
         public ActionResult GenerarCierrePeriodo(string tipoPeriodo, int? mes, int anio)
         {

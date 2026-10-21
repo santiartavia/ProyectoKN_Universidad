@@ -138,6 +138,8 @@
                         <td>
                             @using (Html.BeginForm("EntregarPedido", "Mesero", FormMethod.Post))
                             {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                 @Html.Hidden("idPedido", pedido.IdPedido)
                                 <button type="submit" class="btn btn-primary">Entregar pedido</button>
                             }

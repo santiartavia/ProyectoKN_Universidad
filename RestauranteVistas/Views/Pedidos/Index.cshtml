@@ -48,6 +48,8 @@
 
         @using (Html.BeginForm("CrearOrden", "Pedidos", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
             <div class="form-grid">
                 <div class="form-group">
                     <label>Mesa *</label>
@@ -126,6 +128,8 @@
 
         @using (Html.BeginForm("AgregarProducto", "Pedidos", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
             <div class="form-grid">
                 <div class="form-group">
                     <label>Pedido existente *</label>
@@ -267,6 +271,8 @@
                                 {
                                     using (Html.BeginForm("MarcarEntregado", "Pedidos", FormMethod.Post, new { style = "display:inline;" }))
                                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                         <input type="hidden" name="idPedido" value="@pedido.IdPedido" />
                                         <button type="submit" class="btn btn-primary btn-sm">Marcar Entregado</button>
                                     }
@@ -339,8 +345,10 @@
                                     <td>
                                         @using (Html.BeginForm("EditarProducto", "Pedidos", FormMethod.Post))
                                         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                             @Html.Hidden("idDetalle", item.IdDetalle)
-                                            <input type="number" name="cantidad" value="@item.Cantidad" min="1" step="0.01" required />
+                                            <input type="number" name="cantidad" value="@item.Cantidad.ToString(System.Globalization.CultureInfo.InvariantCulture)" min="1" step="1" required />
                                             <input type="text" name="observacionesItem" value="@item.ObservacionesItem" />
                                             <button type="submit" class="btn btn-warning">Modificar producto</button>
                                         }
@@ -348,6 +356,8 @@
                                     <td>
                                         @using (Html.BeginForm("EliminarProducto", "Pedidos", FormMethod.Post))
                                         {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                                             @Html.Hidden("idDetalle", item.IdDetalle)
                                             <button type="submit" class="btn btn-secondary">Eliminar producto</button>
                                         }
@@ -367,6 +377,8 @@
                 <div class="form-actions" style="margin-top:15px;">
                     @using (Html.BeginForm("CancelarPedido", "Pedidos", FormMethod.Post))
                     {
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="requestKey" value="@Guid.NewGuid()" />
                         @Html.Hidden("idPedido", pedido.IdPedido)
                         <input type="text" name="motivoCancelacion" placeholder="Motivo de cancelación" />
                         <button type="submit" class="btn btn-warning">Cancelar orden</button>

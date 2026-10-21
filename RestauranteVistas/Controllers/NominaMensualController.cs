@@ -68,6 +68,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Cerrar(int idEmpleado, int mes, int anio, string observaciones)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -88,6 +89,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CerrarMes(int mes, int anio, string observaciones)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -107,6 +109,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AjustarHorasExtra(int idEmpleado, int mes, int anio, decimal cantidadHoras, string motivoAjuste)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -174,6 +177,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AjustarHorasVacacion(int idEmpleado, int mes, int anio, decimal horasPorDia)
         {
             try

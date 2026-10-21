@@ -1,0 +1,912 @@
+[
+  {
+    "caso": "C1",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Acceder a la pantalla de inicio de sesión del sistema.",
+    "esperado": "El sistema muestra correctamente los campos para ingresar las credenciales.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Ingresar un usuario registrado en el sistema.",
+    "esperado": "El sistema permite ingresar el usuario sin presentar errores.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Ingresar la contraseña correspondiente al usuario.",
+    "esperado": "La contraseña se muestra protegida y puede ser ingresada correctamente.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Presionar el botón \"Iniciar sesión\".",
+    "esperado": "El sistema valida las credenciales ingresadas.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Verificar el acceso al sistema con las credenciales válidas.",
+    "esperado": "El usuario ingresa correctamente al sistema.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Revision que el usuario acceda a opciones segun su rol",
+    "esperado": "El sistema muestra las funcionalidades autorizadas según el rol asignado al usuario.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C1",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Debe existir un usuario registrado y activo con credenciales válidas y un rol asignado.",
+    "accion": "Cerrar la sesión del usuario.",
+    "esperado": "El sistema finaliza la sesión y redirige al usuario a la pantalla de inicio de sesión.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Iniciar sesión con un usuario registrado.",
+    "esperado": "El sistema permite el acceso con credenciales válidas.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Identificar el rol asignado al usuario.",
+    "esperado": "El sistema reconoce correctamente el rol del usuario.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Acceder al menú principal del sistema.",
+    "esperado": "Se muestran únicamente las opciones autorizadas para el rol.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Ingresar a un módulo autorizado.",
+    "esperado": "El sistema permite el acceso al módulo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Intentar acceder a una funcionalidad restringida para el rol.",
+    "esperado": "El sistema impide el acceso a la funcionalidad no autorizada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Iniciar sesión con un usuario de otro rol.",
+    "esperado": "El sistema presenta las opciones correspondientes al nuevo rol.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C2",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. Deben existir usuarios activos con diferentes roles registrados y permisos previamente asignados.",
+    "accion": "Cerrar la sesión.",
+    "esperado": "El sistema finaliza la sesión y restringe nuevamente el acceso.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Ingresar al módulo de empleados.",
+    "esperado": "El sistema muestra correctamente la lista de empleados registrados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Seleccionar la opción para registrar un empleado.",
+    "esperado": "El sistema muestra el formulario de registro.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Completar los datos requeridos del empleado.",
+    "esperado": "El sistema permite ingresar la información solicitada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Guardar el nuevo empleado.",
+    "esperado": "El sistema registra al empleado en la base de datos.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Buscar y seleccionar el empleado registrado.",
+    "esperado": "El sistema muestra la información correspondiente.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Modificar los datos del empleado y guardar los cambios.",
+    "esperado": "El sistema actualiza correctamente la información.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C3",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El sistema y la base de datos deben estar disponibles. El usuario debe haber iniciado sesión y contar con los permisos necesarios para gestionar empleados.",
+    "accion": "Consultar nuevamente el empleado.",
+    "esperado": "El sistema presenta la información actualizada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Ingresar al módulo de gestión de personal.",
+    "esperado": "El sistema muestra las opciones de turnos, asistencia y vacaciones.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Seleccionar un empleado registrado.",
+    "esperado": "El sistema carga correctamente la información del empleado.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Asignar un turno al empleado.",
+    "esperado": "El sistema registra el turno asociado al empleado seleccionado.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Registrar la asistencia del empleado.",
+    "esperado": "El sistema almacena correctamente el registro de asistencia.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Registrar una solicitud o período de vacaciones.",
+    "esperado": "El sistema permite registrar las fechas correspondientes.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Consultar la información del empleado.",
+    "esperado": "Se muestran correctamente los turnos, asistencias y vacaciones registrados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C4",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "Deben existir empleados registrados y activos en el sistema. El usuario encargado debe contar con permisos para administrar turnos, asistencias y vacaciones.",
+    "accion": "Verificar la persistencia de los datos registrados.",
+    "esperado": "La información permanece almacenada y relacionada con el empleado correspondiente.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Ingresar al módulo de gestión de mesas.",
+    "esperado": "El sistema muestra las mesas registradas y su estado actual.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Seleccionar una mesa disponible.",
+    "esperado": "El sistema permite seleccionar la mesa para su asignación.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Consultar los meseros disponibles.",
+    "esperado": "El sistema muestra los meseros que pueden ser asignados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Seleccionar un mesero para la mesa.",
+    "esperado": "El sistema permite asociar el mesero con la mesa seleccionada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Confirmar la asignación.",
+    "esperado": "El sistema registra la relación entre la mesa y el mesero.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Consultar nuevamente la mesa.",
+    "esperado": "El sistema muestra el mesero asignado y el estado actualizado de la mesa.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C5",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "Deben existir mesas y empleados con rol de mesero registrados en el sistema. El usuario debe contar con los permisos necesarios para realizar asignaciones.",
+    "accion": "Liberar la mesa al finalizar la atención.",
+    "esperado": "La mesa cambia a estado disponible y queda habilitada para una nueva asignación.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "El mesero toma la orden del cliente en una mesa",
+    "esperado": "El sistema crea la orden del cliente de forma óptima ",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "El mesero agrega los distintos pedidos del cliente para una misma orden",
+    "esperado": "El sistema va agregando los distintos pedidos del mismo cliente a una orden específica si el cliente así lo desea",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "Enviar la comanda a la cocina",
+    "esperado": "El mesero envía la comanda a la cocina para que puedan comenzar a realizar los platillos",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "El pedido queda en estado de \"en proceso\"",
+    "esperado": "El sistema pone en estado de \"en proceso\" el pedido esté terminado",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "Cambiar el pedido a \"Listo\"",
+    "esperado": "El área de cocina avisa a que el pedido está terminado en el sistema",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C6",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El área de cocina debe de tener el permiso de tener visualización de las órdenes y los meseros el permiso para hacer las distintas solicitudes de los clientes.",
+    "accion": "Registrar el pedido como \"Entregado\"",
+    "esperado": "Los meseros entregan la comanda al cliente y registran el pedido como \"entregado\"",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C7",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Orden registrada como entregada, datos de la orden. ",
+    "accion": "La orden está lista para ser pagada",
+    "esperado": "El sistema muestra la orden como entregada y lista para ser pagada",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C7",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Orden registrada como entregada, datos de la orden. ",
+    "accion": "El sistema muestra los datos de la orden",
+    "esperado": "El sistema muestra los detalles de la orden, como lo es el nombre del platillo y su monto",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C7",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Orden registrada como entregada, datos de la orden. ",
+    "accion": "El sistema muestra el monto total de la orden",
+    "esperado": "El sistema muestra el total de pago que debe realizar el cliente por la orden solicitada por el mismo",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C7",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Orden registrada como entregada, datos de la orden. ",
+    "accion": "El sistema da las distintas opciones de pago",
+    "esperado": "El sistema muestra las distintas formas de pago disponibles ",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C7",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Orden registrada como entregada, datos de la orden. ",
+    "accion": "El sistema registra la orden como pagada",
+    "esperado": "El sistema registra la orden como pagada al finalizar el proceso de pago",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C8",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El sistema debe permitir crear cuentas y subcuentas, aparte de permitir más de un producto. ",
+    "accion": "La cuenta tiene varios pedidos ",
+    "esperado": "El sistema permite que una cuenta tenga más de un producto ",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C8",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El sistema debe permitir crear cuentas y subcuentas, aparte de permitir más de un producto. ",
+    "accion": "El cliente o clientes desean dividir la cuenta por productos consumidos",
+    "esperado": "El cliente o clientes dividen toda la orden en varias subcuentas ",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C8",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El sistema debe permitir crear cuentas y subcuentas, aparte de permitir más de un producto. ",
+    "accion": "La cuenta está dividida en varias subcuentas",
+    "esperado": "El sistema permite crear varias subcuentas para una cuenta general",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C8",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El sistema debe permitir crear cuentas y subcuentas, aparte de permitir más de un producto. ",
+    "accion": "Visualización de cada subcuenta en el sistema ",
+    "esperado": "El sistema refleja cada una de las subcuentas de una misma cuenta",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C8",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El sistema debe permitir crear cuentas y subcuentas, aparte de permitir más de un producto. ",
+    "accion": "Subcuentas listas para ser pagadas",
+    "esperado": "Cada subcuenta se puede pagar por individual completando al final la cuenta principal",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Ingresar al módulo de inventario.",
+    "esperado": "El sistema permite el ingreso y muestra los insumos registrados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Consultar las existencias de los insumos.",
+    "esperado": "El sistema muestra las cantidades disponibles de cada insumo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Consultar una receta registrada.",
+    "esperado": "El sistema muestra los insumos y cantidades asociados a la receta.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Registrar un pedido con un producto asociado a una receta.",
+    "esperado": "El sistema registra el pedido e identifica los insumos necesarios.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Procesar el pedido y verificar el rebajo de existencias.",
+    "esperado": "El sistema descuenta automáticamente los insumos utilizados según la receta.",
+    "obtenido": "Leche: 7.25 → 7 L, receta 0.25 L por vaso",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C9",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "Datos ya en el sistema para poder llevar control del inventario, permisos para usuarios con roles de administrador a empleados autorizados",
+    "accion": "Consultar nuevamente el inventario.",
+    "esperado": "El sistema muestra las existencias actualizadas después del rebajo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Ingresar al módulo de inventario.",
+    "esperado": "El sistema permite el acceso y muestra los insumos registrados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Consultar las existencias actuales de los insumos.",
+    "esperado": "El sistema muestra correctamente la cantidad disponible de cada insumo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Seleccionar un insumo con existencia cercana al stock mínimo.",
+    "esperado": "El sistema muestra la cantidad disponible y el nivel mínimo establecido.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Realizar un movimiento que reduzca la existencia por debajo del mínimo.",
+    "esperado": "El sistema actualiza la cantidad disponible del insumo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Verificar la detección de bajo stock.",
+    "esperado": "El sistema identifica el insumo que alcanzó o quedó por debajo del stock mínimo.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C10",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "Deben existir insumos registrados en el inventario con cantidades disponibles y niveles mínimos de stock previamente establecidos.",
+    "accion": "Consultar el apartado de insumos con bajo stock.",
+    "esperado": "El sistema muestra los insumos que requieren reabastecimiento.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Ingresar al módulo de caja.",
+    "esperado": "El sistema muestra las opciones disponibles para la gestión de caja.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Seleccionar la opción de apertura de caja.",
+    "esperado": "El sistema muestra el formulario para realizar la apertura.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Ingresar el monto inicial y confirmar la apertura.",
+    "esperado": "El sistema registra correctamente la apertura y el monto inicial.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Registrar un egreso de caja.",
+    "esperado": "El sistema permite ingresar el monto, concepto y datos correspondientes al egreso.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Consultar los movimientos de la caja.",
+    "esperado": "El sistema muestra correctamente los movimientos realizados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Seleccionar la opción de cierre de caja.",
+    "esperado": "El sistema calcula y muestra la información correspondiente al cierre.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C11",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El usuario debe haber iniciado sesión con los permisos correspondientes. La caja debe encontrarse disponible para realizar la apertura y deben existir datos necesarios para registrar los movimientos.",
+    "accion": "Confirmar el cierre de caja.",
+    "esperado": "El sistema registra el cierre y finaliza las operaciones de la caja.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Ingresar al módulo de reportería.",
+    "esperado": "El sistema muestra las opciones de reportes disponibles.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Seleccionar el tipo de reporte requerido.",
+    "esperado": "El sistema permite configurar los parámetros del reporte.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Ingresar los parámetros o filtros de consulta.",
+    "esperado": "El sistema acepta correctamente los criterios ingresados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Generar el reporte.",
+    "esperado": "El sistema procesa la solicitud y muestra los datos correspondientes.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Verificar la información presentada.",
+    "esperado": "Los datos mostrados coinciden con la información registrada en el sistema.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Seleccionar la opción de exportación.",
+    "esperado": "El sistema permite seleccionar el formato disponible para exportar.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C12",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El usuario debe contar con permisos para acceder a los reportes. Deben existir datos previamente registrados en el sistema para realizar las consultas y generar los reportes.",
+    "accion": "Exportar y verificar el archivo generado.",
+    "esperado": "El archivo se genera correctamente y contiene la información del reporte.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Ingresar al módulo de nómina.",
+    "esperado": "El sistema muestra las opciones correspondientes al cálculo de nómina.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Seleccionar el período de nómina correspondiente.",
+    "esperado": "El sistema permite seleccionar el período que se desea procesar.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Consultar los empleados incluidos en el cálculo.",
+    "esperado": "El sistema muestra los empleados correspondientes al período.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Verificar los parámetros utilizados para el cálculo.",
+    "esperado": "El sistema utiliza los parámetros previamente configurados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Ejecutar el cálculo de nómina.",
+    "esperado": "El sistema procesa la información y calcula los montos correspondientes.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Revisar los resultados obtenidos por empleado.",
+    "esperado": "Los montos calculados corresponden con los datos y parámetros registrados.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C13",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "Deben existir empleados registrados con la información necesaria para el cálculo de nómina. Los parámetros salariales requeridos deben encontrarse previamente configurados en el sistema.",
+    "accion": "Confirmar y guardar el cálculo realizado.",
+    "esperado": "El sistema almacena correctamente la información de la nómina procesada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 1,
+    "fila": 9,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Iniciar sesión con un usuario autorizado.",
+    "esperado": "El sistema permite el acceso correctamente.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 2,
+    "fila": 10,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Realizar una operación registrada por el sistema.",
+    "esperado": "La operación se ejecuta correctamente y genera un registro de auditoría.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 3,
+    "fila": 11,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Ingresar al módulo de auditoría o bitácoras.",
+    "esperado": "El sistema muestra los registros disponibles.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 4,
+    "fila": 12,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Buscar el registro correspondiente a la operación realizada.",
+    "esperado": "El sistema permite localizar el evento registrado.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 5,
+    "fila": 13,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Verificar la información almacenada en la bitácora.",
+    "esperado": "El registro contiene la información correspondiente a la acción realizada.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 6,
+    "fila": 14,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Ejecutar funcionalidades previamente implementadas del sistema.",
+    "esperado": "Las funcionalidades continúan operando correctamente después de los cambios.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  },
+  {
+    "caso": "C14",
+    "paso": 7,
+    "fila": 15,
+    "precondiciones": "El sistema debe estar disponible y contar con usuarios registrados. Deben existir funcionalidades previamente implementadas y acceso autorizado a la consulta de las bitácoras.",
+    "accion": "Verificar que los cambios realizados no afecten otros módulos.",
+    "esperado": "Los módulos relacionados mantienen su funcionamiento esperado.",
+    "obtenido": "Resultado comprobado en la página MVC real",
+    "estado": "APROBADA"
+  }
+]

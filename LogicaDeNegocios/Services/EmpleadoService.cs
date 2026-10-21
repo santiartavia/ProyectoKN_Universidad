@@ -46,12 +46,13 @@ namespace LogicaDeNegocios.Services
                 if (rol == null)
                     throw new ArgumentException($"El rol '{rolNombre}' no existe en el sistema");
 
+                var claveTemporal = Helpers.PasswordHelper.GenerateTemporaryPassword();
                 var usuario = new Usuario
                 {
                     IdRol = rol.IdRol,
                     NombreUsuario = cedula,
                     Correo = correo ?? $"{cedula}@colibri.com",
-                    PasswordHash = Helpers.PasswordHelper.HashPassword(cedula),
+                    PasswordHash = Helpers.PasswordHelper.HashPassword(claveTemporal),
                     CambioPasswordRequerido = true,
                     IntentosFallidos = 0,
                     Bloqueado = false,
@@ -74,6 +75,7 @@ namespace LogicaDeNegocios.Services
                     FechaIngreso = fechaIngreso,
                     Estado = true
                 };
+                empleado.ClaveTemporal = claveTemporal;
                 ctx.Empleados.Add(empleado);
                 ctx.SaveChanges();
 

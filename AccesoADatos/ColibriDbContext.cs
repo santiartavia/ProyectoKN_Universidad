@@ -2,146 +2,50 @@ using Abstracciones.Models;
 using System;
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
+using System.Data.Entity.Infrastructure;
+using System.Linq;
 
 namespace AccesoADatos
 {
     public class ColibriDbContext : DbContext
     {
-        private static bool _schemaChecked = false;
-        private static readonly object _schemaLock = new object();
         private static readonly Type _ = typeof(SqlProviderServices);
-
-        public ColibriDbContext() : base("name=ColibriDbContext")
+        private bool? permiteSubcuentasVenta;
+        private bool? permiteEnviosPdv;
+        public bool PermiteEnviosPdv
         {
-            EnsureSchemaUpdated();
-        }
-
-        private void EnsureSchemaUpdated()
-        {
-            if (_schemaChecked) return;
-            lock (_schemaLock)
+            get
             {
-                if (_schemaChecked) return;
-                _schemaChecked = true;
-                try
-                {
-                    var sql = @"
--- 1. Asegurar columnas ip_origen y dispositivo en Bitacora_Usuarios_RRHH, Bitacora_Acceso, Bitacora_Inventario
-IF COL_LENGTH('dbo.Bitacora_Usuarios_RRHH', 'ip_origen') IS NULL
-    ALTER TABLE dbo.Bitacora_Usuarios_RRHH ADD ip_origen VARCHAR(50) NULL;
-IF COL_LENGTH('dbo.Bitacora_Usuarios_RRHH', 'dispositivo') IS NULL
-    ALTER TABLE dbo.Bitacora_Usuarios_RRHH ADD dispositivo VARCHAR(250) NULL;
-
-IF COL_LENGTH('dbo.Bitacora_Acceso', 'ip_origen') IS NULL
-    ALTER TABLE dbo.Bitacora_Acceso ADD ip_origen VARCHAR(50) NULL;
-IF COL_LENGTH('dbo.Bitacora_Acceso', 'dispositivo') IS NULL
-    ALTER TABLE dbo.Bitacora_Acceso ADD dispositivo VARCHAR(250) NULL;
-
-IF COL_LENGTH('dbo.Bitacora_Inventario', 'ip_origen') IS NULL
-    ALTER TABLE dbo.Bitacora_Inventario ADD ip_origen VARCHAR(50) NULL;
-IF COL_LENGTH('dbo.Bitacora_Inventario', 'dispositivo') IS NULL
-    ALTER TABLE dbo.Bitacora_Inventario ADD dispositivo VARCHAR(250) NULL;
-
--- 2. Ampliar CK_BitRR_accion si existe para permitir todos los eventos usados
-IF EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_BitRR_accion')
-BEGIN
-    ALTER TABLE dbo.Bitacora_Usuarios_RRHH DROP CONSTRAINT CK_BitRR_accion;
-END;
-
--- 3. Crear tabla Bitacora_Financiera si no existe
-IF OBJECT_ID('dbo.Bitacora_Financiera', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Bitacora_Financiera (
-        id_registro INT IDENTITY(1,1) PRIMARY KEY,
-        id_usuario INT NOT NULL,
-        tabla_afectada VARCHAR(80) NOT NULL,
-        id_registro_afectado INT NOT NULL,
-        accion VARCHAR(30) NOT NULL,
-        valor_anterior NVARCHAR(MAX) NULL,
-        valor_nuevo NVARCHAR(MAX) NULL,
-        detalle VARCHAR(300) NULL,
-        ip_origen VARCHAR(50) NULL,
-        dispositivo VARCHAR(250) NULL,
-        fecha_hora DATETIME2 NOT NULL DEFAULT SYSDATETIME()
-    );
-END
-ELSE
-BEGIN
-    IF COL_LENGTH('dbo.Bitacora_Financiera', 'ip_origen') IS NULL
-        ALTER TABLE dbo.Bitacora_Financiera ADD ip_origen VARCHAR(50) NULL;
-    IF COL_LENGTH('dbo.Bitacora_Financiera', 'dispositivo') IS NULL
-        ALTER TABLE dbo.Bitacora_Financiera ADD dispositivo VARCHAR(250) NULL;
-END;
-
--- 4. Crear tabla Bitacora_Reportes si no existe
-IF OBJECT_ID('dbo.Bitacora_Reportes', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Bitacora_Reportes (
-        id_registro INT IDENTITY(1,1) PRIMARY KEY,
-        id_usuario INT NOT NULL,
-        accion VARCHAR(30) NOT NULL,
-        valor_anterior NVARCHAR(MAX) NULL,
-        valor_nuevo NVARCHAR(MAX) NULL,
-        detalle VARCHAR(300) NULL,
-        ip_origen VARCHAR(50) NULL,
-        dispositivo VARCHAR(250) NULL,
-        fecha_hora DATETIME2 NOT NULL DEFAULT SYSDATETIME()
-    );
-END
-ELSE
-BEGIN
-    IF COL_LENGTH('dbo.Bitacora_Reportes', 'ip_origen') IS NULL
-        ALTER TABLE dbo.Bitacora_Reportes ADD ip_origen VARCHAR(50) NULL;
-    IF COL_LENGTH('dbo.Bitacora_Reportes', 'dispositivo') IS NULL
-        ALTER TABLE dbo.Bitacora_Reportes ADD dispositivo VARCHAR(250) NULL;
-END;
-
--- 5. Crear tabla Cierres_Periodo si no existe
-IF OBJECT_ID('dbo.Cierres_Periodo', 'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.Cierres_Periodo (
-        id_cierre_periodo INT IDENTITY(1,1) PRIMARY KEY,
-        id_usuario INT NOT NULL,
-        tipo_periodo VARCHAR(20) NOT NULL,
-        mes INT NULL,
-        anio INT NOT NULL,
-        fecha_cierre DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
-        total_ingresos DECIMAL(12,2) NOT NULL DEFAULT 0,
-        total_egresos DECIMAL(12,2) NOT NULL DEFAULT 0,
-        total_notas_credito DECIMAL(12,2) NOT NULL DEFAULT 0,
-        saldo_final DECIMAL(12,2) NOT NULL DEFAULT 0,
-        estado BIT NOT NULL DEFAULT 1
-    );
-END;
-
--- 6. Asegurar que exista al menos una Caja activa
-IF NOT EXISTS (SELECT 1 FROM dbo.Cajas WHERE estado = 1)
-BEGIN
-    INSERT INTO dbo.Cajas (nombre_caja, estado_caja, estado)
-    VALUES ('Caja Principal', 'cerrada', 1);
-END;
-
--- 7. Asegurar que todo Usuario tenga un registro Empleado vinculado
-INSERT INTO dbo.Empleados (id_usuario, cedula, nombre, apellidos, salario_hora, dias_vacaciones_disponibles, fecha_ingreso, estado)
-SELECT u.id_usuario,
-       LEFT('U' + CAST(u.id_usuario AS VARCHAR(10)) + '_' + u.nombre_usuario, 20),
-       u.nombre_usuario,
-       ISNULL(r.nombre_rol, 'Sistema'),
-       1500.00,
-       0,
-       CAST(GETDATE() AS DATE),
-       u.estado
-FROM dbo.Usuarios u
-LEFT JOIN dbo.Roles r ON u.id_rol = r.id_rol
-WHERE NOT EXISTS (SELECT 1 FROM dbo.Empleados e WHERE e.id_usuario = u.id_usuario);
-";
-                    this.Database.ExecuteSqlCommand(sql);
-                }
-                catch
-                {
-                    // Ignorar si no tiene permisos DDL en tiempo de ejecución
-                }
+                if (!permiteEnviosPdv.HasValue)
+                    permiteEnviosPdv = Database.SqlQuery<int>("SELECT CASE WHEN OBJECT_ID('dbo.Envios_PDV', 'U') IS NOT NULL THEN 1 ELSE 0 END").Single() == 1;
+                return permiteEnviosPdv.Value;
             }
+        }
+        public bool PermiteSubcuentasVenta
+        {
+            get
+            {
+                if (!permiteSubcuentasVenta.HasValue)
+                    permiteSubcuentasVenta = Database.SqlQuery<int>("SELECT CASE WHEN OBJECT_ID('dbo.Subcuentas_Venta', 'U') IS NOT NULL AND OBJECT_ID('dbo.Subcuenta_Detalle_Venta', 'U') IS NOT NULL THEN 1 ELSE 0 END").Single() == 1;
+                return permiteSubcuentasVenta.Value;
+            }
+        }
+        public ColibriDbContext() : base(Environment.GetEnvironmentVariable("COLIBRI_CONNECTION_STRING") ?? "name=ColibriDbContext")
+        {
+            Database.SetInitializer<ColibriDbContext>(null);
+            ((IObjectContextAdapter)this).ObjectContext.ObjectMaterialized += (sender, args) =>
+            {
+                var mesa = args.Entity as Mesa;
+                if (mesa == null || mesa.EstadoMesa != "ocupada") return;
+                var asignacion = BitacoraRRHH.Where(b => b.TablaAfectada == "Mesas" && b.IdRegistroAfectado == mesa.IdMesa)
+                    .OrderByDescending(b => b.IdRegistro).Select(b => b.ValorNuevo).FirstOrDefault();
+                int empleado;
+                if (asignacion != null && asignacion.StartsWith("mesero:") && int.TryParse(asignacion.Substring(7), out empleado))
+                    mesa.IdEmpleadoAsignado = empleado;
+                else
+                    mesa.IdEmpleadoAsignado = Pedidos.Where(p => p.IdMesa == mesa.IdMesa && p.Estado && p.EstadoPedido != "finalizado" && p.EstadoPedido != "cancelado")
+                        .OrderByDescending(p => p.IdPedido).Select(p => (int?)p.IdEmpleado).FirstOrDefault();
+            };
         }
 
         public DbSet<Rol> Roles { get; set; }
@@ -187,8 +91,22 @@ WHERE NOT EXISTS (SELECT 1 FROM dbo.Empleados e WHERE e.id_usuario = u.id_usuari
         public DbSet<CierrePeriodo> CierresPeriodo { get; set; }
         public DbSet<BitacoraReporte> BitacoraReportes { get; set; }
 
+        public override int SaveChanges()
+        {
+            // En COLIBRI estado_nuevo es obligatorio, incluso para cambios de productos y pagos.
+            // Se registra el estado real del pedido cuando la operación no lo cambia.
+            foreach (var entry in ChangeTracker.Entries<BitacoraPedido>().Where(e => e.State == EntityState.Added && string.IsNullOrWhiteSpace(e.Entity.EstadoNuevo)).ToList())
+            {
+                int idPedido = entry.Entity.IdPedido;
+                var local = Pedidos.Local.FirstOrDefault(p => p.IdPedido == idPedido);
+                entry.Entity.EstadoNuevo = local != null ? local.EstadoPedido : Pedidos.Where(p => p.IdPedido == idPedido).Select(p => p.EstadoPedido).Single();
+            }
+            return base.SaveChanges();
+        }
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Conventions.Remove<System.Data.Entity.ModelConfiguration.Conventions.OneToManyCascadeDeleteConvention>();
             modelBuilder.HasDefaultSchema("dbo");
 
             modelBuilder.Entity<Rol>().ToTable("Roles").HasKey(r => r.IdRol);
@@ -300,6 +218,8 @@ WHERE NOT EXISTS (SELECT 1 FROM dbo.Empleados e WHERE e.id_usuario = u.id_usuari
             modelBuilder.Entity<Mesa>().Property(m => m.Capacidad).HasColumnName("capacidad");
             modelBuilder.Entity<Mesa>().Property(m => m.EstadoMesa).HasColumnName("estado_mesa");
             modelBuilder.Entity<Mesa>().Property(m => m.Estado).HasColumnName("estado");
+            // COLIBRI conserva las asignaciones en su bitácora existente.
+            modelBuilder.Entity<Mesa>().Ignore(m => m.IdEmpleadoAsignado);
 
             modelBuilder.Entity<Pedido>().ToTable("Pedidos").HasKey(p => p.IdPedido);
             modelBuilder.Entity<Pedido>().Property(p => p.IdPedido).HasColumnName("id_pedido");

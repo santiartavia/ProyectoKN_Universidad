@@ -51,6 +51,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Solicitar(string fechaInicio, string fechaFin)
         {
             var empleado = ObtenerEmpleadoSesion();

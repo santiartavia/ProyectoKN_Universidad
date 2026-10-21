@@ -1,0 +1,304 @@
+[
+  {
+    "route": "/Home",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Home",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Pedidos",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Pedidos",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Mesas",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Mesas",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Mesero",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Mesero",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Cocina",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Cocina",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Cajero",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Cajero",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/PuntoVenta",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/PuntoVenta",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Inventario",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Inventario",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Productos",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Productos",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Empleados",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Empleados",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Empleados/Asistencia",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Empleados/Asistencia",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Empleados/MetricasMesas",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Empleados/MetricasMesas",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Usuarios",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Usuarios",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Usuarios/BitacoraAcceso",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Usuarios/BitacoraAcceso",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/MiAsistencia",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/MiAsistencia",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/MisVacaciones",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/MisVacaciones",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Contabilidad",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Contabilidad",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Contabilidad/Bitacora",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Contabilidad/Bitacora",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Reporteria",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Reporteria",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Reporteria/BitacoraReportes",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Reporteria/BitacoraReportes",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/NominaMensual",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/NominaMensual",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/OperacionPdv",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/OperacionPdv",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/BitacoraPedidos",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/BitacoraPedidos",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/BitacoraPdv",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/BitacoraPdv",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Inventario/Bitacora",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Inventario/Bitacora",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Empleados/Bitacora",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Empleados/Bitacora",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "/Login/CambiarPassword",
+    "status": 200,
+    "chain": [
+      {
+        "url": "/Login/CambiarPassword",
+        "status": 200
+      }
+    ],
+    "ok": true
+  },
+  {
+    "route": "Acceso tras cerrar sesión",
+    "status": 302,
+    "ok": true
+  }
+]

@@ -54,6 +54,7 @@
         {
             using (Html.BeginForm("Solicitar", "MisVacaciones", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Fecha inicio *</label>

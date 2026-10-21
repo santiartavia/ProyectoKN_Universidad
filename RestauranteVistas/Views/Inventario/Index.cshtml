@@ -1,4 +1,4 @@
-﻿@model RestauranteVistas.Models.ViewModels.InventarioViewModel
+@model RestauranteVistas.Models.ViewModels.InventarioViewModel
 @{
     ViewBag.Title = "Inventario";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -40,6 +40,7 @@
         </div>
 
         <form method="post" action="@Url.Action("RegistrarInsumo")">
+            @Html.AntiForgeryToken()
             <div class="form-grid">
                 <div class="form-group">
                     <label>Nombre del insumo *</label>
@@ -138,7 +139,7 @@
                 {
                     foreach (var ins in Model.Insumos)
                     {
-                        bool bajoStock = ins.StockActual < ins.StockMinimo;
+                        bool bajoStock = ins.StockActual <= ins.StockMinimo;
                         bool agotado = ins.StockActual == 0;
                         string filaClase = "";
                         string estadoTexto = "Normal";
@@ -191,6 +192,7 @@
             <button class="icon-btn" onclick="cerrarModal('modalEditar')"><span class="material-symbols-outlined">close</span></button>
         </div>
         <form method="post" action="@Url.Action("ActualizarInsumo")">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idInsumo" id="editIdInsumo" />
             <div class="form-grid">
                 <div class="form-group">
@@ -244,6 +246,7 @@
         </p>
         <p style="color:#666;font-size:14px;">Se ocultará del catálogo activo pero se conservará su historial.</p>
         <form method="post" action="@Url.Action("DesactivarInsumo")">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="idInsumo" id="desactivarIdInsumo" />
             <div class="modal-actions" style="gap:10px;">
                 <button type="submit" class="btn btn-danger">

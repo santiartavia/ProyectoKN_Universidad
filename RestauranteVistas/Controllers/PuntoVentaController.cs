@@ -11,9 +11,27 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cajero", "Administrador" })]
-    public class PuntoVentaController : Controller
+    public class PuntoVentaController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+        protected override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var envios = new[] { "EnviarVenta", "MarcarEnvioPendiente", "MarcarEnvioFallido" };
+            if (envios.Contains(context.ActionDescriptor.ActionName) && !db.PermiteEnviosPdv)
+            {
+                TempData["Error"] = "Los envíos de ventas rápidas no están disponibles en la estructura actual de esta base. Puede registrar pedidos desde Pedidos.";
+                context.Result = RedirectToAction("Index");
+                return;
+            }
+            var acciones = new[] { "DividirCuenta", "AsignarProductoSubcuenta", "QuitarProductoSubcuenta", "CobrarSubcuenta" };
+            if (acciones.Contains(context.ActionDescriptor.ActionName) && !db.PermiteSubcuentasVenta)
+            {
+                TempData["Error"] = "Esta base permite dividir las cuentas de pedidos desde Caja. La división de ventas rápidas no está disponible en su estructura actual.";
+                context.Result = RedirectToAction("Index");
+                return;
+            }
+            base.OnActionExecuting(context);
+        }
+
 
         public ActionResult Index()
         {
@@ -25,6 +43,7 @@ namespace RestauranteVistas.Controllers
         // ============================================================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AbrirVentaRapida()
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -79,6 +98,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AgregarProducto(int idVenta, int idProducto, int cantidad, string observaciones)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -139,6 +159,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult QuitarProducto(int idDetalle)
         {
             var detalle = db.DetallesVenta.FirstOrDefault(d => d.IdDetalleVenta == idDetalle && d.Estado);
@@ -169,6 +190,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CancelarVentaRapida(int idVenta)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -192,7 +214,7 @@ namespace RestauranteVistas.Controllers
                 db.DetallesVenta.RemoveRange(detalles);
 
             var apertura = ObtenerApertura(venta.IdEmpleado);
-            var envios = db.EnviosPdv.Where(e => e.IdVenta == idVenta).ToList();
+            var envios = db.PermiteEnviosPdv ? db.EnviosPdv.Where(e => e.IdVenta == idVenta).ToList() : new List<EnvioPdv>();
 
             if (venta.IdPedido.HasValue)
             {
@@ -236,6 +258,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CobrarVentaRapida(int idVenta, string metodoPago, decimal montoRecibido)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -310,6 +333,7 @@ namespace RestauranteVistas.Controllers
         // ============================================================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CorregirDetalleVenta(int idDetalleVenta, int cantidad, decimal precioUnitario, string observaciones)
         {
             var detalle = db.DetallesVenta.FirstOrDefault(d => d.IdDetalleVenta == idDetalleVenta && d.Estado);
@@ -365,6 +389,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ValidarVentaRapida(int idVenta)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -411,6 +436,7 @@ namespace RestauranteVistas.Controllers
         // ============================================================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EnviarVenta(int idVenta, string destino, string prioridad, string observaciones)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -486,9 +512,11 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarEnvioPendiente(int idEnvio) => ActualizarEstadoEnvio(idEnvio, "Pendiente", "Envio");
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult MarcarEnvioFallido(int idEnvio) => ActualizarEstadoEnvio(idEnvio, "Fallido", "Envio");
 
         private ActionResult ActualizarEstadoEnvio(int idEnvio, string estado, string accion)
@@ -523,6 +551,7 @@ namespace RestauranteVistas.Controllers
         // ============================================================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult DividirCuenta(int idVenta, int? cantidadSubcuentas)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -592,6 +621,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AsignarProductoSubcuenta(int idSubcuenta, int idDetalleVenta, int cantidad)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -676,6 +706,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult QuitarProductoSubcuenta(int idSubcuentaDetalle)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -717,6 +748,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CobrarSubcuenta(int idSubcuenta, string metodoPago, decimal montoRecibido)
         {
             int idEmpleado = ObtenerIdEmpleado();
@@ -813,6 +845,10 @@ namespace RestauranteVistas.Controllers
 
         private PuntoVentaViewModel CargarViewModel()
         {
+            bool permiteSubcuentas = db.PermiteSubcuentasVenta;
+            ViewBag.PermiteSubcuentasVenta = permiteSubcuentas;
+            bool permiteEnvios = db.PermiteEnviosPdv;
+            ViewBag.PermiteEnviosPdv = permiteEnvios;
             int idEmpleado = ObtenerIdEmpleado();
 
             var ventas = db.Ventas
@@ -823,6 +859,7 @@ namespace RestauranteVistas.Controllers
 
             var productoNombres = db.Productos
                 .Where(p => p.Estado)
+                .ToList()
                 .GroupBy(p => p.IdProducto)
                 .ToDictionary(g => g.Key, g => g.First().NombreProducto);
 
@@ -843,11 +880,11 @@ namespace RestauranteVistas.Controllers
                 VentasActivas = ventas.Select(v =>
                 {
                     var detalles = db.DetallesVenta.Where(d => d.IdVenta == v.IdVenta && d.Estado).ToList();
-                    var subcuentas = db.SubcuentasVenta.Where(s => s.IdVenta == v.IdVenta && s.Estado).OrderBy(s => s.IdSubcuenta).ToList();
+                    var subcuentas = permiteSubcuentas ? db.SubcuentasVenta.Where(s => s.IdVenta == v.IdVenta && s.Estado).OrderBy(s => s.IdSubcuenta).ToList() : new List<SubcuentaVenta>();
                     var idsDetalle = detalles.Select(d => d.IdDetalleVenta).ToList();
-                    var items = db.SubcuentaDetallesVenta
+                    var items = permiteSubcuentas ? db.SubcuentaDetallesVenta
                         .Where(sd => idsDetalle.Contains(sd.IdDetalleVenta) && sd.Estado)
-                        .ToList();
+                        .ToList() : new List<SubcuentaDetalleVenta>();
                     var nombresSub = subcuentas.ToDictionary(s => s.IdSubcuenta, s => s.NombreSubcuenta);
 
                     var pendiente = new Dictionary<int, int>();
@@ -862,7 +899,7 @@ namespace RestauranteVistas.Controllers
                         Venta = v,
                         Detalles = detalles,
                         Total = detalles.Sum(d => d.SubtotalItem),
-                        Envios = db.EnviosPdv.Where(e => e.IdVenta == v.IdVenta).OrderByDescending(e => e.FechaHoraEnvio).ToList(),
+                        Envios = permiteEnvios ? db.EnviosPdv.Where(e => e.IdVenta == v.IdVenta).OrderByDescending(e => e.FechaHoraEnvio).ToList() : new List<EnvioPdv>(),
                         Subcuentas = subcuentas,
                         SubcuentaItems = items.Select(i =>
                         {
@@ -957,50 +994,10 @@ namespace RestauranteVistas.Controllers
 
         private AperturaCaja ObtenerOCrearApertura(int idEmpleado)
         {
-            var apertura = db.AperturasCaja
-                .Include(a => a.Caja)
-                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta")
-                .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
-
-            if (apertura != null) return apertura;
-
-            apertura = db.AperturasCaja
-                .Include(a => a.Caja)
-                .Where(a => a.Estado && a.Caja.EstadoCaja == "abierta")
-                .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
-
-            if (apertura != null) return apertura;
-
-            var caja = db.Cajas.FirstOrDefault(c => c.Estado);
-            if (caja == null)
-            {
-                caja = new Caja
-                {
-                    NombreCaja = "Caja Principal",
-                    EstadoCaja = "abierta",
-                    Estado = true
-                };
-                db.Cajas.Add(caja);
-                db.SaveChanges();
-            }
-            else
-            {
-                caja.EstadoCaja = "abierta";
-            }
-
-            apertura = new AperturaCaja
-            {
-                IdCaja = caja.IdCaja,
-                IdCajero = idEmpleado,
-                MontoInicial = 50000m,
-                Observaciones = "Apertura automática desde Punto de Venta",
-                FechaApertura = DateTime.Now,
-                Estado = true
-            };
-            db.AperturasCaja.Add(apertura);
-            db.SaveChanges();
+            var apertura = db.AperturasCaja.Include(a => a.Caja)
+                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.Estado && a.Caja.EstadoCaja == "abierta")
+                .OrderByDescending(a => a.FechaApertura).FirstOrDefault();
+            if (apertura == null) throw new ArgumentException("Debe abrir su caja en Contabilidad antes de cobrar.");
             return apertura;
         }
 
@@ -1058,7 +1055,8 @@ namespace RestauranteVistas.Controllers
                 });
 
                 // D-08: Descontar insumos de la receta asociada al producto
-                InventarioService.DescontarStockPorReceta(db, detalle.IdProducto, detalle.Cantidad, idUsuario, $"Pedido Rápido #{pedido.IdPedido}");
+                if (venta.EstadoVenta != "completada")
+                    InventarioService.DescontarStockPorReceta(db, detalle.IdProducto, detalle.Cantidad, idUsuario, $"Pedido Rápido #{pedido.IdPedido}");
             }
 
             venta.IdPedido = pedido.IdPedido;
@@ -1083,7 +1081,7 @@ namespace RestauranteVistas.Controllers
             if (metodoPago == "Tarjeta") return "tarjeta";
             if (metodoPago == "SINPE") return "sinpe";
             if (metodoPago == "Mixto") return "mixto";
-            return "efectivo";
+            throw new ArgumentException("Seleccione un método de pago válido.");
         }
 
         private int ObtenerIdEmpleado()
@@ -1095,8 +1093,7 @@ namespace RestauranteVistas.Controllers
                 if (empleado != null) return empleado.IdEmpleado;
             }
 
-            var fallback = db.Empleados.FirstOrDefault(e => e.Estado);
-            return fallback?.IdEmpleado ?? 1;
+            throw new ArgumentException("El usuario no tiene un empleado activo asociado.");
         }
 
         private string ObtenerNombreCajero()

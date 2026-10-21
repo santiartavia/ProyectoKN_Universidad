@@ -35,6 +35,7 @@ namespace RestauranteVistas.Controllers
 
         // ========== GUS 002: INICIAR SESION ==========
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Entrar(string usuario, string password)
         {
             // Campos incompletos (criterio 5)
@@ -53,7 +54,7 @@ namespace RestauranteVistas.Controllers
                     .FirstOrDefault(u => u.NombreUsuario == usuario && u.Estado);
 
                 // Usuario no creado (criterio 2)
-                if (user == null)
+                if (user == null || user.Rol == null || !user.Rol.Estado)
                 {
                     TempData["ErrorLogin"] = "El usuario no existe.";
                     return RedirectToAction("Index");
@@ -66,58 +67,19 @@ namespace RestauranteVistas.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Primer ingreso / sin contraseña configurada en BD (D-01 fix: validar clave temporal = NombreUsuario y no abrir sesión completa aún)
-                if (string.IsNullOrEmpty(user.PasswordHash))
-                {
-                    if (!string.Equals(password, user.NombreUsuario, StringComparison.Ordinal))
-                    {
-                        user.IntentosFallidos++;
-
-                        if (user.IntentosFallidos >= 5)
-                        {
-                            user.Bloqueado = true;
-                            ctx.BitacoraAcceso.Add(new BitacoraAcceso
-                            {
-                                IdUsuario = user.IdUsuario,
-                                Accion = "BLOQUEO",
-                                Detalle = $"Cuenta bloqueada por {user.IntentosFallidos} intentos fallidos.",
-                                IpOrigen = ip,
-                                Dispositivo = dispositivo,
-                                FechaHora = _fechas.ObtenerFechaActual()
-                            });
-                        }
-
-                        ctx.SaveChanges();
-                        TempData["ErrorLogin"] = "contraseña incorrecta, favor intente de nuevo.";
-                        return RedirectToAction("Index");
-                    }
-
-                    Session["PendingPasswordUserId"] = user.IdUsuario;
-                    return RedirectToAction("CrearPassword");
-                }
-
-                // Verificar contraseña con PBKDF2 SHA-256
-                bool passwordCorrecta = false;
-                try
-                {
-                    passwordCorrecta = PasswordHelper.VerifyPassword(password, user.PasswordHash);
-                }
-                catch
-                {
-                    // Compatibilidad con hashes antiguos (Base64)
-                    var oldHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(password));
-                    passwordCorrecta = user.PasswordHash == oldHash;
-
-                    // Migrar a SHA-256 si usaba Base64
-                    if (passwordCorrecta)
-                    {
-                        user.PasswordHash = PasswordHelper.HashPassword(password);
-                    }
-                }
+                // A missing or malformed credential never authorizes account setup.
+                bool passwordCorrecta = PasswordHelper.VerifyPassword(password, user.PasswordHash);
+                if (passwordCorrecta && !user.PasswordHash.StartsWith("pbkdf2-sha256$", StringComparison.Ordinal))
+                    user.PasswordHash = PasswordHelper.HashPassword(password);
 
                 // contraseña incorrecta (criterio 3)
                 if (!passwordCorrecta)
                 {
+                    ctx.BitacoraAcceso.Add(new BitacoraAcceso {
+                        IdUsuario = user.IdUsuario, Accion = "LOGIN_FAILED",
+                        Detalle = "Credenciales incorrectas.", IpOrigen = ip, Dispositivo = dispositivo,
+                        FechaHora = _fechas.ObtenerFechaActual()
+                    });
                     user.IntentosFallidos++;
 
                     if (user.IntentosFallidos >= 5)
@@ -256,15 +218,16 @@ namespace RestauranteVistas.Controllers
         [HttpGet]
         public ActionResult CrearPassword()
         {
-            if (Session["PendingPasswordUserId"] == null && Session["UsuarioId"] == null)
+            if (Session["PendingPasswordUserId"] == null)
                 return RedirectToAction("Index");
             return View();
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearPassword(string passwordNuevo, string passwordConfirmar)
         {
-            int? pendingId = Session["PendingPasswordUserId"] as int? ?? Session["UsuarioId"] as int?;
+            int? pendingId = Session["PendingPasswordUserId"] as int?;
             if (!pendingId.HasValue)
                 return RedirectToAction("Index");
 
@@ -290,7 +253,7 @@ namespace RestauranteVistas.Controllers
             {
                 var idUsuario = pendingId.Value;
                 var user = ctx.Usuarios.Include("Rol").FirstOrDefault(u => u.IdUsuario == idUsuario);
-                if (user == null)
+                if (user == null || !user.Estado || user.Bloqueado)
                     return RedirectToAction("Logout");
 
                 string ip = Request.UserHostAddress;
@@ -381,6 +344,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CambiarPassword(string passwordActual, string passwordNuevo, string passwordConfirmar)
         {
             if (Session["UsuarioId"] == null)
@@ -392,7 +356,7 @@ namespace RestauranteVistas.Controllers
             using (var ctx = new ColibriDbContext())
             {
                 var user = ctx.Usuarios.Find(idUsuario);
-                if (user == null)
+                if (user == null || !user.Estado || user.Bloqueado)
                     return RedirectToAction("Logout");
 
                 bool esCambioForzado = user.CambioPasswordRequerido || string.IsNullOrEmpty(user.PasswordHash);
@@ -587,7 +551,7 @@ namespace RestauranteVistas.Controllers
                 if (idSesion > 0)
                 {
                     var sesion = ctx.Sesiones.Find(idSesion);
-                    if (sesion != null)
+                    if (sesion != null && sesion.EstadoSesion == "ACTIVA" && sesion.IdUsuario == (int)Session["UsuarioId"])
                     {
                         // Verificar tiempo máximo de inactividad (30 min en vez de 2 min para no interrumpir pruebas de usuario)
                         var inactividad = (_fechas.ObtenerFechaActual() - sesion.FechaHoraUltimaAct).TotalMinutes;
@@ -603,13 +567,13 @@ namespace RestauranteVistas.Controllers
                             return Json(new { activa = false, mensaje = "sesión expirada por inactividad. Debe iniciar sesión nuevamente." }, JsonRequestBehavior.AllowGet);
                         }
 
-                        sesion.FechaHoraUltimaAct = _fechas.ObtenerFechaActual();
-                        ctx.SaveChanges();
+                        return Json(new { activa = true }, JsonRequestBehavior.AllowGet);
                     }
                 }
             }
 
-            return Json(new { activa = true }, JsonRequestBehavior.AllowGet);
+            Session.Clear();
+            return Json(new { activa = false, mensaje = "La sesión ya no está activa." }, JsonRequestBehavior.AllowGet);
         }
     }
 }

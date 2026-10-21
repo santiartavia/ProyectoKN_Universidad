@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -130,6 +130,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\CajeroController.cs" />
+    <Compile Include="Controllers\OperacionController.cs" />
     <Compile Include="Controllers\CocinaController.cs" />
     <Compile Include="Controllers\ContabilidadController.cs" />
     <Compile Include="Controllers\EmpleadosController.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Models\ViewModels\OperacionPdvViewModel.cs" />
     <Compile Include="Models\ViewModels\BitacoraPdvViewModel.cs" />
     <Compile Include="Models\ViewModels\BitacoraReportesViewModel.cs" />
+    <Compile Include="Models\DecimalModelBinder.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -9,9 +9,9 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Cajero", "Administrador" })]
-    public class CajeroController : Controller
+    public class CajeroController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+
 
         public ActionResult Index(int? idPedidoDividir = null)
         {
@@ -56,6 +56,7 @@ namespace RestauranteVistas.Controllers
         /// Permite habilitar directamente desde Caja una orden activa a estado 'entregado' para proceder con su cobro.
         /// </summary>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult HabilitarParaCobro(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
@@ -65,6 +66,11 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            if (pedido.EstadoPedido != "listo")
+            {
+                TempData["Error"] = "Solo se pueden entregar pedidos listos para servir.";
+                return RedirectToAction("Index");
+            }
             string estadoAnterior = pedido.EstadoPedido;
             pedido.EstadoPedido = "entregado";
             pedido.FechaHoraEntrega = DateTime.Now;
@@ -107,6 +113,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarPago(int idPedido, string metodoPago, decimal montoRecibido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado == true);
@@ -196,6 +203,18 @@ namespace RestauranteVistas.Controllers
             };
 
             db.Ventas.Add(venta);
+            db.SaveChanges();
+            foreach (var item in db.DetallePedidos.Where(d => d.IdPedido == idPedido && d.Estado).ToList())
+            {
+                if (item.Cantidad != decimal.Truncate(item.Cantidad))
+                    throw new ArgumentException("La orden contiene una cantidad fraccionaria que requiere revisión antes de facturar.");
+                db.DetallesVenta.Add(new DetalleVenta {
+                    IdVenta = venta.IdVenta, IdProducto = item.IdProducto,
+                    Cantidad = (int)item.Cantidad, PrecioUnitario = item.PrecioUnitario,
+                    SubtotalItem = item.Cantidad * item.PrecioUnitario,
+                    ObservacionesItem = item.ObservacionesItem, Estado = true
+                });
+            }
 
             int uid = ObtenerIdUsuarioValido();
             if (uid > 0)
@@ -217,6 +236,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult FinalizarOrden(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado == true);
@@ -260,6 +280,7 @@ namespace RestauranteVistas.Controllers
                 if (mesa != null)
                 {
                     mesa.EstadoMesa = "disponible";
+                        mesa.IdEmpleadoAsignado = null;
                     nombreMesa = $" y {mesa.NumeroMesa} quedó Disponible";
                 }
             }
@@ -275,6 +296,7 @@ namespace RestauranteVistas.Controllers
         // ============================================================
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearDivisionSubcuentas(int idPedido, int cantidadSubcuentas)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
@@ -361,6 +383,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AsignarProductoASubcuentaPedido(int idPedido, int idSubcuenta, int idDetallePedido, int cantidad)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado);
@@ -392,7 +415,7 @@ namespace RestauranteVistas.Controllers
                 .Where(dv => idsVentasPedido.Contains(dv.IdVenta) && dv.IdProducto == detallePedido.IdProducto && dv.ObservacionesItem == ("DET:" + idDetallePedido) && dv.Estado)
                 .Sum(dv => (int?)dv.Cantidad) ?? 0;
 
-            int disponibles = (int)Math.Ceiling(detallePedido.Cantidad) - yaAsignadas;
+            int disponibles = (int)detallePedido.Cantidad - yaAsignadas;
             if (cantidad > disponibles)
             {
                 TempData["Error"] = $"Solo quedan {disponibles} unidad(es) pendientes por asignar de este producto.";
@@ -437,6 +460,7 @@ namespace RestauranteVistas.Controllers
         /// C8 Paso 3 y Paso 4: Valida que ninguna subcuenta quede vacía sin productos asignados y confirma los subtotales.
         /// </summary>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ConfirmarDivisionSubcuentas(int idPedido)
         {
             var subcuentas = db.SubcuentasPedido.Where(s => s.IdPedido == idPedido && s.Estado).ToList();
@@ -469,7 +493,7 @@ namespace RestauranteVistas.Controllers
             decimal totalPedido = CalcularTotalPedido(idPedido);
             decimal totalSubcuentas = ventasSub.Sum(v => v.TotalCobrado);
 
-            if (totalSubcuentas < totalPedido)
+            if (totalSubcuentas != totalPedido)
             {
                 TempData["Error"] = $"Aún quedan productos de la orden sin asignar a las subcuentas (Asignado: ₡{totalSubcuentas:N2} de ₡{totalPedido:N2}).";
                 return RedirectToAction("Index", new { idPedidoDividir = idPedido });
@@ -483,6 +507,7 @@ namespace RestauranteVistas.Controllers
         /// C8 Paso 5: Procesa el pago individual de cada subcuenta y al cancelar la última finaliza la orden principal y libera la mesa.
         /// </summary>
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CobrarSubcuentaPedido(int idPedido, int idSubcuenta, string metodoPago, decimal montoRecibido)
         {
             var subcuenta = db.SubcuentasPedido.FirstOrDefault(s => s.IdSubcuenta == idSubcuenta && s.IdPedido == idPedido && s.Estado);
@@ -515,7 +540,7 @@ namespace RestauranteVistas.Controllers
 
             decimal totalPedido = CalcularTotalPedido(idPedido);
             decimal sumaSubcuentas = todasVentasSub.Sum(v => v.TotalCobrado);
-            if (sumaSubcuentas < totalPedido)
+            if (sumaSubcuentas != totalPedido)
             {
                 TempData["Error"] = $"Debe terminar de asignar todos los productos de la orden antes de cobrar las subcuentas (Asignado: ₡{sumaSubcuentas:N2} de ₡{totalPedido:N2}).";
                 return RedirectToAction("Index", new { idPedidoDividir = idPedido });
@@ -577,6 +602,7 @@ namespace RestauranteVistas.Controllers
                         if (mesa != null)
                         {
                             mesa.EstadoMesa = "disponible";
+                        mesa.IdEmpleadoAsignado = null;
                         }
                     }
 
@@ -612,58 +638,15 @@ namespace RestauranteVistas.Controllers
             if (string.Equals(metodoPago, "Mixto", StringComparison.OrdinalIgnoreCase))
                 return "mixto";
 
-            return string.IsNullOrWhiteSpace(metodoPago) ? "efectivo" : metodoPago.ToLowerInvariant();
+            throw new ArgumentException("Seleccione un método de pago válido.");
         }
 
         private AperturaCaja ObtenerOCrearAperturaActiva(int idEmpleado)
         {
-            var apertura = db.AperturasCaja
-                .Include(a => a.Caja)
-                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.EstadoCaja == "abierta")
-                .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
-
-            if (apertura != null) return apertura;
-
-            // Buscar cualquier apertura abierta activa
-            apertura = db.AperturasCaja
-                .Include(a => a.Caja)
-                .Where(a => a.Estado && a.Caja.EstadoCaja == "abierta")
-                .OrderByDescending(a => a.FechaApertura)
-                .FirstOrDefault();
-
-            if (apertura != null) return apertura;
-
-            // Si no hay caja abierta, abrir o crear automáticamente la Caja Principal para no bloquear cobros
-            var caja = db.Cajas.FirstOrDefault(c => c.Estado);
-            if (caja == null)
-            {
-                caja = new Caja
-                {
-                    NombreCaja = "Caja Principal",
-                    EstadoCaja = "abierta",
-                    Estado = true
-                };
-                db.Cajas.Add(caja);
-                db.SaveChanges();
-            }
-            else
-            {
-                caja.EstadoCaja = "abierta";
-            }
-
-            apertura = new AperturaCaja
-            {
-                IdCaja = caja.IdCaja,
-                IdCajero = idEmpleado,
-                MontoInicial = 50000m,
-                Observaciones = "Apertura automática desde módulo de Caja",
-                FechaApertura = DateTime.Now,
-                Estado = true
-            };
-            db.AperturasCaja.Add(apertura);
-            db.SaveChanges();
-
+            var apertura = db.AperturasCaja.Include(a => a.Caja)
+                .Where(a => a.IdCajero == idEmpleado && a.Estado && a.Caja.Estado && a.Caja.EstadoCaja == "abierta")
+                .OrderByDescending(a => a.FechaApertura).FirstOrDefault();
+            if (apertura == null) throw new ArgumentException("Debe abrir su caja en Contabilidad antes de cobrar.");
             return apertura;
         }
 
@@ -676,8 +659,7 @@ namespace RestauranteVistas.Controllers
                 if (empleado != null) return empleado.IdEmpleado;
             }
 
-            var fallback = db.Empleados.FirstOrDefault(e => e.Estado);
-            return fallback?.IdEmpleado ?? 1;
+            throw new ArgumentException("El usuario no tiene un empleado activo asociado.");
         }
 
         private int ObtenerIdUsuarioValido()

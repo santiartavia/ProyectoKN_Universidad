@@ -1,4 +1,4 @@
-﻿using Abstracciones.Interfaces;
+using Abstracciones.Interfaces;
 using AccesoADatos;
 using LogicaDeNegocios.General.Fechas;
 using LogicaDeNegocios.Services;
@@ -65,6 +65,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarEmpleado(string cedula, string nombre, string apellidos,
                                                 string telefono, string correo, string rol,
                                                 string fechaIngreso, decimal salarioHora)
@@ -76,9 +77,10 @@ namespace RestauranteVistas.Controllers
                 DateTime fi = string.IsNullOrWhiteSpace(fechaIngreso)
                     ? DateTime.Today
                     : DateTime.Parse(fechaIngreso);
-                _empleadoService.Registrar(cedula, nombre, apellidos, telefono, correo,
+                var empleado = _empleadoService.Registrar(cedula, nombre, apellidos, telefono, correo,
                                            rol, salarioHora, fi, idAdmin.Value);
                 TempData["Mensaje"] = "GES-001: Empleado registrado correctamente.";
+                TempData["CredencialTemporal"] = "Usuario: " + cedula + ". Contraseña temporal: " + empleado.ClaveTemporal + ". Entréguela al empleado; deberá cambiarla al ingresar.";
             }
             catch (Exception ex)
             {
@@ -98,6 +100,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AdministrarEmpleado(int id, string telefono, string correo, string rol, decimal salarioHora)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -115,6 +118,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult InactivarEmpleado(int id, string motivoInactivacion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -132,6 +136,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ReactivarEmpleado(int id)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -149,6 +154,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult CrearTurno(int idEmpleado, string fechaTurno, string horaInicio, string horaFin, string descripcion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -193,6 +199,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarEntrada(int idEmpleado)
         {
             try
@@ -208,6 +215,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarSalida(int idAsistencia)
         {
             try
@@ -223,6 +231,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarSalidaPorEmpleado(int idEmpleado)
         {
             try
@@ -255,6 +264,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult SolicitarVacacion(int idEmpleado, string fechaInicio, string fechaFin)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -274,6 +284,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AprobarVacacion(int idVacacion)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -291,6 +302,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RechazarVacacion(int idVacacion, string motivoRechazo)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -308,6 +320,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarHorasExtra(int idAsistencia, decimal cantidadHoras)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -325,6 +338,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AjustarHorasExtra(int idHoraExtra, decimal cantidadHoras, string motivoAjuste)
         {
             var idAdmin = ObtenerIdUsuarioSesion();
@@ -512,6 +526,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult RegistrarAsistencia(int idEmpleado)
         {
             return RegistrarEntrada(idEmpleado);
@@ -538,6 +553,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ActualizarVacacionesAcumuladas()
         {
             var idAdmin = ObtenerIdUsuarioSesion();

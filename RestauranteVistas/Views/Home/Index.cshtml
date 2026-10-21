@@ -1,4 +1,4 @@
-﻿@using Abstracciones.Models
+@using Abstracciones.Models
 @{
     ViewBag.Title = "Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -17,15 +17,15 @@
 <div class="grid-4">
     <div class="metric-card">
         <h3>Ventas del día</h3>
-        <div class="value">₡—</div>
+        <div class="value">₡@(((decimal)ViewBag.VentasHoy).ToString("N2"))</div>
     </div>
     <div class="metric-card alt-blue">
         <h3>Pedidos activos</h3>
-        <div class="value">—</div>
+        <div class="value">@ViewBag.PedidosActivos</div>
     </div>
     <div class="metric-card alt-orange">
         <h3>Mesas ocupadas</h3>
-        <div class="value">—</div>
+        <div class="value">@ViewBag.MesasOcupadas</div>
     </div>
     <div class="metric-card alt-teal">
         <h3>Empleados activos</h3>
@@ -155,9 +155,8 @@
         </div>
 
         <div class="banner">
-            <strong>@totalEmpleados empleados activos</strong> en el sistema.
-            Los módulos de RRHH (empleados, turnos, asistencia, vacaciones, horas extra, bitácora)
-            están operativos con base de datos SQL Server.
+            <strong>@ViewBag.StockBajo insumos requieren revisión de existencias.</strong>
+            Consulte inventario para planificar el reabastecimiento del restaurante.
         </div>
 
         <div class="form-actions">

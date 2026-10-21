@@ -39,6 +39,7 @@
         </div>
 
         <form method="post" action="@Url.Action("AjustarStock")" id="formAjuste">
+            @Html.AntiForgeryToken()
             <div class="form-group" style="margin-bottom:16px;">
                 <label>Insumo *</label>
                 <select name="idInsumo" id="selInsumo" required style="width:100%;">

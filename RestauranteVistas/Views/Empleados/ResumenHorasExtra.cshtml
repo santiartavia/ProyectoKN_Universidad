@@ -116,8 +116,9 @@
                         <td>
                             @using (Html.BeginForm("AjustarHorasExtra", "Empleados", FormMethod.Post, new { style = "display:flex;gap:4px;align-items:center;flex-wrap:wrap;" }))
                             {
+            @Html.AntiForgeryToken()
                                 <input type="hidden" name="idHoraExtra" value="@h.IdHoraExtra" />
-                                <input type="number" name="cantidadHoras" step="0.5" min="0.5" value="@h.CantidadHoras" required style="width:60px;padding:3px 6px;font-size:12px;border:1px solid var(--border);border-radius:4px;" />
+                                <input type="number" name="cantidadHoras" step="0.5" min="0.5" value="@h.CantidadHoras.ToString(System.Globalization.CultureInfo.InvariantCulture)" required style="width:60px;padding:3px 6px;font-size:12px;border:1px solid var(--border);border-radius:4px;" />
                                 <input type="text" name="motivoAjuste" placeholder="Motivo" required style="width:100px;padding:3px 6px;font-size:12px;border:1px solid var(--border);border-radius:4px;" />
                                 <button type="submit" class="btn btn-sm btn-warning" style="padding:3px 8px;font-size:11px;">
                                     <span class="material-symbols-outlined" style="font-size:12px;">edit</span> Ajustar

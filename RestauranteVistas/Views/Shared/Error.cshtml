@@ -1,14 +1,11 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta name="viewport" content="width=device-width" />
-    <title>Error</title>
-</head>
+@{ Layout = null; }
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="utf-8" /><meta name="viewport" content="width=device-width" /><title>No se pudo mostrar la página</title></head>
 <body>
-    <hgroup>
-        <h1>Error.</h1>
-        <h2>Error al procesar la solicitud.</h2>
-    </hgroup>
+    <h1>No se pudo mostrar esta página.</h1>
+    <p>Si acabas de guardar una operación, consulta su estado antes de repetirla.</p>
+    <p>Referencia: @ViewData["Referencia"]</p>
+    <p><a href="@Url.Action("Index", "Login")">Volver al inicio</a></p>
 </body>
 </html>

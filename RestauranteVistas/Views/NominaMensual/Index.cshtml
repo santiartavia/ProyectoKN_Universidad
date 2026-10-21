@@ -90,6 +90,7 @@
             </div>
             @using (Html.BeginForm("CerrarMes", "NominaMensual", FormMethod.Post, new { style = "display:flex;align-items:center;gap:8px;" }))
             {
+            @Html.AntiForgeryToken()
                 <input type="hidden" name="mes" value="@Model.Mes" />
                 <input type="hidden" name="anio" value="@Model.Anio" />
                 <input type="text" name="observaciones" placeholder="Observaciones generales..." class="form-control" style="width:200px;" />
@@ -141,13 +142,14 @@
                                     <div style="margin-top:8px;padding:8px;background:#f5f5f5;border-radius:6px;min-width:280px;">
                                         @using (Html.BeginForm("AjustarHorasExtra", "NominaMensual", FormMethod.Post))
                                         {
+            @Html.AntiForgeryToken()
                                             <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
                                             <input type="hidden" name="mes" value="@Model.Mes" />
                                             <input type="hidden" name="anio" value="@Model.Anio" />
                                             <h4 style="margin:6px 0 4px;font-size:13px;">Horas extra</h4>
                                             <div class="form-group" style="margin-bottom:6px;">
                                                 <label style="font-size:12px;">Cantidad de horas</label>
-                                                <input type="number" name="cantidadHoras" value="@n.HorasExtra.ToString("N2")" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
+                                                <input type="number" name="cantidadHoras" value="@n.HorasExtra.ToString(System.Globalization.CultureInfo.InvariantCulture)" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
                                             </div>
                                             <div class="form-group" style="margin-bottom:6px;">
                                                 <label style="font-size:12px;">Motivo</label>
@@ -158,19 +160,21 @@
                                         <hr style="margin:8px 0;" />
                                         @using (Html.BeginForm("AjustarHorasVacacion", "NominaMensual", FormMethod.Post))
                                         {
+            @Html.AntiForgeryToken()
                                             <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
                                             <input type="hidden" name="mes" value="@Model.Mes" />
                                             <input type="hidden" name="anio" value="@Model.Anio" />
                                             <h4 style="margin:6px 0 4px;font-size:13px;">Vacaciones pagadas (@n.VacacionesPagadas.ToString("N0") días)</h4>
                                             <div class="form-group" style="margin-bottom:6px;">
                                                 <label style="font-size:12px;">Horas por día</label>
-                                                <input type="number" name="horasPorDia" value="@n.HorasPorDiaVacacion.ToString("N1")" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
+                                                <input type="number" name="horasPorDia" value="@n.HorasPorDiaVacacion.ToString(System.Globalization.CultureInfo.InvariantCulture)" step="0.5" min="0" class="form-control" style="width:100px;display:inline-block;" />
                                             </div>
                                             <button type="submit" class="btn btn-sm btn-primary">Guardar horas/día</button>
                                         }
                                         <hr style="margin:8px 0;" />
                                         @using (Html.BeginForm("Cerrar", "NominaMensual", FormMethod.Post))
                                         {
+            @Html.AntiForgeryToken()
                                             <input type="hidden" name="idEmpleado" value="@n.IdEmpleado" />
                                             <input type="hidden" name="mes" value="@Model.Mes" />
                                             <input type="hidden" name="anio" value="@Model.Anio" />

@@ -7,9 +7,9 @@ using System.Web.Mvc;
 namespace RestauranteVistas.Controllers
 {
     [Filters.AutorizacionFilter(RolesPermitidos = new[] { "Mesero", "Administrador" })]
-    public class MeseroController : Controller
+    public class MeseroController : OperacionController
     {
-        private ColibriDbContext db = new ColibriDbContext();
+
 
         public ActionResult Index()
         {
@@ -50,6 +50,7 @@ namespace RestauranteVistas.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult EntregarPedido(int idPedido)
         {
             var pedido = db.Pedidos.FirstOrDefault(p => p.IdPedido == idPedido && p.Estado == true);
@@ -66,6 +67,10 @@ namespace RestauranteVistas.Controllers
                 return RedirectToAction("Index");
             }
 
+            int usuarioActual = (int)Session["UsuarioId"];
+            if (string.Equals(Session["RolNombre"] as string, "Mesero", StringComparison.OrdinalIgnoreCase) &&
+                !db.Empleados.Any(e => e.IdEmpleado == pedido.IdEmpleado && e.IdUsuario == usuarioActual && e.Estado))
+                throw new ArgumentException("Solo el mesero asignado puede entregar el pedido.");
             string estadoAnterior = pedido.EstadoPedido;
             int uid = Session["UsuarioId"] as int? ?? 0;
             if (uid <= 0)
@@ -79,7 +84,7 @@ namespace RestauranteVistas.Controllers
                 d.EstadoItem = "entregado";
             }
 
-            if (pedido.TipoServicio == "rapida")
+            if (pedido.TipoServicio == "rapida" && db.Ventas.Any(v => v.IdPedido == pedido.IdPedido && v.Estado && v.EstadoVenta == "completada"))
             {
                 pedido.EstadoPedido = "finalizado";
                 pedido.FechaHoraFinalizacion = DateTime.Now;

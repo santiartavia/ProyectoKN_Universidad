@@ -4,7 +4,12 @@
     ViewBag.Title = "Gestión de Empleados";
     var searchTerm = Model?.TerminoBusqueda ?? "";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var empleadosActivos = Model.Empleados.Where(e => e.Estado && e.IdEmpleado != 1).ToList();
+    var empleadosActivos = Model.Empleados.Where(e => e.Estado).ToList();
+}
+
+@if (TempData["CredencialTemporal"] != null)
+{
+    <div class="alert alert-success" role="status">@TempData["CredencialTemporal"]</div>
 }
 
 <div class="hero-card empleados-hero">
@@ -159,6 +164,7 @@
             </div>
             @using (Html.BeginForm("RegistrarEmpleado", "Empleados", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Cédula *</label>
@@ -215,6 +221,7 @@
             </div>
             @using (Html.BeginForm("AdministrarEmpleado", "Empleados", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Empleado *</label>
@@ -274,6 +281,7 @@
             <div class="grid-2" style="gap:12px;">
                 @using (Html.BeginForm("InactivarEmpleado", "Empleados", FormMethod.Post, new { style = "margin:0;" }))
                 {
+            @Html.AntiForgeryToken()
                     <div class="form-grid">
                         <div class="form-group">
                             <label>ID empleado *</label>
@@ -292,6 +300,7 @@
                 }
                 @using (Html.BeginForm("ReactivarEmpleado", "Empleados", FormMethod.Post, new { style = "margin:0;" }))
                 {
+            @Html.AntiForgeryToken()
                     <div class="form-grid">
                         <div class="form-group">
                             <label>ID empleado *</label>
@@ -321,6 +330,7 @@
             </div>
             @using (Html.BeginForm("CrearTurno", "Empleados", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Empleado *</label>
@@ -411,6 +421,7 @@
             </div>
             @using (Html.BeginForm("SolicitarVacacion", "Empleados", FormMethod.Post))
             {
+            @Html.AntiForgeryToken()
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Empleado *</label>
@@ -450,6 +461,7 @@
                 </div>
                 @using (Html.BeginForm("ActualizarVacacionesAcumuladas", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
                 {
+            @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-soft" style="padding:6px 12px;font-size:13px;">
                         <span class="material-symbols-outlined" style="font-size:16px;">sync</span> Recalcular saldos
                     </button>
@@ -480,11 +492,13 @@
                                 <td>
                                     @using (Html.BeginForm("AprobarVacacion", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
                                     {
+            @Html.AntiForgeryToken()
                                         <input type="hidden" name="idVacacion" value="@v.IdVacacion" />
                                         <button type="submit" class="btn btn-sm btn-success">Aprobar</button>
                                     }
                                     @using (Html.BeginForm("RechazarVacacion", "Empleados", FormMethod.Post, new { style = "display:inline;" }))
                                     {
+            @Html.AntiForgeryToken()
                                         <input type="hidden" name="idVacacion" value="@v.IdVacacion" />
                                         <input type="text" name="motivoRechazo" placeholder="Motivo" required style="width:120px;font-size:12px;" />
                                         <button type="submit" class="btn btn-sm btn-danger">Rechazar</button>
@@ -552,6 +566,7 @@
         </form>
         @using (Html.BeginForm("RegistrarHorasExtra", "Empleados", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             <div class="form-grid">
                 <div class="form-group">
                     <label>Asistencia *</label>

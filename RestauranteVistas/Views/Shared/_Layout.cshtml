@@ -1,5 +1,5 @@
 @{
-    var usuario = Session["UsuarioNombre"] != null ? Session["UsuarioNombre"].ToString() : "Usuario Demo";
+    var usuario = Session["UsuarioNombre"] != null ? Session["UsuarioNombre"].ToString() : "Usuario";
     var rol = Session["RolNombre"] != null ? Session["RolNombre"].ToString().Trim() : "";
 }
 
@@ -15,15 +15,16 @@
     <link href="~/Content/Site.css" rel="stylesheet" />
 </head>
 <body>
+    <button type="button" class="navigation-toggle" aria-label="Mostrar navegación" aria-expanded="false" aria-controls="main-navigation">☰ Menú</button>
     <div class="app-shell">
-        <aside class="sidebar">
+        <aside class="sidebar" id="main-navigation">
             <div class="brand">
                 <div class="brand-icon">
                     <span class="material-symbols-outlined">restaurant</span>
                 </div>
                 <div>
                     <h2>El Colibrí</h2>
-                    <p>Sistema visual profesional</p>
+                    <p>Gestión del restaurante</p>
                 </div>
             </div>
 
@@ -90,7 +91,6 @@
                     <a href="@Url.Action("Index", "MiAsistencia")"><span class="material-symbols-outlined">fingerprint</span> Mi Asistencia</a>
                     <a href="@Url.Action("Index", "MisVacaciones")"><span class="material-symbols-outlined">beach_access</span> Mis Vacaciones</a>
                     <a href="@Url.Action("Index", "Cocina")"><span class="material-symbols-outlined">skillet</span> Panel Cocina</a>
-                    <a href="@Url.Action("Index", "Pedidos")"><span class="material-symbols-outlined">receipt_long</span> Seguimiento</a>
                 }
 
             </nav>
@@ -135,7 +135,7 @@
                 </button>
             </div>
             <p>
-                El sistema muestra menús y vistas distintas según el rol seleccionado en el login.
+                El sistema muestra los módulos disponibles según el rol asignado a su cuenta.
             </p>
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="cerrarModal('modalAyuda')">Entendido</button>

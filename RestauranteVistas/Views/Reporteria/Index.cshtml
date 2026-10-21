@@ -1,4 +1,4 @@
-﻿@using Abstracciones.Models
+@using Abstracciones.Models
 @{
     ViewBag.Title = "Reportería";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -35,6 +35,7 @@
             <p>Seleccione el tipo de reporte, formato, rango de fechas y filtros</p>
         </div>
         <form method="post" action="@Url.Action("GenerarReporte")" class="form-grid">
+            @Html.AntiForgeryToken()
             <div class="form-group">
                 <label>Tipo de reporte</label>
                 <select name="tipoReporte" id="tipoReporte" required onchange="actualizarFiltros()">

@@ -40,6 +40,7 @@
 
         using (Html.BeginForm("AsignarRol", "Usuarios", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             @Html.Hidden("IdUsuario", Model.IdUsuario)
             @Html.Hidden("IdRolConfirmado", Model.IdRolConfirmado)
             @Html.Hidden("MostrarConfirmacion", true)
@@ -56,6 +57,7 @@
     {
         using (Html.BeginForm("AsignarRol", "Usuarios", FormMethod.Post))
         {
+            @Html.AntiForgeryToken()
             @Html.Hidden("IdUsuario", Model.IdUsuario)
 
             <div class="form-group">

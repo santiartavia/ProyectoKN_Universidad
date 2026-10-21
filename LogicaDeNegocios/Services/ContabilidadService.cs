@@ -22,6 +22,7 @@ namespace LogicaDeNegocios.Services
         public AperturaCaja AbrirCaja(int idCaja, int idCajero, decimal montoInicial, string observaciones, int idUsuarioAdmin, string ip = null, string dispositivo = null)
         {
             using (var ctx = new ColibriDbContext())
+            using (var tx = ctx.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 var caja = ctx.Cajas.FirstOrDefault(c => c.IdCaja == idCaja && c.Estado);
                 if (caja == null)
@@ -50,6 +51,7 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { id_caja = idCaja, monto_inicial = montoInicial }),
                     $"Apertura de caja #{idCaja} por cajero #{idCajero}",
                     idUsuarioAdmin, ip, dispositivo);
+                tx.Commit();
                 return apertura;
             }
         }
@@ -65,6 +67,7 @@ namespace LogicaDeNegocios.Services
         public CierreCaja CerrarCaja(int idApertura, int idCajero, decimal saldoReal, int idUsuarioAdmin, string ip = null, string dispositivo = null)
         {
             using (var ctx = new ColibriDbContext())
+            using (var tx = ctx.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 var apertura = ctx.AperturasCaja.Include(a => a.Caja).FirstOrDefault(a => a.IdApertura == idApertura && a.Estado);
                 if (apertura == null)
@@ -107,6 +110,7 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { id_apertura = idApertura, saldo_esperado = saldoEsperado, saldo_real = saldoReal }),
                     descuadre ? $"Cierre con DESCUADRE: esperado {saldoEsperado:C}, real {saldoReal:C}" : "Cierre sin novedades",
                     idUsuarioAdmin, ip, dispositivo);
+                tx.Commit();
                 return cierre;
             }
         }
@@ -126,6 +130,7 @@ namespace LogicaDeNegocios.Services
         public EgresoCaja RegistrarEgreso(int idApertura, int idUsuario, string categoriaGasto, string descripcion, decimal monto, string ip = null, string dispositivo = null)
         {
             using (var ctx = new ColibriDbContext())
+            using (var tx = ctx.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 var apertura = ctx.AperturasCaja.Include(a => a.Caja).FirstOrDefault(a => a.IdApertura == idApertura && a.Estado);
                 if (apertura == null)
@@ -158,6 +163,7 @@ namespace LogicaDeNegocios.Services
                     null, JsonConvert.SerializeObject(new { categoria = categoriaGasto, monto }),
                     $"Egreso: {categoriaGasto} - {descripcion}",
                     idUsuario, ip, dispositivo);
+                tx.Commit();
                 return egreso;
             }
         }
@@ -165,6 +171,7 @@ namespace LogicaDeNegocios.Services
         public NotaCredito AnularVenta(int idVenta, int idUsuario, string motivo, string ip = null, string dispositivo = null)
         {
             using (var ctx = new ColibriDbContext())
+            using (var tx = ctx.Database.BeginTransaction(System.Data.IsolationLevel.Serializable))
             {
                 var venta = ctx.Ventas.FirstOrDefault(v => v.IdVenta == idVenta && v.Estado);
                 if (venta == null)
@@ -195,6 +202,7 @@ namespace LogicaDeNegocios.Services
                     valorAnterior, JsonConvert.SerializeObject(new { estado_nuevo = "anulada", motivo }),
                     $"Venta #{idVenta} anulada: {motivo}",
                     idUsuario, ip, dispositivo);
+                tx.Commit();
                 return nota;
             }
         }
